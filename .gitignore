@@ -1,0 +1,50 @@
+# Node Modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables
+.env
+
+# Build and Generated Files
+dist/
+build/
+tmp/
+out-tsc/
+
+# Dependency Caches
+package-lock.json
+yarn.lock
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor Configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime*
+
+# Coverage reports for tests
+coverage/
+
+# Temporary files and lock files
+*.lock
+*.pid
+*.seed
+*.pid.lock
+
+# npm specific files
+.npm/
+
+# TypeScript specific files
+*.tsbuildinfo
+
+node_modules/
