@@ -87,14 +87,15 @@ async function handleSignin(event) {
   const timestamp = new Date(); // 簽到時間
 
   // 儲存簽到記錄（假設你有連接 MongoDB 或其他資料庫）
-  const newRecord = { userId, timestamp };
-  await db.collection('signins').insertOne(newRecord);
+  // const newRecord = { userId, timestamp };
+  // await db.collection('signins').insertOne(newRecord);
 
   // 回應簽到成功訊息
   const replyMessage = {
     type: 'text',
     text: `簽到成功！\n時間：${timestamp.toLocaleString()}`,
   };
+  
   return replyToUser(event.replyToken, replyMessage);
 }
 
