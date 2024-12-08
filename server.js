@@ -42,26 +42,23 @@ app.post('/webhook', middleware(config), async (req, res) => {
 // 處理 LINE 傳來的事件
 async function handleEvent(event) {
   if (event.type === 'message' && event.message.type === 'text') {
-    return handleMessageEvent(event);
-  } else {
-    console.log('接收到其他事件:', event);
-    return Promise.resolve(null);
+    const userMessage = event.message.text;
+
+    // 確認是否為簽到訊息
+    if (userMessage === '簽到') {
+      return handleSignin(event);
+    }
+
+    // 處理其他訊息類型
+    const replyMessage = {
+      type: 'text',
+      text: `您說了：${userMessage}`,
+    };
+    return replyToUser(event.replyToken, replyMessage);
   }
-}
 
-// 處理訊息事件
-async function handleMessageEvent(event) {
-  const replyToken = event.replyToken;
-  const userMessage = event.message.text;
-
-  // 準備回應訊息
-  const responseMessage = {
-    type: 'text',
-    text: `您剛才說了：${userMessage}`,
-  };
-
-  // 回應用戶訊息
-  return replyToUser(replyToken, responseMessage);
+  console.log('Unsupported event type:', event.type);
+  return Promise.resolve(null);
 }
 
 // 使用 Reply API 回應用戶
@@ -83,6 +80,52 @@ async function replyToUser(replyToken, message) {
     console.error('Reply failed:', error.response?.data || error.message);
   }
 }
+
+// 簽到的邏輯
+async function handleSignin(event) {
+  const userId = event.source.userId; // 用戶 ID
+  const timestamp = new Date(); // 簽到時間
+
+  // 儲存簽到記錄（假設你有連接 MongoDB 或其他資料庫）
+  const newRecord = { userId, timestamp };
+  await db.collection('signins').insertOne(newRecord);
+
+  // 回應簽到成功訊息
+  const replyMessage = {
+    type: 'text',
+    text: `簽到成功！\n時間：${timestamp.toLocaleString()}`,
+  };
+  return replyToUser(event.replyToken, replyMessage);
+}
+
+// 查詢簽到記錄
+app.get('/api/signin-records', async (req, res) => {
+  const records = await db.collection('signins').find({}).toArray();
+  res.json(records);
+});
+
+
+// app.get('/api/signin-records', async (req, res) => {
+//   // 假設使用 MongoDB 或其他資料庫
+//   const records = await db.collection('signins').find({}).toArray();
+//   res.json(records);
+// });
+
+// app.post('/api/simulate-signin', async (req, res) => {
+//   const { username } = req.body;
+//   if (!username) {
+//     return res.status(400).json({ error: 'Username is required' });
+//   }
+
+//   const newRecord = {
+//     username,
+//     timestamp: new Date()
+//   };
+
+//   await db.collection('signins').insertOne(newRecord);
+//   res.status(200).json({ success: true });
+// });
+
 
 // const PORT = process.env.PORT || 3000;
 // https.createServer(httpsOptions, app).listen(PORT, () => {

@@ -46195,6 +46195,120 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
   }], null, null);
 })();
 
+// src/app/Page/sign-in/sign-in.component.ts
+function SignInComponent_tr_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "tr")(1, "td");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "td");
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "date");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const record_r1 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(record_r1.username);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(5, 2, record_r1.timestamp, "short"));
+  }
+}
+var SignInComponent = class _SignInComponent {
+  http;
+  records = [];
+  // 簽到記錄
+  testUsername = "";
+  // 模擬用戶名稱
+  constructor(http) {
+    this.http = http;
+  }
+  ngOnInit() {
+    this.refreshRecords();
+  }
+  // 從後端獲取簽到記錄
+  refreshRecords() {
+    this.http.get("/api/signin-records").subscribe({
+      next: (data) => this.records = data,
+      error: (err) => console.error("Error fetching records:", err)
+    });
+  }
+  // 模擬簽到（管理員功能）
+  simulateSignin() {
+    if (!this.testUsername) {
+      alert("\u8ACB\u8F38\u5165\u7528\u6236\u540D\u7A31\uFF01");
+      return;
+    }
+    this.http.post("/api/simulate-signin", { username: this.testUsername }).subscribe({
+      next: () => {
+        alert("\u7C3D\u5230\u6210\u529F\uFF01");
+        this.refreshRecords();
+      },
+      error: (err) => console.error("Error simulating signin:", err)
+    });
+  }
+  static \u0275fac = function SignInComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SignInComponent)(\u0275\u0275directiveInject(HttpClient));
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 23, vars: 2, consts: [[1, "container"], [1, "sign-in-records"], [4, "ngFor", "ngForOf"], [3, "click"], [1, "admin-actions"], ["placeholder", "\u8F38\u5165\u7528\u6236\u540D\u7A31", 3, "ngModelChange", "ngModel"]], template: function SignInComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "h1");
+      \u0275\u0275text(2, "\u7C3D\u5230\u7CFB\u7D71");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(3, "div", 1)(4, "h2");
+      \u0275\u0275text(5, "\u7C3D\u5230\u8A18\u9304");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(6, "table")(7, "thead")(8, "tr")(9, "th");
+      \u0275\u0275text(10, "\u7528\u6236\u540D\u7A31");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(11, "th");
+      \u0275\u0275text(12, "\u7C3D\u5230\u6642\u9593");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(13, "tbody");
+      \u0275\u0275template(14, SignInComponent_tr_14_Template, 6, 5, "tr", 2);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(15, "button", 3);
+      \u0275\u0275listener("click", function SignInComponent_Template_button_click_15_listener() {
+        return ctx.refreshRecords();
+      });
+      \u0275\u0275text(16, "\u5237\u65B0\u8A18\u9304");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(17, "div", 4)(18, "h3");
+      \u0275\u0275text(19, "\u6E2C\u8A66\u7C3D\u5230");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(20, "input", 5);
+      \u0275\u0275twoWayListener("ngModelChange", function SignInComponent_Template_input_ngModelChange_20_listener($event) {
+        \u0275\u0275twoWayBindingSet(ctx.testUsername, $event) || (ctx.testUsername = $event);
+        return $event;
+      });
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(21, "button", 3);
+      \u0275\u0275listener("click", function SignInComponent_Template_button_click_21_listener() {
+        return ctx.simulateSignin();
+      });
+      \u0275\u0275text(22, "\u6A21\u64EC\u7C3D\u5230");
+      \u0275\u0275elementEnd()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(14);
+      \u0275\u0275property("ngForOf", ctx.records);
+      \u0275\u0275advance(6);
+      \u0275\u0275twoWayProperty("ngModel", ctx.testUsername);
+    }
+  }, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, NgForOf, DatePipe] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignInComponent, { className: "SignInComponent", filePath: "src\\app\\Page\\sign-in\\sign-in.component.ts", lineNumber: 12 });
+})();
+
+// src/app/app.routes.ts
+var routes = [
+  { path: "", component: HomeComponent },
+  { path: "weather", component: WeatherComponent },
+  { path: "foodmap", component: FoodMapComponent },
+  { path: "signin", component: SignInComponent }
+];
+
 // src/app/Service/attendance.service.ts
 var AttendanceService = class _AttendanceService {
   http;
@@ -46211,46 +46325,6 @@ var AttendanceService = class _AttendanceService {
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _AttendanceService, factory: _AttendanceService.\u0275fac, providedIn: "root" });
 };
-
-// src/app/Page/sign-in/sign-in.component.ts
-var SignInComponent = class _SignInComponent {
-  attendSrv;
-  userId = "No1";
-  userName = "Noah";
-  constructor(attendSrv) {
-    this.attendSrv = attendSrv;
-  }
-  signIn() {
-    this.attendSrv.signIn(this.userId, this.userName).subscribe((response) => {
-      alert(response.message);
-    });
-    console.log("\u767C\u51FA\u7C3D\u5230");
-  }
-  static \u0275fac = function SignInComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _SignInComponent)(\u0275\u0275directiveInject(AttendanceService));
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [[3, "click"]], template: function SignInComponent_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275elementStart(0, "button", 0);
-      \u0275\u0275listener("click", function SignInComponent_Template_button_click_0_listener() {
-        return ctx.signIn();
-      });
-      \u0275\u0275text(1, "\u7C3D\u5230\u7C3D\u5230");
-      \u0275\u0275elementEnd();
-    }
-  }, dependencies: [FormsModule] });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignInComponent, { className: "SignInComponent", filePath: "src\\app\\Page\\sign-in\\sign-in.component.ts", lineNumber: 14 });
-})();
-
-// src/app/app.routes.ts
-var routes = [
-  { path: "", component: HomeComponent },
-  { path: "weather", component: WeatherComponent },
-  { path: "foodmap", component: FoodMapComponent },
-  { path: "signin", component: SignInComponent }
-];
 
 // src/app/app.config.ts
 var appConfig = {
