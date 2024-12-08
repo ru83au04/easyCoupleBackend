@@ -40,74 +40,74 @@ app.listen(PORT, () => {
 
 
 // TODO: 以下為 Line登入功能
-// 提供登入連結
-const CLIENT_ID = process.env.LINE_CLIENT_ID;
-const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+// // 提供登入連結
+// const CLIENT_ID = process.env.LINE_CLIENT_ID;
+// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
 
-app.get('/auth/login', (req, res) => {
-  const state = generateRandomState(); // 用於防止 CSRF 攻擊
-  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+// app.get('/auth/login', (req, res) => {
+//   const state = generateRandomState(); // 用於防止 CSRF 攻擊
+//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
 
-  res.redirect(loginUrl);
-});
+//   res.redirect(loginUrl);
+// });
 
-// 授權回調處理
-const CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
+// // 授權回調處理
+// const CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
 
-app.get('/auth/callback', async (req, res) => {
-  const { code, state } = req.query;
+// app.get('/auth/callback', async (req, res) => {
+//   const { code, state } = req.query;
 
-  try {
-    // 向 LINE 交換 Access Token
-    const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', null, {
-      params: {
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: REDIRECT_URI,
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-      },
-    });
+//   try {
+//     // 向 LINE 交換 Access Token
+//     const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', null, {
+//       params: {
+//         grant_type: 'authorization_code',
+//         code: code,
+//         redirect_uri: REDIRECT_URI,
+//         client_id: CLIENT_ID,
+//         client_secret: CLIENT_SECRET,
+//       },
+//     });
 
-    const { id_token } = tokenResponse.data;
+//     const { id_token } = tokenResponse.data;
 
-    // 解碼並驗證 ID Token
-    const userInfo = jwt.decode(id_token, { complete: true }).payload;
+//     // 解碼並驗證 ID Token
+//     const userInfo = jwt.decode(id_token, { complete: true }).payload;
 
-    // 儲存用戶信息到數據庫或會話
-    const userId = userInfo.sub;
-    const userName = userInfo.name;
+//     // 儲存用戶信息到數據庫或會話
+//     const userId = userInfo.sub;
+//     const userName = userInfo.name;
 
-    // 跳轉到打卡頁面
-    res.redirect(`/checkin?userId=${userId}&name=${userName}`);
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).send('登入失敗');
-  }
-});
+//     // 跳轉到打卡頁面
+//     res.redirect(`/checkin?userId=${userId}&name=${userName}`);
+//   } catch (error) {
+//     console.error('Login Error:', error);
+//     res.status(500).send('登入失敗');
+//   }
+// });
 
-// 打卡邏輯處理
-app.post('/webhook', middleware({ channelAccessToken: process.env.MESSAGING_ACCESS_TOKEN, channelSecret: process.env.MESSAGING_SECRET }), async (req, res) => {
-  try {
-    const events = req.body.events;
-    await Promise.all(events.map(handleEvent));
-    res.status(200).send('OK');
-  } catch (error) {
-    console.error('Webhook Error:', error);
-    res.status(500).end();
-  }
-});
+// // 打卡邏輯處理
+// app.post('/webhook', middleware({ channelAccessToken: process.env.MESSAGING_ACCESS_TOKEN, channelSecret: process.env.MESSAGING_SECRET }), async (req, res) => {
+//   try {
+//     const events = req.body.events;
+//     await Promise.all(events.map(handleEvent));
+//     res.status(200).send('OK');
+//   } catch (error) {
+//     console.error('Webhook Error:', error);
+//     res.status(500).end();
+//   }
+// });
 
-async function handleSignin(event) {
-  const userId = event.source.userId;
-  const timestamp = new Date();
+// async function handleSignin(event) {
+//   const userId = event.source.userId;
+//   const timestamp = new Date();
 
-  // 記錄簽到
-  // await db.collection('signins').insertOne({ userId, timestamp });
+//   // 記錄簽到
+//   // await db.collection('signins').insertOne({ userId, timestamp });
 
-  // 回應用戶
-  return replyToUser(event.replyToken, { type: 'text', text: `簽到成功！時間：${timestamp.toLocaleString()}` });
-}
+//   // 回應用戶
+//   return replyToUser(event.replyToken, { type: 'text', text: `簽到成功！時間：${timestamp.toLocaleString()}` });
+// }
 
 
 
