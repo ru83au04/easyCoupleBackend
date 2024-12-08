@@ -75,8 +75,8 @@ async function replyToUser(replyToken, message) {
   }
 }
 
-https.createServer(httpsOptions, app).listen(3000, () => {
-  console.log('HTTPS Server running on port 3000');
-});
+// https.createServer(httpsOptions, app).listen(3000, () => {
+//   console.log('HTTPS Server running on port 3000');
+// });
 
 
