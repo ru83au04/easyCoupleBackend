@@ -79,4 +79,11 @@ async function replyToUser(replyToken, message) {
 //   console.log('HTTPS Server running on port 3000');
 // });
 
+// Render 測試用
+const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
 
