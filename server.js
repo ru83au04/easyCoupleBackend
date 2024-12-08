@@ -52,7 +52,6 @@ app.get('/auth/login', (req, res) => {
 });
 
 // 授權回調處理
-const axios = require('axios');
 const CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
 
 app.get('/auth/callback', async (req, res) => {
