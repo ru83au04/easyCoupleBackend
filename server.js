@@ -29,34 +29,42 @@ app.get('*', (req, res) => {
 // line 功能設計 // TODO: 想清楚要怎樣設計
 app.post('/webhook', middleware(config), async (req, res) => {
   try {
+    // 處理所有事件
     const events = req.body.events;
-    for (const event of events) {
-      if (event.type === 'message' && event.message.type === 'text') {
-        const replyToken = event.replyToken;
-        const userMessage = event.message.text;
-
-        // 準備回應訊息
-        const responseMessage = {
-          type: 'text',
-          text: `您說了：${userMessage}`,
-        };
-
-        // 回應用戶
-        await replyToUser(replyToken, responseMessage);
-      }
-    }
+    const results = await Promise.all(events.map(handleEvent));
     res.status(200).send('OK');
   } catch (error) {
-    if (error instanceof SignatureValidationFailed) {
-      res.status(401).send(error.signature);
-    } else {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    }
+    console.error('Webhook Error:', error);
+    res.status(500).end();
   }
 });
 
-// 回應用戶的函數
+// 處理 LINE 傳來的事件
+async function handleEvent(event) {
+  if (event.type === 'message' && event.message.type === 'text') {
+    return handleMessageEvent(event);
+  } else {
+    console.log('接收到其他事件:', event);
+    return Promise.resolve(null);
+  }
+}
+
+// 處理訊息事件
+async function handleMessageEvent(event) {
+  const replyToken = event.replyToken;
+  const userMessage = event.message.text;
+
+  // 準備回應訊息
+  const responseMessage = {
+    type: 'text',
+    text: `您剛才說了：${userMessage}`,
+  };
+
+  // 回應用戶訊息
+  return replyToUser(replyToken, responseMessage);
+}
+
+// 使用 Reply API 回應用戶
 async function replyToUser(replyToken, message) {
   const url = 'https://api.line.me/v2/bot/message/reply';
   const headers = {
@@ -69,13 +77,15 @@ async function replyToUser(replyToken, message) {
   };
 
   try {
-    await axios.post(url, body, { headers });
+    const response = await axios.post(url, body, { headers });
+    console.log('Reply successful:', response.data);
   } catch (error) {
-    console.error(`回應訊息失敗: ${error.response.status} ${error.response.statusText}`);
+    console.error('Reply failed:', error.response?.data || error.message);
   }
 }
 
-// https.createServer(httpsOptions, app).listen(3000, () => {
+// const PORT = process.env.PORT || 3000;
+// https.createServer(httpsOptions, app).listen(PORT, () => {
 //   console.log('HTTPS Server running on port 3000');
 // });
 
