@@ -46223,7 +46223,7 @@ var ExternalComponent = class _ExternalComponent {
   ngOnInit() {
     const path = this.route.snapshot.paramMap.get("path");
     if (path) {
-      const externalUrl = `/${path}`;
+      const externalUrl = `https:/easy-couple-life.onrender.com/external/${path}`;
       window.location.href = externalUrl;
     } else {
       this.router.navigate(["/"]);
