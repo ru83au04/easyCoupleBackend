@@ -85,16 +85,16 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 // 打卡邏輯處理
-app.post('/webhook', middleware({ channelAccessToken: process.env.MESSAGING_ACCESS_TOKEN, channelSecret: process.env.MESSAGING_SECRET }), async (req, res) => {
-  try {
-    const events = req.body.events;
-    await Promise.all(events.map(handleEvent));
-    res.status(200).send('OK');
-  } catch (error) {
-    console.error('Webhook Error:', error);
-    res.status(500).end();
-  }
-});
+// app.post('/webhook', middleware({ channelAccessToken: process.env.MESSAGING_ACCESS_TOKEN, channelSecret: process.env.MESSAGING_SECRET }), async (req, res) => {
+//   try {
+//     const events = req.body.events;
+//     await Promise.all(events.map(handleEvent));
+//     res.status(200).send('OK');
+//   } catch (error) {
+//     console.error('Webhook Error:', error);
+//     res.status(500).end();
+//   }
+// });
 
 
 
