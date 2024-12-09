@@ -46200,16 +46200,43 @@ var SignInComponent = class _SignInComponent {
   static \u0275fac = function SignInComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _SignInComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["href", "/auth/login"]], template: function SignInComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["routerLink", "/external/auth/login"]], template: function SignInComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "a", 0);
       \u0275\u0275text(1, "\u4F7F\u7528 LINE \u767B\u5165");
       \u0275\u0275elementEnd();
     }
-  }, dependencies: [FormsModule] });
+  }, dependencies: [FormsModule, RouterLink] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignInComponent, { className: "SignInComponent", filePath: "src\\app\\Page\\sign-in\\sign-in.component.ts", lineNumber: 10 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignInComponent, { className: "SignInComponent", filePath: "src\\app\\Page\\sign-in\\sign-in.component.ts", lineNumber: 12 });
+})();
+
+// src/app/Page/external/external.component.ts
+var ExternalComponent = class _ExternalComponent {
+  route;
+  router;
+  constructor(route, router) {
+    this.route = route;
+    this.router = router;
+  }
+  ngOnInit() {
+    const path = this.route.snapshot.paramMap.get("path");
+    if (path) {
+      const externalUrl = `/${path}`;
+      window.location.href = externalUrl;
+    } else {
+      this.router.navigate(["/"]);
+    }
+  }
+  static \u0275fac = function ExternalComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ExternalComponent)(\u0275\u0275directiveInject(ActivatedRoute), \u0275\u0275directiveInject(Router));
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExternalComponent, selectors: [["app-external"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 0, vars: 0, template: function ExternalComponent_Template(rf, ctx) {
+  } });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExternalComponent, { className: "ExternalComponent", filePath: "src\\app\\Page\\external\\external.component.ts", lineNumber: 12 });
 })();
 
 // src/app/app.routes.ts
@@ -46217,7 +46244,8 @@ var routes = [
   { path: "", component: HomeComponent },
   { path: "weather", component: WeatherComponent },
   { path: "foodmap", component: FoodMapComponent },
-  { path: "signin", component: SignInComponent }
+  { path: "signin", component: SignInComponent },
+  { path: "external/:path", component: ExternalComponent }
 ];
 
 // src/app/Service/attendance.service.ts
