@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
-require('dotenv').config();
 
 const app = express();
 
