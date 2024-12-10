@@ -46200,7 +46200,7 @@ var SignInComponent = class _SignInComponent {
   static \u0275fac = function SignInComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _SignInComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["routerLink", "/external/auth/login"]], template: function SignInComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignInComponent, selectors: [["app-sign-in"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["routerLink", "/external/auth%2Flogin"]], template: function SignInComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "a", 0);
       \u0275\u0275text(1, "\u4F7F\u7528 LINE \u767B\u5165");
@@ -46219,14 +46219,19 @@ var ExternalComponent = class _ExternalComponent {
   constructor(route, router) {
     this.route = route;
     this.router = router;
+    console.log("Component Build");
   }
   ngOnInit() {
-    const path = this.route.snapshot.paramMap.get("path");
-    if (path) {
-      const externalUrl = `https:/easy-couple-life.onrender.com/${path}`;
-      window.location.href = externalUrl;
-    } else {
-      this.router.navigate(["/"]);
+    const encodePath = this.route.snapshot.paramMap.get("path");
+    if (encodePath) {
+      let path = decodeURIComponent(encodePath);
+      console.log("pathPath", path);
+      if (path) {
+        const externalUrl = `https:/easy-couple-life.onrender.com/${path}`;
+        window.location.href = externalUrl;
+      } else {
+        this.router.navigate(["/"]);
+      }
     }
   }
   static \u0275fac = function ExternalComponent_Factory(__ngFactoryType__) {
