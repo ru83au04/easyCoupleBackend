@@ -9,12 +9,12 @@ const app = express();
 
 // TODO: 以下為 Line登入功能
 // 提供登入連結
-const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;
+const CLIENT_ID = process.env.LINE_CLIENT_ID;
 const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
 
 app.get('/auth/login', (req, res) => {
   const state = generateRandomState(); // 用於防止 CSRF 攻擊
-  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
 
   res.redirect(loginUrl);
 });
