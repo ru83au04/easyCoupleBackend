@@ -7,6 +7,18 @@ const lineRoutes = require('./routes/line'); // line的路由
 
 const app = express();
 
+// TODO: 以下為 Line登入功能
+// 提供登入連結
+const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;
+const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+
+app.get('/auth/login', (req, res) => {
+  const state = generateRandomState(); // 用於防止 CSRF 攻擊
+  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+
+  res.redirect(loginUrl);
+});
+
 // https伺服器設定
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'ssl/server.key')),
@@ -16,6 +28,19 @@ const httpsOptions = {
 // 設置靜態文件夾
 const DIST_DIR = path.join(__dirname, 'public/browser');
 app.use(express.static(DIST_DIR));
+
+// // TODO: 以下為 Line登入功能
+// // 提供登入連結
+// const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;
+// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+
+// app.get('/auth/login', (req, res) => {
+//   console.log("auth/login");
+//   const state = generateRandomState(); // 用於防止 CSRF 攻擊
+//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+
+//   res.redirect(loginUrl);
+// });
 
 // 處理所有路由，返回 Angular 應用的 index.html 文件
 app.get('*', (req, res) => {
@@ -36,18 +61,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
-// TODO: 以下為 Line登入功能
-// 提供登入連結
-const CLIENT_ID = process.env.LINE_CLIENT_ID;
-const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
-
-app.get('/auth/login', (req, res) => {
-  const state = generateRandomState(); // 用於防止 CSRF 攻擊
-  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
-
-  res.redirect(loginUrl);
-});
 
 // 授權回調處理
 const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;

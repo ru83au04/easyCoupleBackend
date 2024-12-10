@@ -46219,15 +46219,13 @@ var ExternalComponent = class _ExternalComponent {
   constructor(route, router) {
     this.route = route;
     this.router = router;
-    console.log("Component Build");
   }
   ngOnInit() {
     const encodePath = this.route.snapshot.paramMap.get("path");
     if (encodePath) {
       let path = decodeURIComponent(encodePath);
-      console.log("pathPath", path);
       if (path) {
-        const externalUrl = `https:/easy-couple-life.onrender.com/${path}`;
+        const externalUrl = `https://easy-couple-life.onrender.com/${path}`;
         window.location.href = externalUrl;
       } else {
         this.router.navigate(["/"]);
