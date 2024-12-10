@@ -7,17 +7,17 @@ const lineRoutes = require('./routes/line'); // line的路由
 
 const app = express();
 
-// TODO: 以下為 Line登入功能
-// 提供登入連結
-const CLIENT_ID = process.env.LINE_CLIENT_ID;
-const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+// // TODO: 以下為 Line登入功能
+// // 提供登入連結
+// const CLIENT_ID = process.env.LINE_CLIENT_ID;
+// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
 
-app.get('/auth/login', (req, res) => {
-  const state = generateRandomState(); // 用於防止 CSRF 攻擊
-  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
-
-  res.redirect(loginUrl);
-});
+// app.get('/auth/login', (req, res) => {
+//   const state = Math.random().toString(36).substring(2, 15);
+//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+//   console.log("loginURL", loginUrl);
+//   res.redirect(loginUrl);
+// });
 
 // https伺服器設定
 const httpsOptions = {
@@ -28,19 +28,6 @@ const httpsOptions = {
 // 設置靜態文件夾
 const DIST_DIR = path.join(__dirname, 'public/browser');
 app.use(express.static(DIST_DIR));
-
-// // TODO: 以下為 Line登入功能
-// // 提供登入連結
-// const LINE_CLIENT_ID = process.env.LINE_CLIENT_ID;
-// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
-
-// app.get('/auth/login', (req, res) => {
-//   console.log("auth/login");
-//   const state = generateRandomState(); // 用於防止 CSRF 攻擊
-//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
-
-//   res.redirect(loginUrl);
-// });
 
 // 處理所有路由，返回 Angular 應用的 index.html 文件
 app.get('*', (req, res) => {
@@ -59,6 +46,18 @@ app.use('/line', lineRoutes);
 const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// TODO: 以下為 Line登入功能
+// 提供登入連結
+const CLIENT_ID = process.env.LINE_CLIENT_ID;
+const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+
+app.get('/auth/login', (req, res) => {
+  const state = Math.random().toString(36).substring(2, 15);
+  const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+  console.log("loginURL", loginUrl);
+  res.redirect(loginUrl);
 });
 
 
