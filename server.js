@@ -4,6 +4,8 @@ const fs = require('fs');
 const https = require('https');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
+// const db = require('./config/database');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -29,12 +31,16 @@ const httpsOptions = {
 const DIST_DIR = path.join(__dirname, 'public/browser');
 app.use(express.static(DIST_DIR));
 
+app.use('/line', lineRoutes);
+
+app.use(express.json());
+
+app.use('/api', userRoutes);
+
 // 處理所有路由，返回 Angular 應用的 index.html 文件
 app.get('*', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
-
-app.use('/line', lineRoutes);
 
 // TODO: 正式伺服器
 // const PORT = process.env.PORT || 3000;
