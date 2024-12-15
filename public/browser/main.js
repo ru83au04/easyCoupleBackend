@@ -39839,16 +39839,15 @@ var WeatherService = class _WeatherService {
   weatherSubject = new BehaviorSubject(null);
   // 初始化時為空
   weather$ = this.weatherSubject.asObservable();
+  rootUrl = "https://easy-couple-life.onrender.com";
   constructor(http) {
     this.http = http;
   }
   FetchWeather(position) {
     return __async(this, null, function* () {
-      let rootUrl = "https://easy-couple-life.onrender.com";
       let params = new HttpParams().set("lat", position.lat).set("lon", position.lng);
       try {
-        const response = this.http.get(`${rootUrl}/weather/local`, { params });
-        console.log("response from backend", response);
+        const response = this.http.get(`${this.rootUrl}/api/weather/local`, { params });
         const data = yield lastValueFrom(response);
         this.weatherSubject.next(data);
       } catch (error) {
@@ -39966,28 +39965,24 @@ var WeatherComponent = class _WeatherComponent {
 
 // src/app/Service/map.service.ts
 var MapService = class _MapService {
-  loadGoogleMapsApi(apiKey) {
-    return new Promise((resolve, reject) => {
-      if (typeof google !== "undefined" && google.maps) {
-        resolve();
-      } else if (!document.getElementById("googleMapsScript")) {
-        const script = document.createElement("script");
-        script.id = "googleMapsScript";
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => resolve();
-        script.onerror = () => reject();
-        document.head.appendChild(script);
-      } else {
-        resolve();
+  http;
+  rootUrl = "https://easy-couple-life.onrender.com";
+  constructor(http) {
+    this.http = http;
+  }
+  loadGoogleMap() {
+    this.http.get(`${this.rootUrl}/api/google/map`).subscribe((res) => {
+      if (!document.getElementById("googleMapsScript")) {
+        const div = document.createElement("div");
+        div.innerHTML = res.scriptTag;
+        document.head.appendChild(div.firstChild);
       }
+    }, (err) => {
+      console.error("Failed to fetch google map: ", err);
     });
   }
-  constructor() {
-  }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MapService)();
+    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
 };
@@ -40002,8 +39997,11 @@ var GoogleMapComponent = class _GoogleMapComponent {
   constructor(googleMapService) {
     this.googleMapService = googleMapService;
   }
+  // ngOnInit(): void{
+  //   this.googleMapService.loadGoogleMap();
+  // }
   ngAfterViewInit() {
-    this.googleMapService.loadGoogleMapsApi(environment.googleMapsApiKey).then(() => this.initMap()).catch((err) => console.error("Google Maps \u52A0\u8F09\u5931\u6557", err));
+    this.initMap();
   }
   initMap() {
     const mapElement = this.mapContainer.nativeElement;
@@ -46289,7 +46287,7 @@ var AppComponent = class _AppComponent {
   title = "angular_capacitor_2";
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
-    this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey);
+    this.mapSrv.loadGoogleMap();
   }
   ngOnInit() {
   }

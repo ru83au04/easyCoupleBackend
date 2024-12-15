@@ -1,12 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
-const weatherRoutes = require('./routes/weatherRoutes');
-const https = require('https');
+const api = require('./routes/api');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
-// const db = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
+const fs = require('fs');
+const https = require('https');
 
 const app = express();
 
@@ -22,12 +21,6 @@ app.get('/auth/login', (req, res) => {
   res.redirect(loginUrl);
 });
 
-// https伺服器設定
-const httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, 'ssl/server.key')),
-  cert: fs.readFileSync(path.join(__dirname,'ssl/server.crt'))
-}
-
 // 設置靜態文件夾
 const DIST_DIR = path.join(__dirname, 'public/browser');
 app.use(express.static(DIST_DIR));
@@ -36,20 +29,14 @@ app.use(express.json());
 
 app.use('/line', lineRoutes);
 
-app.use('/api', userRoutes);
+app.use('/api', api); // 處理 OpenWeather相關路由
 
-app.use('/weather', weatherRoutes);
+// app.use('/api', userRoutes);
 
 // 處理所有路由，返回 Angular 應用的 index.html 文件
 app.get('*', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
-
-// TODO: 正式伺服器
-// const PORT = process.env.PORT || 3000;
-// https.createServer(httpsOptions, app).listen(PORT, () => {
-//   console.log('HTTPS Server running on port 3000');
-// });
 
 // TODO: Render 測試用
 const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
@@ -110,6 +97,18 @@ app.get('/auth/callback', async (req, res) => {
 // app.get('/api/signin-records', async (req, res) => {
 //   const records = await db.collection('signins').find({}).toArray();
 //   res.json(records);
+// });
+
+// TODO: https伺服器設定
+// const httpsOptions = {
+//   key: fs.readFileSync(path.join(__dirname, 'ssl/server.key')),
+//   cert: fs.readFileSync(path.join(__dirname,'ssl/server.crt'))
+// }
+
+// TODO: 正式伺服器
+// const PORT = process.env.PORT || 3000;
+// https.createServer(httpsOptions, app).listen(PORT, () => {
+//   console.log('HTTPS Server running on port 3000');
 // });
 
 

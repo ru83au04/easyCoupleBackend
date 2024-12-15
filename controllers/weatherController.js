@@ -1,6 +1,4 @@
-require('dotenv').config();
 const axios = require('axios');
-
 
 const getWeather = async (req, res) => {
     const lat = req.query.lat;
@@ -12,7 +10,7 @@ const getWeather = async (req, res) => {
         const response = await axios.get(weatherApi);
         res.json(response.data);
     }catch(err){
-        console.log('backend error', err);
+        console.log('error', err);
     }
 }
 
