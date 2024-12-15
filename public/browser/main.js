@@ -39997,9 +39997,9 @@ var GoogleMapComponent = class _GoogleMapComponent {
   constructor(googleMapService) {
     this.googleMapService = googleMapService;
   }
-  // ngOnInit(): void{
-  //   this.googleMapService.loadGoogleMap();
-  // }
+  ngOnInit() {
+    this.googleMapService.loadGoogleMap();
+  }
   ngAfterViewInit() {
     this.initMap();
   }
@@ -46283,16 +46283,13 @@ var appConfig = {
 
 // src/app/app.component.ts
 var AppComponent = class _AppComponent {
-  mapSrv;
   title = "angular_capacitor_2";
-  constructor(mapSrv) {
-    this.mapSrv = mapSrv;
-    this.mapSrv.loadGoogleMap();
+  constructor() {
   }
   ngOnInit() {
   }
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
+    return new (__ngFactoryType__ || _AppComponent)();
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 12, vars: 0, consts: [[1, "button_container"], ["routerLink", ""], ["routerLink", "/weather"], ["routerLink", "/foodmap"], ["routerLink", "/signin"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
