@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
+const weatherRoutes = require('./routes/weatherRoutes');
 const https = require('https');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
@@ -31,11 +32,13 @@ const httpsOptions = {
 const DIST_DIR = path.join(__dirname, 'public/browser');
 app.use(express.static(DIST_DIR));
 
-app.use('/line', lineRoutes);
-
 app.use(express.json());
 
+app.use('/line', lineRoutes);
+
 app.use('/api', userRoutes);
+
+app.use('/weather', weatherRoutes);
 
 // 處理所有路由，返回 Angular 應用的 index.html 文件
 app.get('*', (req, res) => {

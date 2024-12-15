@@ -39844,10 +39844,12 @@ var WeatherService = class _WeatherService {
   }
   FetchWeather(position) {
     return __async(this, null, function* () {
-      const apiKey = "b7bdb04cbc84a42d90524c385e810a7a";
-      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${position.lat}&lon=${position.lng}&appid=${apiKey}&units=metric&lang=en`;
+      let rootUrl = "https://easy-couple-life.onrender.com";
+      let params = new HttpParams().set("lat", position.lat).set("lon", position.lng);
       try {
-        const data = yield lastValueFrom(this.http.get(apiUrl));
+        const response = this.http.get(`${rootUrl}/weather/local`, { params });
+        console.log("response from backend", response);
+        const data = yield lastValueFrom(response);
         this.weatherSubject.next(data);
       } catch (error) {
         console.error("Failed to fetch weather data: ", error);
