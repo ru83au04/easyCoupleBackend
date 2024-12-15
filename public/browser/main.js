@@ -40002,13 +40002,13 @@ var GoogleMapComponent = class _GoogleMapComponent {
     this.googleMapService = googleMapService;
   }
   ngOnInit() {
+  }
+  ngAfterViewInit() {
     this.googleMapService.loadGoogleMap().then(() => {
       this.initMap();
     }).catch((err) => {
       console.error("Google Map \u52A0\u8F09\u5931\u6557", err);
     });
-  }
-  ngAfterViewInit() {
   }
   initMap() {
     const mapElement = this.mapContainer.nativeElement;
