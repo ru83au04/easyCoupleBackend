@@ -39803,19 +39803,11 @@ var TimecounterComponent = class _TimecounterComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimecounterComponent, { className: "TimecounterComponent", filePath: "src\\app\\Kennel\\timecounter\\timecounter.component.ts", lineNumber: 12 });
 })();
 
-// src/environments/environment.ts
-var environment = {
-  production: false,
-  googleMapsApiKey: "AIzaSyBBL6LSx0zpH_AdeElbntRlBiULVJv8ZCo",
-  googleMapsId: "a8061d1736cc510c"
-};
-
 // src/app/Page/home/home.component.ts
 var HomeComponent = class _HomeComponent {
   center = null;
   zoom = 15;
   getLoc = true;
-  apiKey = environment.googleMapsApiKey;
   ngAfterViewInit() {
   }
   static \u0275fac = function HomeComponent_Factory(__ngFactoryType__) {
@@ -39963,6 +39955,12 @@ var WeatherComponent = class _WeatherComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WeatherComponent, { className: "WeatherComponent", filePath: "src\\app\\Page\\weather\\weather.component.ts", lineNumber: 11 });
 })();
 
+// src/environments/environment.ts
+var environment = {
+  production: false,
+  googleMapsId: "a8061d1736cc510c"
+};
+
 // src/app/Service/map.service.ts
 var MapService = class _MapService {
   http;
@@ -39973,6 +39971,7 @@ var MapService = class _MapService {
   loadGoogleMap() {
     return new Promise((resolve, reject) => {
       this.http.get(`${this.rootUrl}/api/google/map`, { responseType: "text" }).subscribe((scriptTag) => {
+        console.log("frontEnd loadGoogleMap", scriptTag);
         if (!document.getElementById("googleMapsScript")) {
           const div = document.createElement("div");
           div.innerHTML = scriptTag;
@@ -40002,15 +40001,17 @@ var GoogleMapComponent = class _GoogleMapComponent {
     this.googleMapService = googleMapService;
   }
   ngOnInit() {
-  }
-  ngAfterViewInit() {
+    console.log("frontEnd ngOninit");
     this.googleMapService.loadGoogleMap().then(() => {
       this.initMap();
     }).catch((err) => {
       console.error("Google Map \u52A0\u8F09\u5931\u6557", err);
     });
   }
+  ngAfterViewInit() {
+  }
   initMap() {
+    console.log("frontEnd initMap");
     const mapElement = this.mapContainer.nativeElement;
     this.map = new google.maps.Map(mapElement, {
       mapId: environment.googleMapsId,
