@@ -39971,14 +39971,18 @@ var MapService = class _MapService {
     this.http = http;
   }
   loadGoogleMap() {
-    this.http.get(`${this.rootUrl}/api/google/map`).subscribe((res) => {
-      if (!document.getElementById("googleMapsScript")) {
-        const div = document.createElement("div");
-        div.innerHTML = res.scriptTag;
-        document.head.appendChild(div.firstChild);
-      }
-    }, (err) => {
-      console.error("Failed to fetch google map: ", err);
+    return new Promise((resolve, reject) => {
+      this.http.get(`${this.rootUrl}/api/google/map`, { responseType: "text" }).subscribe((scriptTag) => {
+        if (!document.getElementById("googleMapsScript")) {
+          const div = document.createElement("div");
+          div.innerHTML = scriptTag;
+          document.head.appendChild(div.firstChild);
+          resolve();
+        }
+      }, (error) => {
+        console.error("Failed to fetch google map script: ", error);
+        reject(error);
+      });
     });
   }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
@@ -39998,10 +40002,13 @@ var GoogleMapComponent = class _GoogleMapComponent {
     this.googleMapService = googleMapService;
   }
   ngOnInit() {
-    this.googleMapService.loadGoogleMap();
+    this.googleMapService.loadGoogleMap().then(() => {
+      this.initMap();
+    }).catch((err) => {
+      console.error("Google Map \u52A0\u8F09\u5931\u6557", err);
+    });
   }
   ngAfterViewInit() {
-    this.initMap();
   }
   initMap() {
     const mapElement = this.mapContainer.nativeElement;
