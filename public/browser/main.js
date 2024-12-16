@@ -39970,12 +39970,12 @@ var GoogleMapComponent = class _GoogleMapComponent {
   constructor() {
   }
   ngOnInit() {
+  }
+  ngAfterViewInit() {
     const mapScript = document.getElementById("googleMapsScript");
     mapScript.onload = () => {
       this.initMap();
     };
-  }
-  ngAfterViewInit() {
   }
   initMap() {
     console.log("frontEnd initMap");
