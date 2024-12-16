@@ -39822,7 +39822,7 @@ var HomeComponent = class _HomeComponent {
   }, dependencies: [TimecounterComponent] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 14 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 13 });
 })();
 
 // src/app/Service/weather.service.ts
@@ -39961,52 +39961,16 @@ var environment = {
   googleMapsId: "a8061d1736cc510c"
 };
 
-// src/app/Service/map.service.ts
-var MapService = class _MapService {
-  http;
-  rootUrl = "https://easy-couple-life.onrender.com";
-  constructor(http) {
-    this.http = http;
-  }
-  loadGoogleMap() {
-    return new Promise((resolve, reject) => {
-      this.http.get(`${this.rootUrl}/api/google/map`, { responseType: "text" }).subscribe((scriptTag) => {
-        console.log("frontEnd loadGoogleMap", scriptTag);
-        if (!document.getElementById("googleMapsScript")) {
-          const div = document.createElement("div");
-          div.innerHTML = scriptTag;
-          document.head.appendChild(div.firstChild);
-          resolve();
-        }
-      }, (error) => {
-        console.error("Failed to fetch google map script: ", error);
-        reject(error);
-      });
-    });
-  }
-  static \u0275fac = function MapService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
-};
-
 // src/app/Kennel/google-map/google-map.component.ts
 var _c02 = ["mapContainer"];
 var GoogleMapComponent = class _GoogleMapComponent {
-  googleMapService;
   mapContainer;
   map;
   currentLocation;
-  constructor(googleMapService) {
-    this.googleMapService = googleMapService;
+  constructor() {
   }
   ngOnInit() {
-    console.log("frontEnd ngOninit");
-    this.googleMapService.loadGoogleMap().then(() => {
-      this.initMap();
-    }).catch((err) => {
-      console.error("Google Map \u52A0\u8F09\u5931\u6557", err);
-    });
+    this.initMap();
   }
   ngAfterViewInit() {
   }
@@ -40042,7 +40006,7 @@ var GoogleMapComponent = class _GoogleMapComponent {
     return div;
   }
   static \u0275fac = function GoogleMapComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _GoogleMapComponent)(\u0275\u0275directiveInject(MapService));
+    return new (__ngFactoryType__ || _GoogleMapComponent)();
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GoogleMapComponent, selectors: [["app-google-map"]], viewQuery: function GoogleMapComponent_Query(rf, ctx) {
     if (rf & 1) {
@@ -46259,6 +46223,35 @@ var routes = [
   { path: "external/:path", component: ExternalComponent }
 ];
 
+// src/app/Service/map.service.ts
+var MapService = class _MapService {
+  http;
+  rootUrl = "https://easy-couple-life.onrender.com";
+  constructor(http) {
+    this.http = http;
+  }
+  loadGoogleMap() {
+    return new Promise((resolve, reject) => {
+      this.http.get(`${this.rootUrl}/api/google/map`, { responseType: "text" }).subscribe((scriptTag) => {
+        console.log("frontEnd loadGoogleMap", scriptTag);
+        if (!document.getElementById("googleMapsScript")) {
+          const div = document.createElement("div");
+          div.innerHTML = scriptTag;
+          document.head.appendChild(div.firstChild);
+          resolve();
+        }
+      }, (error) => {
+        console.error("Failed to fetch google map script: ", error);
+        reject(error);
+      });
+    });
+  }
+  static \u0275fac = function MapService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
+};
+
 // src/app/Service/attendance.service.ts
 var AttendanceService = class _AttendanceService {
   http;
@@ -46291,13 +46284,16 @@ var appConfig = {
 
 // src/app/app.component.ts
 var AppComponent = class _AppComponent {
+  mapSrv;
   title = "angular_capacitor_2";
-  constructor() {
+  constructor(mapSrv) {
+    this.mapSrv = mapSrv;
+    this.mapSrv.loadGoogleMap();
   }
   ngOnInit() {
   }
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _AppComponent)();
+    return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 12, vars: 0, consts: [[1, "button_container"], ["routerLink", ""], ["routerLink", "/weather"], ["routerLink", "/foodmap"], ["routerLink", "/signin"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
