@@ -1,6 +1,6 @@
 const initMap = (req, res) => {
     let googleMapKey = process.env.GOOGLE_MAP_KEY;
-    const scriptTag = `<script id="googleMapsScript" src="https://maps.googleapis.com/maps/api/js?key=${googleMapKey}&libraries=map,marker" async defer></script>` 
+    const scriptTag = `<script async src="https://maps.googleapis.com/maps/api/js?key=${googleMapKey}&loading=async&callback=initMap&libraries=map,marker">`
     console.log("backedn initMap");
     res.send(scriptTag);
 }
