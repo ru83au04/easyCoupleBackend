@@ -39822,7 +39822,7 @@ var HomeComponent = class _HomeComponent {
   }, dependencies: [TimecounterComponent] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 14 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 13 });
 })();
 
 // src/app/Service/weather.service.ts
@@ -39958,7 +39958,7 @@ var WeatherComponent = class _WeatherComponent {
 // src/environments/environment.ts
 var environment = {
   production: false,
-  googleMapsId: "a8061d1736cc510c"
+  googleMapsId: "4c425447edf35d61"
 };
 
 // src/app/Service/map.service.ts
