@@ -39958,7 +39958,8 @@ var WeatherComponent = class _WeatherComponent {
 // src/environments/environment.ts
 var environment = {
   production: false,
-  googleMapsId: "4c425447edf35d61"
+  googleMapsId: "4c425447edf35d61",
+  googleMapsApiKey: "AIzaSyDgo_AhDHFBAftxhMog2j9YfeIHQ-yzF1U"
 };
 
 // src/app/Kennel/google-map/google-map.component.ts
@@ -39972,13 +39973,9 @@ var GoogleMapComponent = class _GoogleMapComponent {
   ngOnInit() {
   }
   ngAfterViewInit() {
-    const mapScript = document.getElementById("googleMapsScript");
-    mapScript.onload = () => {
-      this.initMap();
-    };
+    this.initMap();
   }
   initMap() {
-    console.log("frontEnd initMap");
     const mapElement = this.mapContainer.nativeElement;
     this.map = new google.maps.Map(mapElement, {
       mapId: environment.googleMapsId,
@@ -40053,8 +40050,12 @@ var FoodMapComponent = class _FoodMapComponent {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-      this.loadMap = true;
     });
+  }
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.loadMap = true;
+    }, 1e3);
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)();
@@ -46228,29 +46229,28 @@ var routes = [
 
 // src/app/Service/map.service.ts
 var MapService = class _MapService {
-  http;
-  rootUrl = "https://easy-couple-life.onrender.com";
-  constructor(http) {
-    this.http = http;
+  constructor() {
   }
-  loadGoogleMap() {
+  loadGoogleMapsApi(apiKey) {
     return new Promise((resolve, reject) => {
-      this.http.get(`${this.rootUrl}/api/google/map`, { responseType: "text" }).subscribe((scriptTag) => {
-        console.log("frontEnd loadGoogleMap", scriptTag);
-        if (!document.getElementById("googleMapsScript")) {
-          const div = document.createElement("div");
-          div.innerHTML = scriptTag;
-          document.head.appendChild(div.firstChild);
-          resolve();
-        }
-      }, (error) => {
-        console.error("Failed to fetch google map script: ", error);
-        reject(error);
-      });
+      if (typeof google !== "undefined" && google.maps) {
+        resolve();
+      } else if (!document.getElementById("googleMapsScript")) {
+        const script = document.createElement("script");
+        script.id = "googleMapsScript";
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject();
+        document.head.appendChild(script);
+      } else {
+        resolve();
+      }
     });
   }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
+    return new (__ngFactoryType__ || _MapService)();
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
 };
@@ -46291,9 +46291,9 @@ var AppComponent = class _AppComponent {
   title = "angular_capacitor_2";
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
-    this.mapSrv.loadGoogleMap();
   }
   ngOnInit() {
+    this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey);
   }
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
