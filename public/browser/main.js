@@ -1828,28 +1828,6 @@ function lastValueFrom(source, config2) {
   });
 }
 
-// node_modules/rxjs/dist/esm/internal/firstValueFrom.js
-function firstValueFrom(source, config2) {
-  const hasConfig = typeof config2 === "object";
-  return new Promise((resolve, reject) => {
-    const subscriber = new SafeSubscriber({
-      next: (value) => {
-        resolve(value);
-        subscriber.unsubscribe();
-      },
-      error: reject,
-      complete: () => {
-        if (hasConfig) {
-          resolve(config2.defaultValue);
-        } else {
-          reject(new EmptyError());
-        }
-      }
-    });
-    source.subscribe(subscriber);
-  });
-}
-
 // node_modules/rxjs/dist/esm/internal/util/isDate.js
 function isValidDate(value) {
   return value instanceof Date && !isNaN(value);
@@ -36178,10 +36156,11 @@ var MapService = class _MapService {
     });
   }
   findFood(position) {
-    let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
-    return firstValueFrom(this.http.get(`${this.rootUrl}/api/google/food`, { params })).catch((err) => {
-      console.error("Error occurred while fetching food data:", err);
-      throw err;
+    return __async(this, null, function* () {
+      let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
+      const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
+      const data = yield lastValueFrom(response);
+      return data;
     });
   }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {

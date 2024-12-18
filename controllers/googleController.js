@@ -18,6 +18,8 @@ const findFood = async (req, res) => {
       },
     });
 
+    console.log("response", response);
+
     // 返回結果給前端
     res.json(response.data);
   } catch (error) {
