@@ -1828,6 +1828,28 @@ function lastValueFrom(source, config2) {
   });
 }
 
+// node_modules/rxjs/dist/esm/internal/firstValueFrom.js
+function firstValueFrom(source, config2) {
+  const hasConfig = typeof config2 === "object";
+  return new Promise((resolve, reject) => {
+    const subscriber = new SafeSubscriber({
+      next: (value) => {
+        resolve(value);
+        subscriber.unsubscribe();
+      },
+      error: reject,
+      complete: () => {
+        if (hasConfig) {
+          resolve(config2.defaultValue);
+        } else {
+          reject(new EmptyError());
+        }
+      }
+    });
+    source.subscribe(subscriber);
+  });
+}
+
 // node_modules/rxjs/dist/esm/internal/util/isDate.js
 function isValidDate(value) {
   return value instanceof Date && !isNaN(value);
@@ -36132,7 +36154,10 @@ var environment = {
 
 // src/app/Service/map.service.ts
 var MapService = class _MapService {
-  constructor() {
+  http;
+  rootUrl = "https://easy-couple-life.onrender.com";
+  constructor(http) {
+    this.http = http;
   }
   loadGoogleMapsApi(apiKey) {
     return new Promise((resolve, reject) => {
@@ -36152,8 +36177,15 @@ var MapService = class _MapService {
       }
     });
   }
+  findFood(position) {
+    let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
+    return firstValueFrom(this.http.get(`${this.rootUrl}/api/google/food`, { params })).catch((err) => {
+      console.error("Error occurred while fetching food data:", err);
+      throw err;
+    });
+  }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MapService)();
+    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
 };
@@ -36221,6 +36253,41 @@ var FoodMapComponent = class _FoodMapComponent {
     div.appendChild(img);
     return div;
   }
+  createMark() {
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "center";
+    div.style.color = "Blue";
+    return div;
+  }
+  findFood() {
+    return __async(this, null, function* () {
+      let foodResult;
+      foodResult = yield this.mapSrv.findFood(this.currentLocation);
+      this.addMarkersToMap(foodResult.result);
+    });
+  }
+  addMarkersToMap(places) {
+    return new Promise((resolve, reject) => {
+      places.forEach((place) => {
+        if (places.length != 0) {
+          const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
+            map: this.map,
+            position: {
+              lat: place.geometry.location.lat,
+              lng: place.geometry.location.lng
+            },
+            title: "eat",
+            content: this.createMark()
+          });
+          resolve();
+        } else {
+          reject("\u627E\u4E0D\u5230\u9910\u5EF3");
+        }
+      });
+    });
+  }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
   };
@@ -36232,10 +36299,17 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 0, consts: [["mapContainer", ""], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 5, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "main");
-      \u0275\u0275element(1, "div", 1, 0);
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "main")(1, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_1_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.findFood());
+      });
+      \u0275\u0275text(2, "\u627E\u98DF\u7269");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(3, "div", 2, 0);
       \u0275\u0275elementEnd();
     }
   }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
