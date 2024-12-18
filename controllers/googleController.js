@@ -1,10 +1,7 @@
-const express = require('express');
-const router = express.Router();
 const axios = require('axios');
-require('dotenv').config(); // 讀取環境變數
 
 // 從環境變數中讀取 Google Maps API Key
-const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_KEY;
+const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 
 // 定義搜尋附近地點的 API
 const findFood = async (req, res) => {
