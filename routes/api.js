@@ -4,6 +4,6 @@ const weatherController = require('../controllers/weatherController');
 const googleController = require('../controllers/googleController');
 
 router.get('/weather/local', weatherController.getWeather);
-router.get('/google/', googleController.initMap);
+router.get('/google/food', googleController.findFood);
 
 module.exports = router;

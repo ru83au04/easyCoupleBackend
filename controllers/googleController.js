@@ -7,7 +7,7 @@ require('dotenv').config(); // 讀取環境變數
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_KEY;
 
 // 定義搜尋附近地點的 API
-router.get('/food', async (req, res) => {
+const findFood = async (req, res) => {
   const { lat, lng, radius, type } = req.query;
 
   try {
@@ -27,4 +27,8 @@ router.get('/food', async (req, res) => {
     console.error('Google Places API Error:', error.message);
     res.status(500).json({ error: 'Failed to fetch nearby places' });
   }
-});
+};
+
+module.exports = {
+    findFood,
+}
