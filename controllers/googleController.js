@@ -9,7 +9,7 @@ const findFood = async (req, res) => {
 
   try {
     // 調用 Google Places API
-    const response = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+    const response = await axios.get('https://places.googleapis.com/v1/places:searchNearby', {
       params: {
         location: `${lat},${lng}`, // 經緯度
         radius: radius || 1000,    // 搜尋範圍 (公尺)
