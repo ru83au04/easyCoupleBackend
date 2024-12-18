@@ -36265,7 +36265,9 @@ var FoodMapComponent = class _FoodMapComponent {
     return __async(this, null, function* () {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
+      console.log("foodResult", foodResult);
       this.addMarkersToMap(foodResult.result);
+      console.log("result", foodResult.result);
     });
   }
   addMarkersToMap(places) {
