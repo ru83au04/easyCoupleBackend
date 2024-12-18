@@ -36134,27 +36134,7 @@ var environment = {
 var MapService = class _MapService {
   constructor() {
   }
-  // loadGoogleMap(): Promise<void>{
-  //   return new Promise((resolve, reject) => {
-  //     this.http.get(`${this.rootUrl}/api/google/map`, { responseType: 'text' }).subscribe(
-  //       (scriptTag) => {
-  //         console.log("frontEnd loadGoogleMap", scriptTag);
-  //         if (!document.getElementById('googleMapsScript')) {
-  //           const div = document.createElement('div');
-  //           div.innerHTML = scriptTag;  // 這裡的 scriptTag 來自後端返回的字符串
-  //           document.head.appendChild(div.firstChild as Node);  // 將腳本標籤插入到頁面的 <head> 中
-  //           resolve(); // 請求成功，地圖腳本加載完成
-  //         }
-  //       },
-  //       (error) => {
-  //         console.error('Failed to fetch google map script: ', error);
-  //         reject(error); // 如果請求或腳本加載出錯，則拒絕 Promise
-  //       }
-  //     );
-  //   });
-  // }
   loadGoogleMapsApi(apiKey) {
-    console.log("loadMap");
     return new Promise((resolve, reject) => {
       if (typeof google !== "undefined" && google.maps) {
         resolve();
@@ -36178,14 +36158,13 @@ var MapService = class _MapService {
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
 };
 
-// src/app/Kennel/google-map/google-map.component.ts
+// src/app/Page/food-map/food-map.component.ts
 var _c0 = ["mapContainer"];
-var GoogleMapComponent = class _GoogleMapComponent {
+var FoodMapComponent = class _FoodMapComponent {
   mapSrv;
+  currentLocation;
   mapContainer;
   map;
-  currentLocation;
-  currentLocation2;
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
   }
@@ -36198,7 +36177,7 @@ var GoogleMapComponent = class _GoogleMapComponent {
     return new Promise((resolve, reject) => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
-          this.currentLocation2 = {
+          this.currentLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
@@ -36216,14 +36195,14 @@ var GoogleMapComponent = class _GoogleMapComponent {
     const mapElement = this.mapContainer.nativeElement;
     this.map = new google.maps.Map(mapElement, {
       mapId: environment.googleMapsId,
-      center: { lat: this.currentLocation2.lat, lng: this.currentLocation2.lng },
+      center: { lat: this.currentLocation.lat, lng: this.currentLocation.lng },
       // 初始化中心點
       zoom: 18
       // 設置地圖縮放等級
     });
     const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
       map: this.map,
-      position: this.currentLocation2,
+      position: this.currentLocation,
       title: "Advanced Marker",
       content: this.createCustomMarkerContent()
     });
@@ -36242,10 +36221,10 @@ var GoogleMapComponent = class _GoogleMapComponent {
     div.appendChild(img);
     return div;
   }
-  static \u0275fac = function GoogleMapComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _GoogleMapComponent)(\u0275\u0275directiveInject(MapService));
+  static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GoogleMapComponent, selectors: [["app-google-map"]], viewQuery: function GoogleMapComponent_Query(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FoodMapComponent, selectors: [["app-food-map"]], viewQuery: function FoodMapComponent_Query(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275viewQuery(_c0, 5);
     }
@@ -36253,47 +36232,16 @@ var GoogleMapComponent = class _GoogleMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, inputs: { currentLocation: "currentLocation" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 2, vars: 0, consts: [["mapContainer", ""], [1, "map_container"]], template: function GoogleMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 0, consts: [["mapContainer", ""], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275element(0, "div", 1, 0);
+      \u0275\u0275elementStart(0, "main");
+      \u0275\u0275element(1, "div", 1, 0);
+      \u0275\u0275elementEnd();
     }
-  }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=google-map.component.css.map */"] });
+  }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GoogleMapComponent, { className: "GoogleMapComponent", filePath: "src\\app\\Kennel\\google-map\\google-map.component.ts", lineNumber: 14 });
-})();
-
-// src/app/Page/food-map/food-map.component.ts
-var FoodMapComponent = class _FoodMapComponent {
-  loadMap = false;
-  currentLocation;
-  ngOnInit() {
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.currentLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-    });
-  }
-  ngAfterViewInit() {
-  }
-  static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _FoodMapComponent)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FoodMapComponent, selectors: [["app-food-map"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 1, consts: [[1, "map_container"], [3, "currentLocation"]], template: function FoodMapComponent_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275elementStart(0, "main")(1, "div", 0);
-      \u0275\u0275element(2, "app-google-map", 1);
-      \u0275\u0275elementEnd()();
-    }
-    if (rf & 2) {
-      \u0275\u0275advance(2);
-      \u0275\u0275property("currentLocation", ctx.currentLocation);
-    }
-  }, dependencies: [GoogleMapComponent], styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FoodMapComponent, { className: "FoodMapComponent", filePath: "src\\app\\Page\\food-map\\food-map.component.ts", lineNumber: 12 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FoodMapComponent, { className: "FoodMapComponent", filePath: "src\\app\\Page\\food-map\\food-map.component.ts", lineNumber: 13 });
 })();
 
 // node_modules/@angular/forms/fesm2022/forms.mjs

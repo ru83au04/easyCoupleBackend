@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["src/app/Page/food-map/food-map.component.css"],
-  "sourcesContent": [".map_container{\r\n    height:100%;\r\n    margin: 10px;\r\n}"],
-  "mappings": ";AAAA,CAAC;AACG,UAAO;AACP,UAAQ;AACZ;",
+  "sourcesContent": [".map_container{\r\n    height:100%;\r\n    margin: 10px;\r\n}\r\n\r\n.map_container{\r\n    height: 500px;\r\n}"],
+  "mappings": ";AAAA,CAAC;AACG,UAAO;AACP,UAAQ;AACZ;AAEA,CALC;AAMG,UAAQ;AACZ;",
   "names": []
 }
