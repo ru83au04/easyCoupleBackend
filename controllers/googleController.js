@@ -5,9 +5,9 @@ const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 
 // 定義搜尋附近地點的 API
 const findFood = async (req, res) => {
-  const { lat, lng, radius, type } = req.query;
+  const { lat, lon, radius, type } = req.query;
   console.log("req.query", req);
-  console.log("req.query inner", lat, lng, radius, type);
+  console.log("req.query inner", lat, lon, radius, type);
   const url = `https://places.googleapis.com/v1/places:searchNearby?=${GOOGLE_MAPS_KEY}`;
 
   try {
@@ -15,7 +15,7 @@ const findFood = async (req, res) => {
     const response = await axios.post(url, {
         location: {
             lat: parseFloat(lat), // 緯度
-            lng: parseFloat(lng), // 經度
+            lng: parseFloat(lon), // 經度
           },
           radius: parseInt(radius) || 1000, // 搜尋半徑 (公尺)
           types: [type || 'restaurant'], // 地點類型，預設為餐廳
