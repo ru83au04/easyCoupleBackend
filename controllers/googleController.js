@@ -6,6 +6,8 @@ const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 // 定義搜尋附近地點的 API
 const findFood = async (req, res) => {
   const { lat, lng, radius, type } = req.query;
+  console.log("req.query", req);
+  console.log("req.query inner", lat, lng, radius, type);
   const url = `https://places.googleapis.com/v1/places:searchNearby?=${GOOGLE_MAPS_KEY}`;
 
   try {
