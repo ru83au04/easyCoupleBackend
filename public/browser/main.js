@@ -36163,7 +36163,7 @@ var MapService = class _MapService {
         const data = yield lastValueFrom(response);
         return data;
       } catch (error) {
-        console.error("Failed to fetch weather data: ", error);
+        console.error("Failed to fetch places data: ", error);
         return {};
       }
     });
@@ -36250,8 +36250,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
       console.log("foodResult", foodResult);
-      this.addMarkersToMap(foodResult.places);
-      console.log("result", foodResult.places);
+      this.addMarkersToMap(foodResult);
     });
   }
   addMarkersToMap(places) {
