@@ -18,7 +18,7 @@ const findFood = async (req, res) => {
             lng: parseFloat(lon), // 經度
           },
           radius: parseInt(radius) || 1000, // 搜尋半徑 (公尺)
-          types: [type || 'restaurant'], // 地點類型，預設為餐廳
+          includedTypes: [type || 'restaurant'], // 地點類型，預設為餐廳
         });
 
         res.status(200).json(response.data.places || []);
