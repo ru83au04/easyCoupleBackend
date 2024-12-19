@@ -11,21 +11,18 @@ const findFood = async (req, res) => {
   try {
     // 調用 Google Places API
     const response = await axios.post(url, {
-      params: {
-        location: `${lat},${lng}`, // 經緯度
-        radius: radius || 1000,    // 搜尋範圍 (公尺)
-        type: type || 'restaurant', // 地點類型，預設為餐廳
-        key: GOOGLE_MAPS_KEY,
-      },
-    });
+        location: {
+            lat: parseFloat(lat), // 緯度
+            lng: parseFloat(lng), // 經度
+          },
+          radius: parseInt(radius) || 1000, // 搜尋半徑 (公尺)
+          types: [type || 'restaurant'], // 地點類型，預設為餐廳
+        });
 
-    console.log("response", response.data.results);
-
-    return response.data.results;
+        res.status(200).json(response.data.places || []);
   } catch (error) {
-
         console.error('Google Places API Error:', error.message);
-        throw error;
+        res.status(500).json({ error: 'Failed to fetch places data' });
     }
 };
 
