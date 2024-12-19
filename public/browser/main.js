@@ -36158,9 +36158,14 @@ var MapService = class _MapService {
   findFood(position) {
     return __async(this, null, function* () {
       let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
-      const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
-      const data = yield lastValueFrom(response);
-      return data;
+      try {
+        const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
+        const data = yield lastValueFrom(response);
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch weather data: ", error);
+        return {};
+      }
     });
   }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
