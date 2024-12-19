@@ -5,21 +5,34 @@ const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 
 // 定義搜尋附近地點的 API
 const findFood = async (req, res) => {
-  const { lat, lon, radius, type } = req.query;
-  console.log("req.query", req);
-  console.log("req.query inner", lat, lon, radius, type);
-  const url = `https://places.googleapis.com/v1/places:searchNearby?=${GOOGLE_MAPS_KEY}`;
+  const { lat, lon, radius } = req.query;
+
+  const url = `https://places.googleapis.com/v1/places:searchNearby`;
 
   try {
     // 調用 Google Places API
-    const response = await axios.post(url, {
-        location: {
-            lat: parseFloat(lat), // 緯度
-            lng: parseFloat(lon), // 經度
+    const response = await axios.post(url,{
+        
+            includedTypes: ['restaurant'],  // 查詢類型
+            maxResultCount: 10,            // 返回最大數量
+            locationRestriction: {         // 限制範圍
+              circle: {
+                center: {
+                  latitude: parseFloat(lat),
+                  longitude: parseFloat(lon),
+                },
+                radius: parseFloat(radius),
+              },
+            },
           },
-        radius: parseInt(radius) || 1000, // 搜尋半徑 (公尺)
-        includedTypes: ['restaurant'], // 地點類型，預設為餐廳
-        });
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': GOOGLE_MAPS_KEY,
+              'X-Goog-FieldMask': 'places.displayName', // 限制返回的字段
+            },
+          }
+    )
 
         res.status(200).json(response.data.places || []);
   } catch (error) {
