@@ -12,27 +12,25 @@ const findFood = async (req, res) => {
   try {
     // 調用 Google Places API
     const response = await axios.post(url,{
-        
-            includedTypes: ['restaurant', 'cafe', 'bar'],  // 查詢類型
-            maxResultCount: 30,            // 返回最大數量
-            locationRestriction: {         // 限制範圍
-              circle: {
-                center: {
-                  latitude: parseFloat(lat),
-                  longitude: parseFloat(lon),
-                },
-                radius: parseFloat(radius),
-              },
+        includedPrimaryTypes: ["restaurant", "cafe", "bar"],
+        maxResultCount: 30,            // 返回最大數量
+        locationRestriction: {         // 限制範圍
+            circle: {
+            center: {
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lon),
             },
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Goog-Api-Key': GOOGLE_MAPS_KEY,
-              'X-Goog-FieldMask': 'places.displayName,places.location', // 限制返回的字段
+            radius: parseFloat(radius),
             },
-          }
-    )
+        },
+        },
+        {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': GOOGLE_MAPS_KEY,
+            'X-Goog-FieldMask': 'places.displayName,places.location', // 限制返回的字段
+        },
+    });
 
         res.status(200).json(response.data.places || []);
   } catch (error) {

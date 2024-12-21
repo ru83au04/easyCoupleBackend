@@ -36281,7 +36281,7 @@ var FoodMapComponent = class _FoodMapComponent {
             lat: place.location.latitude,
             lng: place.location.longitude
           },
-          title: "\u6211\u7684\u641C\u5C0B\u7D50\u679C",
+          title: place.displayName.text,
           // 使用預設標題
           content: this.createMark()
           // 自定義標記內容
