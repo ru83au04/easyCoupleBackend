@@ -36209,12 +36209,35 @@ var FoodMapComponent = class _FoodMapComponent {
   }
   initMap() {
     const mapElement = this.mapContainer.nativeElement;
+    const mapStyle = [
+      {
+        "featureType": "poi",
+        "stylers": [{ "visibility": "off" }]
+      },
+      {
+        "featureType": "landscape",
+        "stylers": [{ "visibility": "off" }]
+      },
+      {
+        "featureType": "administrative",
+        "stylers": [{ "visibility": "off" }]
+      },
+      {
+        "featureType": "water",
+        "stylers": [{ "visibility": "on" }]
+      },
+      {
+        "featureType": "road",
+        "stylers": [{ "visibility": "on" }]
+      }
+    ];
     this.map = new google.maps.Map(mapElement, {
       mapId: environment.googleMapsId,
       center: { lat: this.currentLocation.lat, lng: this.currentLocation.lng },
       // 初始化中心點
-      zoom: 18
+      zoom: 18,
       // 設置地圖縮放等級
+      styles: mapStyle
     });
     const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
       map: this.map,
@@ -36242,7 +36265,7 @@ var FoodMapComponent = class _FoodMapComponent {
     div.style.display = "flex";
     div.style.flexDirection = "column";
     div.style.alignItems = "center";
-    div.style.color = "yellow";
+    div.style.color = "blue";
     const text = document.createElement("span");
     text.textContent = "\u9910\u5EF3\u540D\u7A31";
     text.style.fontWeight = "bold";
