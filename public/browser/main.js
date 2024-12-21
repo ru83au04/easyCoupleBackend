@@ -36295,7 +36295,7 @@ var FoodMapComponent = class _FoodMapComponent {
     });
   }
   clearMarkers() {
-    this.resultMarks.forEach((mark) => mark = null);
+    this.resultMarks.forEach((mark) => mark.map = null);
     this.resultMarks = [];
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
