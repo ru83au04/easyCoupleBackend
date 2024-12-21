@@ -29,7 +29,7 @@ const findFood = async (req, res) => {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': GOOGLE_MAPS_KEY,
-              'X-Goog-FieldMask': 'places.displayName, places.location', // 限制返回的字段
+              'X-Goog-FieldMask': 'places.displayName,places.location', // 限制返回的字段
             },
           }
     )
