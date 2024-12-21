@@ -36247,7 +36247,7 @@ var FoodMapComponent = class _FoodMapComponent {
     text.textContent = "\u9910\u5EF3\u540D\u7A31";
     text.style.fontWeight = "bold";
     const img = document.createElement("img");
-    img.src = "../../assets/find_food.webp";
+    img.src = "../../assets/food.jpg";
     img.style.width = "32px";
     img.style.height = "32px";
     div.appendChild(img);
