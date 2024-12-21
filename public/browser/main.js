@@ -36255,23 +36255,33 @@ var FoodMapComponent = class _FoodMapComponent {
   }
   addMarkersToMap(places) {
     return new Promise((resolve, reject) => {
-      if (places.length != 0) {
-        places.forEach((place) => {
-          const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
-            map: this.map,
-            position: {
-              lat: place.location.latitude,
-              lng: place.location.longitude
-            },
-            // title: place.displayName.text,
-            title: "\u6211\u7684\u641C\u5C0B\u7D50\u679C",
-            content: this.createMark()
-          });
-          resolve();
-        });
-      } else {
+      if (!places || places.length === 0) {
         reject("\u627E\u4E0D\u5230\u9910\u5EF3");
+        return;
       }
+      if (!this.map) {
+        reject("\u5730\u5716\u5C1A\u672A\u521D\u59CB\u5316");
+        return;
+      }
+      let completedMarkers = 0;
+      places.forEach((place) => {
+        const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
+          map: this.map,
+          // 將標記放置到現有地圖上
+          position: {
+            lat: place.location.latitude,
+            lng: place.location.longitude
+          },
+          title: place.displayName?.text || "\u6211\u7684\u641C\u5C0B\u7D50\u679C",
+          // 使用預設標題
+          content: this.createMark()
+          // 自定義標記內容
+        });
+        completedMarkers++;
+        if (completedMarkers === places.length) {
+          resolve();
+        }
+      });
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
