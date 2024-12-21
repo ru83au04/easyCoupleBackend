@@ -36242,14 +36242,23 @@ var FoodMapComponent = class _FoodMapComponent {
     div.style.display = "flex";
     div.style.flexDirection = "column";
     div.style.alignItems = "center";
-    div.style.color = "Yellow";
+    div.style.color = "yellow";
+    const text = document.createElement("span");
+    text.textContent = "\u9910\u5EF3\u540D\u7A31";
+    text.style.fontWeight = "bold";
+    const img = document.createElement("img");
+    img.src = "../../assets/find_food.webp";
+    img.style.width = "32px";
+    img.style.height = "32px";
+    div.appendChild(img);
+    div.appendChild(text);
     return div;
   }
   findFood() {
     return __async(this, null, function* () {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      this.addMarkersToMap(foodResult);
+      yield this.addMarkersToMap(foodResult);
       console.log("food Result", foodResult);
     });
   }
