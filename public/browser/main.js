@@ -36297,8 +36297,6 @@ var FoodMapComponent = class _FoodMapComponent {
   clearMarkers() {
     this.resultMarks.map((mark) => mark = null);
     this.resultMarks = [];
-    this.addMarkersToMap([]);
-    console.log("clearData");
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
