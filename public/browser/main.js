@@ -36249,28 +36249,27 @@ var FoodMapComponent = class _FoodMapComponent {
     return __async(this, null, function* () {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      console.log("foodResult", foodResult);
       this.addMarkersToMap(foodResult);
     });
   }
   addMarkersToMap(places) {
     return new Promise((resolve, reject) => {
-      places.forEach((place) => {
-        if (places.length != 0) {
+      if (places.length != 0) {
+        places.forEach((place) => {
           const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
             map: this.map,
             position: {
-              lat: place.geometry.location.lat,
-              lng: place.geometry.location.lng
+              lat: place.location.latitude,
+              lng: place.location.longitude
             },
-            title: "eat",
+            title: place.displayName.text,
             content: this.createMark()
           });
           resolve();
-        } else {
-          reject("\u627E\u4E0D\u5230\u9910\u5EF3");
-        }
-      });
+        });
+      } else {
+        reject("\u627E\u4E0D\u5230\u9910\u5EF3");
+      }
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
