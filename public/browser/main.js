@@ -36237,7 +36237,7 @@ var FoodMapComponent = class _FoodMapComponent {
     div.appendChild(img);
     return div;
   }
-  createMark() {
+  createMark(displayName) {
     const div = document.createElement("div");
     div.style.display = "flex";
     div.style.flexDirection = "column";
@@ -36259,7 +36259,6 @@ var FoodMapComponent = class _FoodMapComponent {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
       yield this.addMarkersToMap(foodResult);
-      console.log("food Result", foodResult);
     });
   }
   addMarkersToMap(places) {
@@ -36283,7 +36282,7 @@ var FoodMapComponent = class _FoodMapComponent {
           },
           title: place.displayName.text,
           // 使用預設標題
-          content: this.createMark()
+          content: this.createMark(place.displayName.text)
           // 自定義標記內容
         });
         completedMarkers++;
