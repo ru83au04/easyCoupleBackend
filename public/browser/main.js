@@ -36242,33 +36242,30 @@ var FoodMapComponent = class _FoodMapComponent {
     div.style.display = "flex";
     div.style.flexDirection = "column";
     div.style.alignItems = "center";
-    div.style.color = "Blue";
+    div.style.color = "Yellow";
     return div;
   }
   findFood() {
     return __async(this, null, function* () {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      this.addMarkersToMap(foodResult);
     });
   }
   addMarkersToMap(places) {
     return new Promise((resolve, reject) => {
       if (places.length != 0) {
-        if (places.length === 0) {
-          throw new Error("\u627E\u4E0D\u5230\u9910\u5EF3");
-        }
-        for (const place of places) {
+        places.forEach((place) => {
           const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
             map: this.map,
             position: {
               lat: place.location.latitude,
               lng: place.location.longitude
             },
-            title: place.displayName?.text || "Unknown",
+            title: place.displayName.text,
             content: this.createMark()
           });
-        }
+          resolve();
+        });
       } else {
         reject("\u627E\u4E0D\u5230\u9910\u5EF3");
       }
