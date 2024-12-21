@@ -36181,6 +36181,7 @@ var FoodMapComponent = class _FoodMapComponent {
   currentLocation;
   mapContainer;
   map;
+  resultMarks = [];
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
   }
@@ -36247,7 +36248,7 @@ var FoodMapComponent = class _FoodMapComponent {
     text.textContent = "\u9910\u5EF3\u540D\u7A31";
     text.style.fontWeight = "bold";
     const img = document.createElement("img");
-    img.src = "../../assets/food.jpg";
+    img.src = "../../assets/food.png";
     img.style.width = "32px";
     img.style.height = "32px";
     div.appendChild(img);
@@ -36273,7 +36274,7 @@ var FoodMapComponent = class _FoodMapComponent {
       }
       let completedMarkers = 0;
       places.forEach((place) => {
-        const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
+        const marker = new google.maps.marker.AdvancedMarkerElement({
           map: this.map,
           // 將標記放置到現有地圖上
           position: {
@@ -36286,11 +36287,16 @@ var FoodMapComponent = class _FoodMapComponent {
           // 自定義標記內容
         });
         completedMarkers++;
+        this.resultMarks.push(marker);
         if (completedMarkers === places.length) {
           resolve();
         }
       });
     });
+  }
+  clearMarkers() {
+    this.resultMarks.map((mark) => mark = null);
+    this.resultMarks = [];
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
@@ -36303,7 +36309,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 5, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "main")(1, "button", 1);
@@ -36313,7 +36319,14 @@ var FoodMapComponent = class _FoodMapComponent {
       });
       \u0275\u0275text(2, "\u627E\u98DF\u7269");
       \u0275\u0275elementEnd();
-      \u0275\u0275element(3, "div", 2, 0);
+      \u0275\u0275elementStart(3, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_3_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.clearMarkers());
+      });
+      \u0275\u0275text(4, "\u6E05\u9664\u641C\u5C0B\u7D50\u679C");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(5, "div", 2, 0);
       \u0275\u0275elementEnd();
     }
   }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
