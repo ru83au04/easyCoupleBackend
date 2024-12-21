@@ -36255,18 +36255,20 @@ var FoodMapComponent = class _FoodMapComponent {
   addMarkersToMap(places) {
     return new Promise((resolve, reject) => {
       if (places.length != 0) {
-        places.forEach((place) => {
+        if (places.length === 0) {
+          throw new Error("\u627E\u4E0D\u5230\u9910\u5EF3");
+        }
+        for (const place of places) {
           const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
             map: this.map,
             position: {
               lat: place.location.latitude,
               lng: place.location.longitude
             },
-            title: place.displayName.text,
+            title: place.displayName?.text || "Unknown",
             content: this.createMark()
           });
-          resolve();
-        });
+        }
       } else {
         reject("\u627E\u4E0D\u5230\u9910\u5EF3");
       }
