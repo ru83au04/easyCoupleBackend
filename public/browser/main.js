@@ -36245,7 +36245,7 @@ var FoodMapComponent = class _FoodMapComponent {
     div.style.alignItems = "center";
     div.style.color = "blue";
     const text = document.createElement("span");
-    text.textContent = "\u9910\u5EF3\u540D\u7A31";
+    text.textContent = displayName;
     text.style.fontWeight = "bold";
     const img = document.createElement("img");
     img.src = "../../assets/food.png";
@@ -36297,6 +36297,7 @@ var FoodMapComponent = class _FoodMapComponent {
   clearMarkers() {
     this.resultMarks.map((mark) => mark = null);
     this.resultMarks = [];
+    console.log("clearData");
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
