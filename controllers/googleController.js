@@ -13,8 +13,8 @@ const findFood = async (req, res) => {
     // 調用 Google Places API
     const response = await axios.post(url,{
         
-            includedTypes: ['restaurant', 'cafe', 'bar', 'food'],  // 查詢類型
-            maxResultCount: 10,            // 返回最大數量
+            includedTypes: ['restaurant', 'cafe', 'bar'],  // 查詢類型
+            maxResultCount: 30,            // 返回最大數量
             locationRestriction: {         // 限制範圍
               circle: {
                 center: {
