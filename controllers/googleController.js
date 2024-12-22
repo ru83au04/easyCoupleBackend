@@ -1,5 +1,6 @@
 const axios = require('axios');
-const pool = require('../config/postpreDatabase');
+const csv = require('csv-parser');
+const fs = require('fs');
 
 // 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
@@ -41,8 +42,18 @@ const findFood = async (req, res) => {
 
 const findCarRouteid = async (req, res) => {
     const { position } = req.query;
-    let result = pool.getData(position);
-    res.status(200).json(result || {});
+    const results = [];
+    fs.createReadStream('../public/assets/TrashRoutes.csv')
+    .pipe(csv())
+    .on('data', (row) => {
+        if(row.ROUTEID === position){
+            results.push(row);
+        }
+    })
+    .on('end', () => {
+        res.status(200).json(results || []);
+        console.log("搜尋資料完畢");
+    });
 }
 
 module.exports = {

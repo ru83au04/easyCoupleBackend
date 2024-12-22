@@ -36321,8 +36321,8 @@ var FoodMapComponent = class _FoodMapComponent {
   // 搜尋垃圾車地點
   getCarRoute() {
     return __async(this, null, function* () {
-      let carId = yield this.mapSrv.getCarRoute("'\u5B89\u5357\u5340'");
-      console.log("carId", typeof carId, carId);
+      let carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
+      console.log("carId", carId);
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
