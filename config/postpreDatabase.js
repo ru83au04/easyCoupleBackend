@@ -1,23 +1,31 @@
-const { Client } = require('pg');  // 使用 PostgreSQL 的客戶端
+const { Pool } = require('pg');  // 使用 PostgreSQL 的客戶端
 require('dotenv').config();  // 載入 .env 檔案中的環境變數
 const axios = require('axios');
 
-const db = new Client({
+const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-})
-
-// 連接資料庫
-db.connect((err) => {
-  if (err) {
-    console.error('無法連接到資料庫:', err.stack);
-    return;
-  }
-  console.log('已成功連接到 PostgreSQL 資料庫');
 });
 
-async function initDatabase(){
+async function initDatabase() {
+  try {
+    // 1. 檢查並建立表格
+    await createTable();
+
+    // 2. 從 API 獲取資料
+    const records = await fetchRecordsFromAPI();
+
+    // 3. 插入資料到資料庫
+    await insertRecords(records);
+
+    console.log('資料庫初始化完成');
+  } catch (error) {
+    console.error('初始化資料庫失敗:', error);
+  }
+}
+
+async function createTable(){
   const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS trash_collection_points (
+    CREATE TABLE IF NOT EXISTS trash_collection_points (
       id SERIAL PRIMARY KEY,
       area TEXT NOT NULL,
       route_id TEXT NOT NULL,
@@ -30,34 +38,42 @@ async function initDatabase(){
       word_day TEXT NOT NULL,
       recycle_day TEXT NOT NULL,
       CONSTRAINT unique_point UNIQUE (area, route_id, route_order)
-  );
-`;
+    );
+  `;
   try {
     await pool.query(createTableQuery);
-    console.log("表格已確認存在或成功建立");
+    console.log('表格已確認存在或成功建立');
   } catch (error) {
-    console.error("建立表格失敗:", error);
+    console.error('建立表格失敗:', error);
+    throw error; // 將錯誤拋出以便上層捕獲
   }
+}
 
-  let records;
-  let url = 'https://data.tainan.gov.tw/api/3/action/datastore_search_sql?sql=SELECT * FROM "ae3a8531-2ee2-48fb-bb97-05e34d39a7ab"';
-  try{
+async function fetchRecordsFromAPI() {
+  const url = 'https://data.tainan.gov.tw/api/3/action/datastore_search_sql?sql=SELECT * FROM "ae3a8531-2ee2-48fb-bb97-05e34d39a7ab"';
+  try {
     const res = await axios.get(url);
-    records = res.data.result.records;
-  }catch(err){
-    console.log("error", err);
+    console.log('從 API 獲取資料成功');
+    return res.data.result.records;
+  } catch (error) {
+    console.error('從 API 獲取資料失敗:', error);
+    throw error; // 將錯誤拋出以便上層捕獲
   }
+}
 
-  for(const record of records){
-    const query = `
-        INSERT INTO trash_collection_points (area, route_id, route_order, village, point_name, time, longitude, latitude, word_day, recycle_day)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (area, route_id, route_order) DO NOTHING;
-      `;
+async function insertRecords(records) {
+  const query = `
+    INSERT INTO trash_collection_points (area, route_id, route_order, village, point_name, time, longitude, latitude, word_day, recycle_day)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    ON CONFLICT (area, route_id, route_order) DO NOTHING;
+  `;
+
+  try {
+    for (const record of records) {
       const values = [
         record.AREA,
         record.ROUTEID,
-        parseFloat(record.ROUTEORDER),
+        parseInt(record.ROUTEORDER, 10),
         record.VILLAGE,
         record.POINTNAME,
         record.TIME,
@@ -66,11 +82,14 @@ async function initDatabase(){
         record.WORDDAY,
         record.RECYCLEDAY,
       ];
-      await db.query(query, values);
+
+      await pool.query(query, values);
+    }
+    console.log('資料插入完成');
+  } catch (error) {
+    console.error('插入資料失敗:', error);
+    throw error; // 將錯誤拋出以便上層捕獲
   }
 }
 
-module.exports = {
-  db,
-  getTainanData,
-}
+module.exports = { pool, initDatabase}

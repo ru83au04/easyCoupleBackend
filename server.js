@@ -33,11 +33,23 @@ app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 in
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
 
-// TODO: Render 測試用
-const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+startServer();
+
+
+
+async function startServer(){
+  try{
+    await db.initDatabase();
+
+    // TODO: Render 測試用
+    const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  }catch (err){
+    console.error('伺服器啟動失敗', err);
+  }
+}
 
 // 授權回調處理
 // const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
