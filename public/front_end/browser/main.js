@@ -36316,7 +36316,7 @@ var FoodMapComponent = class _FoodMapComponent {
               },
               title: place.TIME,
               // 標示標題
-              content: this.createMark(place.displayName.text, 1)
+              content: this.createMark(place.TIME, 1)
               // 標示樣式
             });
             break;
