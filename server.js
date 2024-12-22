@@ -37,7 +37,7 @@ startServer();
 
 async function startServer(){
   try{
-    await db.initDatabase();
+    // await db.initDatabase();
 
     // TODO: Render 測試用
     const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
