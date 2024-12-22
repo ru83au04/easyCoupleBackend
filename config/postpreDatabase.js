@@ -93,7 +93,8 @@ async function insertRecords(records) {
 }
 
 async function getData(param){
-  let paramQuery = `SELECT * FROM trash_collection_points WHERE area = $1`;
+  console.log("param", param);
+  let paramQuery = `SELECT * FROM trash_collection_points WHERE area = ${param}`;
 
   let result = await pool.query(paramQuery, [param]);
   console.log("result", result.rows);
