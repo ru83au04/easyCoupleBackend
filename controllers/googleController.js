@@ -40,7 +40,8 @@ const findFood = async (req, res) => {
 };
 
 const findCarRouteid = async (req, res) => {
-    const { position } = req.query
+    const { position } = req.query;
+    console.log("position", position);
     let result = pool.getData(position);
     res.status(200).json(result || {});
 }
