@@ -96,7 +96,7 @@ async function getData(param){
   console.log("param", param);
   let paramQuery = `SELECT * FROM trash_collection_points WHERE area = ${param}`;
 
-  let result = await pool.query(paramQuery, [param]);
+  let result = await pool.query(paramQuery);
   console.log("result", result.rows);
   return result.rows;
 }
