@@ -3,6 +3,8 @@ const express = require('express');
 const api = require('./routes/api');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
+// 測試用
+const axios = require('axios');
 
 const app = express();
 

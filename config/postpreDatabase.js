@@ -1,5 +1,6 @@
 const { Client } = require('pg');  // 使用 PostgreSQL 的客戶端
 require('dotenv').config();  // 載入 .env 檔案中的環境變數
+const axios = require('axios');
 
 const db = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -14,4 +15,20 @@ db.connect((err) => {
   console.log('已成功連接到 PostgreSQL 資料庫');
 });
 
-module.exports = db;
+const getTainanData = async (req, res) => {
+  let url = 'https://data.tainan.gov.tw/api/3/action/datastore_search_sql?sql=SELECT * FROM "ae3a8531-2ee2-48fb-bb97-05e34d39a7ab"';
+  try{
+    const response = await axios.get(url);
+    const data = response.result.records;
+    data.map((data) => {
+      console.log("data", data.AREA);
+    })
+  }catch(err){
+    console.log("error", err);
+  }
+}
+
+module.exports = {
+  db,
+  getTainanData,
+}
