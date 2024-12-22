@@ -36174,7 +36174,6 @@ var MapService = class _MapService {
       try {
         const res = this.http.get(`${this.rootUrl}/api/google/carRouteid`, { params });
         const data = yield lastValueFrom(res);
-        console.log("data", data);
         return data;
       } catch (err) {
         console.error("Failed to fetch places data: ", err);
@@ -36255,7 +36254,7 @@ var FoodMapComponent = class _FoodMapComponent {
     return div;
   }
   // 建立搜尋結果圖示
-  createMark(displayName) {
+  createMark(displayName, type) {
     const div = document.createElement("div");
     div.style.display = "flex";
     div.style.flexDirection = "column";
@@ -36265,7 +36264,13 @@ var FoodMapComponent = class _FoodMapComponent {
     text.textContent = displayName;
     text.style.fontWeight = "bold";
     const img = document.createElement("img");
-    img.src = "../../assets/food.png";
+    switch (type) {
+      case searchType.food:
+        img.src = "../../assets/food.png";
+        break;
+      case searchType.trashCarPosition:
+        img.src = "../../assets/\u8AB0\u5077\u4E86\u5783\u573E\u6876.png";
+    }
     img.style.width = "32px";
     img.style.height = "32px";
     div.appendChild(img);
@@ -36273,10 +36278,10 @@ var FoodMapComponent = class _FoodMapComponent {
     return div;
   }
   // 搜尋結果圖示加入地圖
-  addMarkersToMap(places) {
+  addMarkersToMap(places, type) {
     return new Promise((resolve, reject) => {
       if (!places || places.length === 0) {
-        reject("\u627E\u4E0D\u5230\u9910\u5EF3");
+        reject("\u627E\u4E0D\u5230\u6307\u5B9A\u5167\u5BB9");
         return;
       }
       if (!this.map) {
@@ -36285,18 +36290,37 @@ var FoodMapComponent = class _FoodMapComponent {
       }
       let completedMarkers = 0;
       places.forEach((place) => {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-          map: this.map,
-          // 將標記放置到現有地圖上
-          position: {
-            lat: place.location.latitude,
-            lng: place.location.longitude
-          },
-          title: place.displayName.text,
-          // 使用預設標題
-          content: this.createMark(place.displayName.text)
-          // 自定義標記內容
-        });
+        let marker;
+        switch (type) {
+          case searchType.food:
+            marker = new google.maps.marker.AdvancedMarkerElement({
+              map: this.map,
+              // 將標記放置到現有地圖上
+              position: {
+                lat: place.location.latitude,
+                lng: place.location.longitude
+              },
+              title: place.displayName.text,
+              // 標示標題
+              content: this.createMark(place.displayName.text, 0)
+              // 標示樣式
+            });
+            break;
+          case searchType.trashCarPosition:
+            marker = new google.maps.marker.AdvancedMarkerElement({
+              map: this.map,
+              // 將標記放置到現有地圖上
+              position: {
+                lat: place.LATITUDE,
+                lng: place.LONGITUDE
+              },
+              title: place.TIME,
+              // 標示標題
+              content: this.createMark(place.displayName.text, 1)
+              // 標示樣式
+            });
+            break;
+        }
         completedMarkers++;
         this.resultMarks.push(marker);
         if (completedMarkers === places.length) {
@@ -36315,14 +36339,16 @@ var FoodMapComponent = class _FoodMapComponent {
     return __async(this, null, function* () {
       let foodResult;
       foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      yield this.addMarkersToMap(foodResult);
+      yield this.addMarkersToMap(foodResult, 0);
     });
   }
   // 搜尋垃圾車地點
   getCarRoute() {
     return __async(this, null, function* () {
-      let carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
-      console.log("carId", carId);
+      let carId;
+      carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
+      yield this.addMarkersToMap(carId, 1);
+      return carId;
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
@@ -36368,6 +36394,11 @@ var FoodMapComponent = class _FoodMapComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FoodMapComponent, { className: "FoodMapComponent", filePath: "src\\app\\Page\\food-map\\food-map.component.ts", lineNumber: 13 });
 })();
+var searchType;
+(function(searchType2) {
+  searchType2[searchType2["food"] = 0] = "food";
+  searchType2[searchType2["trashCarPosition"] = 1] = "trashCarPosition";
+})(searchType || (searchType = {}));
 
 // node_modules/@angular/forms/fesm2022/forms.mjs
 var BaseControlValueAccessor = class _BaseControlValueAccessor {

@@ -20,7 +20,7 @@ const app = express();
 //   res.redirect(loginUrl);
 // });
 
-const DIST_DIR = path.join(__dirname, 'public/browser'); // 設定靜態資料位置
+const DIST_DIR = path.join(__dirname, 'public/front_end/browser'); // 設定靜態資料位置
 app.use(express.static(DIST_DIR)); // 前端取得靜態資料的位置
 
 app.use(express.json()); // 中介層處理 json格式資料
@@ -29,9 +29,9 @@ app.use('/line', lineRoutes); // line功能路由
 
 app.use('/api', api); // 前端發送 API路由
 
-app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 index.html 文件
-  res.sendFile(path.join(DIST_DIR, 'index.html'));
-});
+// app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 index.html 文件
+//   res.sendFile(path.join(DIST_DIR, 'index.html'));
+// });
 
 startServer();
 
