@@ -1,6 +1,7 @@
 const axios = require('axios');
 const csv = require('csv-parser');
 const fs = require('fs');
+const path = require('path');
 
 // 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
@@ -43,7 +44,7 @@ const findFood = async (req, res) => {
 const findCarRouteid = async (req, res) => {
     const { position } = req.query;
     const results = [];
-    fs.createReadStream('../public/assets/TrashRoutes.csv')
+    fs.createReadStream(__dirname, '../public/assets/TrashRoutes.csv')
     .pipe(csv())
     .on('data', (row) => {
         if(row.ROUTEID === position){
