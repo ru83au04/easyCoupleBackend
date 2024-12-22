@@ -29,9 +29,9 @@ app.use('/line', lineRoutes); // line功能路由
 
 app.use('/api', api); // 前端發送 API路由
 
-// app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 index.html 文件
-//   res.sendFile(path.join(DIST_DIR, 'index.html'));
-// });
+app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 index.html 文件
+  res.sendFile(path.join(DIST_DIR, 'index.html'));
+});
 
 startServer();
 
