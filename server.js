@@ -33,8 +33,6 @@ app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 in
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
 
-app.get(db.getTainanData);
-
 // TODO: Render 測試用
 const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
 app.listen(PORT, () => {
