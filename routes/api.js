@@ -5,5 +5,6 @@ const googleController = require('../controllers/googleController');
 
 router.get('/weather/local', weatherController.getWeather);
 router.get('/google/food', googleController.findFood);
+router.get('/google/carRouteid', googleController.findCarRouteid);
 
 module.exports = router;

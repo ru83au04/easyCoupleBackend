@@ -36162,8 +36162,21 @@ var MapService = class _MapService {
         const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
         const data = yield lastValueFrom(response);
         return data;
-      } catch (error) {
-        console.error("Failed to fetch places data: ", error);
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return {};
+      }
+    });
+  }
+  getCarRoute(param) {
+    return __async(this, null, function* () {
+      let params = new HttpParams().set("position", param);
+      try {
+        const res = this.http.get(`${this.rootUrl}/api/google/carRouteid`, { params });
+        const data = yield lastValueFrom(res);
+        return data;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
         return {};
       }
     });
@@ -36208,6 +36221,7 @@ var FoodMapComponent = class _FoodMapComponent {
       }
     });
   }
+  // 初始化地圖
   initMap() {
     const mapElement = this.mapContainer.nativeElement;
     this.map = new google.maps.Map(mapElement, {
@@ -36224,6 +36238,7 @@ var FoodMapComponent = class _FoodMapComponent {
       content: this.createCustomMarkerContent()
     });
   }
+  // 建立使用者位置圖示放入地圖
   createCustomMarkerContent() {
     const div = document.createElement("div");
     const img = document.createElement("img");
@@ -36238,6 +36253,7 @@ var FoodMapComponent = class _FoodMapComponent {
     div.appendChild(img);
     return div;
   }
+  // 建立搜尋結果圖示
   createMark(displayName) {
     const div = document.createElement("div");
     div.style.display = "flex";
@@ -36255,13 +36271,7 @@ var FoodMapComponent = class _FoodMapComponent {
     div.appendChild(text);
     return div;
   }
-  findFood() {
-    return __async(this, null, function* () {
-      let foodResult;
-      foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      yield this.addMarkersToMap(foodResult);
-    });
-  }
+  // 搜尋結果圖示加入地圖
   addMarkersToMap(places) {
     return new Promise((resolve, reject) => {
       if (!places || places.length === 0) {
@@ -36294,9 +36304,25 @@ var FoodMapComponent = class _FoodMapComponent {
       });
     });
   }
+  // 清除地圖上的搜尋結果圖示
   clearMarkers() {
     this.resultMarks.forEach((mark) => mark.map = null);
     this.resultMarks = [];
+  }
+  // 搜尋使用者附近的餐廳並標上圖示
+  findFood() {
+    return __async(this, null, function* () {
+      let foodResult;
+      foodResult = yield this.mapSrv.findFood(this.currentLocation);
+      yield this.addMarkersToMap(foodResult);
+    });
+  }
+  // 搜尋垃圾車地點
+  getCarRoute() {
+    return __async(this, null, function* () {
+      let carId = yield this.mapSrv.getCarRoute("\u5B89\u5357\u5340");
+      console.log("carId", carId);
+    });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
@@ -36309,7 +36335,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 9, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "main")(1, "button", 1);
@@ -36326,7 +36352,14 @@ var FoodMapComponent = class _FoodMapComponent {
       });
       \u0275\u0275text(4, "\u6E05\u9664\u641C\u5C0B\u7D50\u679C");
       \u0275\u0275elementEnd();
-      \u0275\u0275element(5, "div", 2, 0);
+      \u0275\u0275elementStart(5, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_5_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.getCarRoute());
+      });
+      \u0275\u0275text(6, "\u67E5\u8A62\u5783\u573E\u8ECA\u5730\u9EDE");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(7, "div", 2, 0);
       \u0275\u0275elementEnd();
     }
   }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });

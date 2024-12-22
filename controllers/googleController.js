@@ -1,4 +1,5 @@
 const axios = require('axios');
+const pool = require('../config/postpreDatabase');
 
 // 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
@@ -38,6 +39,13 @@ const findFood = async (req, res) => {
     }
 };
 
+const findCarRouteid = async (req, res) => {
+    const { param } = req.query
+    let result = pool.getData(param);
+    res.status(200).json(result || {});
+}
+
 module.exports = {
     findFood,
+    findCarRouteid,
 }

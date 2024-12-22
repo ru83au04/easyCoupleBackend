@@ -92,4 +92,11 @@ async function insertRecords(records) {
   }
 }
 
-module.exports = { pool, initDatabase}
+async function getData(param){
+  let paramQuery = `SELECT * FROM trash_collection_points WHERE "AREA" = '${param}'`
+  let result = await pool.query(paramQuery);
+  console.log("result", result);
+  return result;
+}
+
+module.exports = { pool, initDatabase, getData}

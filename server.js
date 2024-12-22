@@ -35,8 +35,6 @@ app.get('*', (req, res) => { // 處理所有路由，返回 Angular 應用的 in
 
 startServer();
 
-
-
 async function startServer(){
   try{
     await db.initDatabase();
