@@ -94,9 +94,9 @@ async function insertRecords(records) {
 
 async function getData(param){
   // let paramQuery = `SELECT * FROM trash_collection_points WHERE area = $1`
-  let paramQuery = `SELECT * FROM trash_collection_points`;
+  let paramQuery = `SELECT * FROM trash_collection_points WHERE area = '七股區'`;
 
-  let result = await pool.query(paramQuery, [param]);
+  let result = await pool.query(paramQuery);
   console.log("result", result.rows);
   return result.rows;
 }
