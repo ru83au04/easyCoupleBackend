@@ -93,7 +93,7 @@ async function insertRecords(records) {
 }
 
 async function getData(param){
-  let paramQuery = `SELECT * FROM trash_collection_points WHERE AREA = $1`
+  let paramQuery = `SELECT * FROM trash_collection_points WHERE "行政區" = $1`
   let result = await pool.query(paramQuery, [param]);
   console.log("result", result.rows);
   return result.rows;
