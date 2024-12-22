@@ -36311,8 +36311,8 @@ var FoodMapComponent = class _FoodMapComponent {
               map: this.map,
               // 將標記放置到現有地圖上
               position: {
-                lat: place.LATITUDE,
-                lng: place.LONGITUDE
+                lat: parseFloat(place.LATITUDE),
+                lng: parseFloat(place.LONGITUDE)
               },
               title: place.TIME,
               // 標示標題
@@ -36347,6 +36347,7 @@ var FoodMapComponent = class _FoodMapComponent {
     return __async(this, null, function* () {
       let carId;
       carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
+      console.log("carId", typeof carId, carId);
       yield this.addMarkersToMap(carId, 1);
       return carId;
     });
