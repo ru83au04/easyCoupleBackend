@@ -44,7 +44,8 @@ const findFood = async (req, res) => {
 const findCarRouteid = async (req, res) => {
     const { position } = req.query;
     const results = [];
-    fs.createReadStream(__dirname, '../public/assets/TrashRoutes.csv')
+    const csvUrl = path.resolve(__dirname, '../public/assets/TrashRoutes.csv')
+    fs.createReadStream(csvUrl)
     .pipe(csv())
     .on('data', (row) => {
         if(row.ROUTEID === position){
