@@ -149,4 +149,4 @@ async function getData(param){
 //   }
 // }
 
-module.exports = { pool, initDatabase, initDatabaseWithCsv, getData}
+module.exports = { pool, initDatabaseWithCsv, getData}
