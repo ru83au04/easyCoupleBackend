@@ -1,10 +1,16 @@
 const { Pool } = require('pg');  // 使用 PostgreSQL 的客戶端
+const path = require('path');
 require('dotenv').config();  // 載入 .env 檔案中的環境變數
 const axios = require('axios');
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
+
+async function initDatabaseWithCsv() {
+  let pathUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv');
+  copyCsvFile(pathUrl);
+}
 
 async function initDatabase() {
   try {
@@ -99,4 +105,22 @@ async function getData(param){
   return result.rows;
 }
 
-module.exports = { pool, initDatabase, getData}
+async function copyCsvFile(filePath){
+  const query = `
+    COPY trash_position(AREA,ROUTEID,ROUTEORDER,VILLAGE,POINTNAME,TIME,LONGITUDE,LATITUDE,WORDDAY,RECYCLEDAY)
+    FROM '${filePath}'
+    DELIMITER ','
+    CSV HEADER;
+  `;
+
+  try {
+    const client = await pool.connect();
+    await client.query(query);
+    console.log('CSV 文件成功匯入資料庫！');
+    client.release();
+  } catch (error) {
+    console.error('匯入資料失敗：', error);
+  }
+}
+
+module.exports = { pool, initDatabase, initDatabaseWithCsv, getData}
