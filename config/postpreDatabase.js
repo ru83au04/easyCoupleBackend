@@ -8,7 +8,7 @@ const pool = new Pool({
 });
 
 async function initDatabaseWithCsv() {
-  let pathUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv');
+  let pathUrl = '/opt/render/project/src/public/assets/TrashRoutes.csv';
   copyCsvFile(pathUrl);
 }
 
