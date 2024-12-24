@@ -71,6 +71,7 @@ try {
   } 
   finally {
     client.release();
+    console.log("final release");
   }
 }
 

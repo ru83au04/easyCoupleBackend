@@ -42473,7 +42473,6 @@ var FoodMapComponent = class _FoodMapComponent {
     return __async(this, null, function* () {
       let carId;
       carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
-      console.log("carId", typeof carId, carId);
       yield this.addMarkersToMap(carId, 1);
       return carId;
     });
@@ -42481,6 +42480,7 @@ var FoodMapComponent = class _FoodMapComponent {
   setArea() {
     return __async(this, null, function* () {
       this.areas = yield this.mapSrv.getAreaList();
+      console.log("areas", this.areas);
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
