@@ -42282,7 +42282,7 @@ var MapService = class _MapService {
   getAreaList() {
     return __async(this, null, function* () {
       try {
-        const res = this.http.get(`${this.rootUrl}/api/google/getAreaList`);
+        const res = this.http.get(`${this.rootUrl}/api/google/areaList`);
         const areas = yield lastValueFrom(res);
         return areas;
       } catch (err) {
