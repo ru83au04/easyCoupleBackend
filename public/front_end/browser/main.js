@@ -36130,277 +36130,6 @@ var environment = {
   googleMapsApiKey: "AIzaSyDgo_AhDHFBAftxhMog2j9YfeIHQ-yzF1U"
 };
 
-// src/app/Service/map.service.ts
-var MapService = class _MapService {
-  http;
-  rootUrl = "https://easy-couple-life.onrender.com";
-  constructor(http) {
-    this.http = http;
-  }
-  loadGoogleMapsApi(apiKey) {
-    return new Promise((resolve, reject) => {
-      if (typeof google !== "undefined" && google.maps) {
-        resolve();
-      } else if (!document.getElementById("googleMapsScript")) {
-        const script = document.createElement("script");
-        script.id = "googleMapsScript";
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => resolve();
-        script.onerror = () => reject();
-        document.body.appendChild(script);
-      } else {
-        resolve();
-      }
-    });
-  }
-  findFood(position) {
-    return __async(this, null, function* () {
-      let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
-      try {
-        const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
-        const data = yield lastValueFrom(response);
-        return data;
-      } catch (err) {
-        console.error("Failed to fetch places data: ", err);
-        return {};
-      }
-    });
-  }
-  getCarRoute(param) {
-    return __async(this, null, function* () {
-      let params = new HttpParams().set("position", param);
-      try {
-        const res = this.http.get(`${this.rootUrl}/api/google/carRouteid`, { params });
-        const data = yield lastValueFrom(res);
-        return data;
-      } catch (err) {
-        console.error("Failed to fetch places data: ", err);
-        return {};
-      }
-    });
-  }
-  static \u0275fac = function MapService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
-};
-
-// src/app/Page/food-map/food-map.component.ts
-var _c0 = ["mapContainer"];
-var FoodMapComponent = class _FoodMapComponent {
-  mapSrv;
-  currentLocation;
-  mapContainer;
-  map;
-  resultMarks = [];
-  constructor(mapSrv) {
-    this.mapSrv = mapSrv;
-  }
-  ngOnInit() {
-  }
-  ngAfterViewInit() {
-    this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey).then(() => this.getUserLocation()).then(() => this.initMap()).catch((err) => console.error("Google Maps \u52A0\u8F09\u5931\u6557", err));
-  }
-  getUserLocation() {
-    return new Promise((resolve, reject) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          this.currentLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          resolve();
-        }, (error) => {
-          console.error("\u7121\u6CD5\u53D6\u5F97\u4F4D\u7F6E:", error);
-          reject("\u7121\u6CD5\u53D6\u5F97\u4F7F\u7528\u8005\u4F4D\u7F6E");
-        });
-      } else {
-        reject("\u700F\u89BD\u5668\u4E0D\u652F\u63F4 Geolocation API");
-      }
-    });
-  }
-  // 初始化地圖
-  initMap() {
-    const mapElement = this.mapContainer.nativeElement;
-    this.map = new google.maps.Map(mapElement, {
-      mapId: environment.googleMapsId,
-      center: { lat: this.currentLocation.lat, lng: this.currentLocation.lng },
-      // 初始化中心點
-      zoom: 18
-      // 設置地圖縮放等級
-    });
-    const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
-      map: this.map,
-      position: this.currentLocation,
-      title: "Advanced Marker",
-      content: this.createCustomMarkerContent()
-    });
-  }
-  // 建立使用者位置圖示放入地圖
-  createCustomMarkerContent() {
-    const div = document.createElement("div");
-    const img = document.createElement("img");
-    div.textContent = "U R Here";
-    div.style.display = "flex";
-    div.style.flexDirection = "column";
-    div.style.alignItems = "center";
-    div.style.color = "Blue";
-    img.src = "../../assets/noah.png";
-    img.style.width = "35px";
-    img.style.height = "auto";
-    div.appendChild(img);
-    return div;
-  }
-  // 建立搜尋結果圖示
-  createMark(displayName, type) {
-    const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.flexDirection = "column";
-    div.style.alignItems = "center";
-    div.style.color = "blue";
-    const text = document.createElement("span");
-    text.textContent = displayName;
-    text.style.fontWeight = "bold";
-    const img = document.createElement("img");
-    switch (type) {
-      case searchType.food:
-        img.src = "../../assets/food.png";
-        break;
-      case searchType.trashCarPosition:
-        img.src = "../../assets/\u8AB0\u5077\u4E86\u5783\u573E\u6876.png";
-    }
-    img.style.width = "32px";
-    img.style.height = "32px";
-    div.appendChild(img);
-    div.appendChild(text);
-    return div;
-  }
-  // 搜尋結果圖示加入地圖
-  addMarkersToMap(places, type) {
-    return new Promise((resolve, reject) => {
-      if (!places || places.length === 0) {
-        reject("\u627E\u4E0D\u5230\u6307\u5B9A\u5167\u5BB9");
-        return;
-      }
-      if (!this.map) {
-        reject("\u5730\u5716\u5C1A\u672A\u521D\u59CB\u5316");
-        return;
-      }
-      let completedMarkers = 0;
-      places.forEach((place) => {
-        let marker;
-        switch (type) {
-          case searchType.food:
-            marker = new google.maps.marker.AdvancedMarkerElement({
-              map: this.map,
-              // 將標記放置到現有地圖上
-              position: {
-                lat: place.location.latitude,
-                lng: place.location.longitude
-              },
-              title: place.displayName.text,
-              // 標示標題
-              content: this.createMark(place.displayName.text, 0)
-              // 標示樣式
-            });
-            break;
-          case searchType.trashCarPosition:
-            marker = new google.maps.marker.AdvancedMarkerElement({
-              map: this.map,
-              // 將標記放置到現有地圖上
-              position: {
-                lat: parseFloat(place.LATITUDE),
-                lng: parseFloat(place.LONGITUDE)
-              },
-              title: place.TIME,
-              // 標示標題
-              content: this.createMark(place.TIME, 1)
-              // 標示樣式
-            });
-            break;
-        }
-        completedMarkers++;
-        this.resultMarks.push(marker);
-        if (completedMarkers === places.length) {
-          resolve();
-        }
-      });
-    });
-  }
-  // 清除地圖上的搜尋結果圖示
-  clearMarkers() {
-    this.resultMarks.forEach((mark) => mark.map = null);
-    this.resultMarks = [];
-  }
-  // 搜尋使用者附近的餐廳並標上圖示
-  findFood() {
-    return __async(this, null, function* () {
-      let foodResult;
-      foodResult = yield this.mapSrv.findFood(this.currentLocation);
-      yield this.addMarkersToMap(foodResult, 0);
-    });
-  }
-  // 搜尋垃圾車地點
-  getCarRoute() {
-    return __async(this, null, function* () {
-      let carId;
-      carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
-      console.log("carId", typeof carId, carId);
-      yield this.addMarkersToMap(carId, 1);
-      return carId;
-    });
-  }
-  static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FoodMapComponent, selectors: [["app-food-map"]], viewQuery: function FoodMapComponent_Query(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275viewQuery(_c0, 5);
-    }
-    if (rf & 2) {
-      let _t;
-      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
-    }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 9, vars: 0, consts: [["mapContainer", ""], [3, "click"], [1, "map_container"]], template: function FoodMapComponent_Template(rf, ctx) {
-    if (rf & 1) {
-      const _r1 = \u0275\u0275getCurrentView();
-      \u0275\u0275elementStart(0, "main")(1, "button", 1);
-      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_1_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx.findFood());
-      });
-      \u0275\u0275text(2, "\u627E\u98DF\u7269");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(3, "button", 1);
-      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_3_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx.clearMarkers());
-      });
-      \u0275\u0275text(4, "\u6E05\u9664\u641C\u5C0B\u7D50\u679C");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(5, "button", 1);
-      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_5_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx.getCarRoute());
-      });
-      \u0275\u0275text(6, "\u67E5\u8A62\u5783\u573E\u8ECA\u5730\u9EDE");
-      \u0275\u0275elementEnd();
-      \u0275\u0275element(7, "div", 2, 0);
-      \u0275\u0275elementEnd();
-    }
-  }, styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FoodMapComponent, { className: "FoodMapComponent", filePath: "src\\app\\Page\\food-map\\food-map.component.ts", lineNumber: 13 });
-})();
-var searchType;
-(function(searchType2) {
-  searchType2[searchType2["food"] = 0] = "food";
-  searchType2[searchType2["trashCarPosition"] = 1] = "trashCarPosition";
-})(searchType || (searchType = {}));
-
 // node_modules/@angular/forms/fesm2022/forms.mjs
 var BaseControlValueAccessor = class _BaseControlValueAccessor {
   constructor(_renderer, _elementRef) {
@@ -42495,6 +42224,323 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
     }]
   }], null, null);
 })();
+
+// src/app/Service/map.service.ts
+var MapService = class _MapService {
+  http;
+  rootUrl = "https://easy-couple-life.onrender.com";
+  constructor(http) {
+    this.http = http;
+  }
+  // 將 Google Map使用的腳本動態建立並放入HTML中
+  loadGoogleMapsApi(apiKey) {
+    return new Promise((resolve, reject) => {
+      if (typeof google !== "undefined" && google.maps) {
+        resolve();
+      } else if (!document.getElementById("googleMapsScript")) {
+        const script = document.createElement("script");
+        script.id = "googleMapsScript";
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject();
+        document.body.appendChild(script);
+      } else {
+        resolve();
+      }
+    });
+  }
+  // 搜尋使用者所在地附近的餐廳
+  findFood(position) {
+    return __async(this, null, function* () {
+      let params = new HttpParams().set("lat", position.lat).set("lon", position.lng).set("radius", 2e3);
+      try {
+        const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
+        const data = yield lastValueFrom(response);
+        return data;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return {};
+      }
+    });
+  }
+  // 搜尋垃圾車地點 //TODO: 可能要刪除
+  getCarRoute(param) {
+    return __async(this, null, function* () {
+      let params = new HttpParams().set("position", param);
+      try {
+        const res = this.http.get(`${this.rootUrl}/api/google/carRouteid`, { params });
+        const data = yield lastValueFrom(res);
+        return data;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return {};
+      }
+    });
+  }
+  getAreaList() {
+    return __async(this, null, function* () {
+      try {
+        const res = this.http.get(`${this.rootUrl}/api/google/getAreaList`);
+        const areas = yield lastValueFrom(res);
+        return areas;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return [];
+      }
+    });
+  }
+  static \u0275fac = function MapService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapService, factory: _MapService.\u0275fac, providedIn: "root" });
+};
+
+// src/app/Page/food-map/food-map.component.ts
+var _c0 = ["mapContainer"];
+function FoodMapComponent_option_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const area_r2 = ctx.$implicit;
+    \u0275\u0275property("value", area_r2.area);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(area_r2.area);
+  }
+}
+var FoodMapComponent = class _FoodMapComponent {
+  mapSrv;
+  currentLocation;
+  mapContainer;
+  map;
+  resultMarks = [];
+  areas;
+  selectedArea = "";
+  constructor(mapSrv) {
+    this.mapSrv = mapSrv;
+  }
+  ngOnInit() {
+    this.setArea();
+  }
+  ngAfterViewInit() {
+    this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey).then(() => this.getUserLocation()).then(() => this.initMap()).catch((err) => console.error("Google Maps \u52A0\u8F09\u5931\u6557", err));
+  }
+  getUserLocation() {
+    return new Promise((resolve, reject) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.currentLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          resolve();
+        }, (error) => {
+          console.error("\u7121\u6CD5\u53D6\u5F97\u4F4D\u7F6E:", error);
+          reject("\u7121\u6CD5\u53D6\u5F97\u4F7F\u7528\u8005\u4F4D\u7F6E");
+        });
+      } else {
+        reject("\u700F\u89BD\u5668\u4E0D\u652F\u63F4 Geolocation API");
+      }
+    });
+  }
+  // 初始化地圖
+  initMap() {
+    const mapElement = this.mapContainer.nativeElement;
+    this.map = new google.maps.Map(mapElement, {
+      mapId: environment.googleMapsId,
+      center: { lat: this.currentLocation.lat, lng: this.currentLocation.lng },
+      // 初始化中心點
+      zoom: 18
+      // 設置地圖縮放等級
+    });
+    const advancedMarkerView = new google.maps.marker.AdvancedMarkerElement({
+      map: this.map,
+      position: this.currentLocation,
+      title: "Advanced Marker",
+      content: this.createCustomMarkerContent()
+    });
+  }
+  // 建立使用者位置圖示放入地圖
+  createCustomMarkerContent() {
+    const div = document.createElement("div");
+    const img = document.createElement("img");
+    div.textContent = "U R Here";
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "center";
+    div.style.color = "Blue";
+    img.src = "../../assets/noah.png";
+    img.style.width = "35px";
+    img.style.height = "auto";
+    div.appendChild(img);
+    return div;
+  }
+  // 建立搜尋結果圖示
+  createMark(displayName, type) {
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "center";
+    div.style.color = "blue";
+    const text = document.createElement("span");
+    text.textContent = displayName;
+    text.style.fontWeight = "bold";
+    const img = document.createElement("img");
+    switch (type) {
+      case searchType.food:
+        img.src = "../../assets/food.png";
+        break;
+      case searchType.trashCarPosition:
+        img.src = "../../assets/\u8AB0\u5077\u4E86\u5783\u573E\u6876.png";
+    }
+    img.style.width = "32px";
+    img.style.height = "32px";
+    div.appendChild(img);
+    div.appendChild(text);
+    return div;
+  }
+  // 搜尋結果圖示加入地圖
+  addMarkersToMap(places, type) {
+    return new Promise((resolve, reject) => {
+      if (!places || places.length === 0) {
+        reject("\u627E\u4E0D\u5230\u6307\u5B9A\u5167\u5BB9");
+        return;
+      }
+      if (!this.map) {
+        reject("\u5730\u5716\u5C1A\u672A\u521D\u59CB\u5316");
+        return;
+      }
+      let completedMarkers = 0;
+      places.forEach((place) => {
+        let marker;
+        switch (type) {
+          case searchType.food:
+            marker = new google.maps.marker.AdvancedMarkerElement({
+              map: this.map,
+              // 將標記放置到現有地圖上
+              position: {
+                lat: place.location.latitude,
+                lng: place.location.longitude
+              },
+              title: place.displayName.text,
+              // 標示標題
+              content: this.createMark(place.displayName.text, 0)
+              // 標示樣式
+            });
+            break;
+          case searchType.trashCarPosition:
+            marker = new google.maps.marker.AdvancedMarkerElement({
+              map: this.map,
+              // 將標記放置到現有地圖上
+              position: {
+                lat: parseFloat(place.LATITUDE),
+                lng: parseFloat(place.LONGITUDE)
+              },
+              title: place.TIME,
+              // 標示標題
+              content: this.createMark(place.TIME, 1)
+              // 標示樣式
+            });
+            break;
+        }
+        completedMarkers++;
+        this.resultMarks.push(marker);
+        if (completedMarkers === places.length) {
+          resolve();
+        }
+      });
+    });
+  }
+  // 清除地圖上的搜尋結果圖示
+  clearMarkers() {
+    this.resultMarks.forEach((mark) => mark.map = null);
+    this.resultMarks = [];
+  }
+  // 搜尋使用者附近的餐廳
+  findFood() {
+    return __async(this, null, function* () {
+      let foodResult;
+      foodResult = yield this.mapSrv.findFood(this.currentLocation);
+      yield this.addMarkersToMap(foodResult, 0);
+    });
+  }
+  // 搜尋垃圾車地點 //TODO:可能要替換掉
+  getCarRoute() {
+    return __async(this, null, function* () {
+      let carId;
+      carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
+      console.log("carId", typeof carId, carId);
+      yield this.addMarkersToMap(carId, 1);
+      return carId;
+    });
+  }
+  setArea() {
+    return __async(this, null, function* () {
+      this.areas = yield this.mapSrv.getAreaList();
+    });
+  }
+  static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FoodMapComponent)(\u0275\u0275directiveInject(MapService));
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FoodMapComponent, selectors: [["app-food-map"]], viewQuery: function FoodMapComponent_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(_c0, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
+    }
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "ngModel"], ["value", "", "disabled", ""], [3, "value", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "value"]], template: function FoodMapComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "main")(1, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_1_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.findFood());
+      });
+      \u0275\u0275text(2, "\u627E\u98DF\u7269");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(3, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_3_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.clearMarkers());
+      });
+      \u0275\u0275text(4, "\u6E05\u9664\u641C\u5C0B\u7D50\u679C");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(5, "select", 2);
+      \u0275\u0275twoWayListener("ngModelChange", function FoodMapComponent_Template_select_ngModelChange_5_listener($event) {
+        \u0275\u0275restoreView(_r1);
+        \u0275\u0275twoWayBindingSet(ctx.selectedArea, $event) || (ctx.selectedArea = $event);
+        return \u0275\u0275resetView($event);
+      });
+      \u0275\u0275elementStart(6, "option", 3);
+      \u0275\u0275text(7, "\u8ACB\u9078\u64C7\u5730\u5340");
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(8, FoodMapComponent_option_8_Template, 2, 2, "option", 4);
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(9, "div", 5, 0);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(5);
+      \u0275\u0275twoWayProperty("ngModel", ctx.selectedArea);
+      \u0275\u0275advance(3);
+      \u0275\u0275property("ngForOf", ctx.areas);
+    }
+  }, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, SelectControlValueAccessor, NgControlStatus, NgModel], styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FoodMapComponent, { className: "FoodMapComponent", filePath: "src\\app\\Page\\food-map\\food-map.component.ts", lineNumber: 14 });
+})();
+var searchType;
+(function(searchType2) {
+  searchType2[searchType2["food"] = 0] = "food";
+  searchType2[searchType2["trashCarPosition"] = 1] = "trashCarPosition";
+})(searchType || (searchType = {}));
 
 // src/app/Page/sign-in/sign-in.component.ts
 var SignInComponent = class _SignInComponent {

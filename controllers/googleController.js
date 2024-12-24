@@ -1,7 +1,8 @@
 const axios = require('axios');
-const csv = require('csv-parser');
-const fs = require('fs');
+// const csv = require('csv-parser');
+// const fs = require('fs');
 const path = require('path');
+const db = require("../config/postpreDatabase");
 
 // 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
@@ -41,24 +42,29 @@ const findFood = async (req, res) => {
     }
 };
 
-const findCarRouteid = async (req, res) => {
-    const { position } = req.query;
-    const results = [];
-    const csvUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv')
-    fs.createReadStream(csvUrl)
-    .pipe(csv())
-    .on('data', (row) => {
-        if(row.ROUTEID === position){
-            results.push(row);
-        }
-    })
-    .on('end', () => {
-        res.status(200).json(results || []);
-        console.log("搜尋資料完畢");
-    });
+// const findCarRouteid = async (req, res) => {
+//     const { position } = req.query;
+//     const results = [];
+//     const csvUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv')
+//     fs.createReadStream(csvUrl)
+//     .pipe(csv())
+//     .on('data', (row) => {
+//         if(row.ROUTEID === position){
+//             results.push(row);
+//         }
+//     })
+//     .on('end', () => {
+//         res.status(200).json(results || []);
+//         console.log("搜尋資料完畢");
+//     });
+// }
+
+const getAreaList = async (req, res) => {
+    let areas = db.getAreaList();
+    res.status(200).json(areas || []);
 }
 
 module.exports = {
     findFood,
-    findCarRouteid,
+    getAreaList,
 }

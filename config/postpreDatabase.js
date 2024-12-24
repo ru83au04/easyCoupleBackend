@@ -12,6 +12,23 @@ const pool = new Pool({
 });
 
 async function initDatabaseWithCsv() {
+  const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS trash_collection_points (
+    id SERIAL PRIMARY KEY,
+    area TEXT NOT NULL,
+    route_id TEXT NOT NULL,
+    route_order INT NOT NULL,
+    village TEXT NOT NULL,
+    point_name TEXT NOT NULL,
+    time TEXT NOT NULL,
+    longitude NUMERIC NOT NULL,
+    latitude NUMERIC NOT NULL,
+    word_day TEXT NOT NULL,
+    recycle_day TEXT NOT NULL,
+    CONSTRAINT unique_point UNIQUE (area, route_id, route_order)
+  );
+`;
+
   const insertQuery = `
   INSERT INTO trash_collection_points (
     area, route_id, route_order, village, point_name, time, longitude, latitude, word_day, recycle_day
@@ -23,6 +40,8 @@ const client = await pool.connect();
 const fileUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv');
 
 try {
+  await client.query(createTableQuery);
+  console.log('表格已確認存在或成功建立');
   const rows = [];
   fs.createReadStream(fileUrl)
     .pipe(csv())
@@ -50,9 +69,9 @@ try {
   } catch (error) {
     console.error('匯入資料失敗:', error);
   } 
-  // finally {
-  //   client.release();
-  // }
+  finally {
+    client.release();
+  }
 }
 
 async function getData(param){
@@ -60,6 +79,18 @@ async function getData(param){
   let result = await pool.query(paramQuery);
   console.log("result", result.rows);
   return result.rows;
+}
+// 取得所有 AREA的值
+async function getAreaList(){
+  const query = `SELECT DISTINCT area FROM trash_collection_points`;
+  try {
+    const result = await pool.query(query);
+    console.log('不重複的區域:', result.rows);
+    return result.rows; // 返回區域資料
+  } catch (error) {
+    console.error('取得不重複區域失敗:', error);
+    throw error; // 將錯誤拋出以便上層捕獲
+  }
 }
 
 // TODO: 使用 API向公開資料庫取得資料
@@ -149,4 +180,10 @@ async function getData(param){
 //   }
 // }
 
-module.exports = { pool, initDatabaseWithCsv, getData}
+// 確認CSV檔案是否有被更新
+// async function checkCsvFileTime(filePath, lastProcessedTime){
+//   const stats = fs.statSync(filePath);
+//   return stats.mtime > lastProcessedTime;
+// }
+
+module.exports = { pool, initDatabaseWithCsv, getData, getAreaList}
