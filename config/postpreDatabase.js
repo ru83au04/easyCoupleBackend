@@ -9,6 +9,9 @@ const csv = require('csv-parser');
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    idleTimeoutMillis: 60000, // 閒置連線超時 60 秒
+    connectionTimeoutMillis: 60000, // 連線超時 60 秒
 });
 
 async function initDatabaseWithCsv() {
