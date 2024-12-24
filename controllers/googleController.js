@@ -60,8 +60,8 @@ const findFood = async (req, res) => {
 // }
 
 const getAreaList = async (req, res) => {
-    let areas = db.getAreaList();
-    res.status(200).json(areas || []);
+    let areas = await db.getAreaList();
+    res.status(200).json(areas || {});
 }
 
 module.exports = {

@@ -91,8 +91,8 @@ async function getAreaList(){
     console.log('不重複的區域:', result.rows);
     return result.rows; // 返回區域資料
   } catch (error) {
-    console.error('取得不重複區域失敗:', error);
-    throw error; // 將錯誤拋出以便上層捕獲
+    console.error('取得不重複區域失敗:', error.message);
+    throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤
   }
 }
 
