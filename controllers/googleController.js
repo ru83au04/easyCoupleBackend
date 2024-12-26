@@ -66,9 +66,10 @@ const getAreaList = async (req, res) => {
 
 const searchByArea = async (req, res) => {
     const { area } = req.query;
-    console.log("req and req.query", req, req.query);
+    console.log("req", req);
+    console.log("req.query", req.query)
     let result = await db.searchByArea(area);
-    console.log("db result", result);
+    console.log("db result", result); //TODO: 取得的是物件陣列
     res.status(200).json(area || {});
 }
 
