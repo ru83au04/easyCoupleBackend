@@ -64,6 +64,14 @@ const getAreaList = async (req, res) => {
     res.status(200).json(areas || {});
 }
 
+const searchByArea = async (req, res) => {
+    const { area } = req.query;
+    console.log("req and req.query", req, req.query);
+    let result = await db.searchByArea(area);
+    console.log("db result", result);
+    res.status(200).json(area || {});
+}
+
 module.exports = {
     findFood,
     getAreaList,
