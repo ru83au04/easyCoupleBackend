@@ -42316,21 +42316,15 @@ var MapService = class _MapService {
 var _c0 = ["mapContainer"];
 function FoodMapComponent_option_8_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "option", 6);
-    \u0275\u0275listener("click", function FoodMapComponent_option_8_Template_option_click_0_listener() {
-      const area_r3 = \u0275\u0275restoreView(_r2).$implicit;
-      const ctx_r3 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r3.choiceArea(area_r3.area));
-    });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const area_r3 = ctx.$implicit;
-    \u0275\u0275property("value", area_r3.area);
+    const area_r2 = ctx.$implicit;
+    \u0275\u0275property("value", area_r2.area);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(area_r3.area);
+    \u0275\u0275textInterpolate(area_r2.area);
   }
 }
 var FoodMapComponent = class _FoodMapComponent {
@@ -42520,7 +42514,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "ngModel"], ["value", "", "disabled", ""], [3, "value", "click", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "click", "value"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "change", "ngModel"], ["value", "", "disabled", ""], [3, "value", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "value"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "main")(1, "button", 1);
@@ -42542,6 +42536,10 @@ var FoodMapComponent = class _FoodMapComponent {
         \u0275\u0275restoreView(_r1);
         \u0275\u0275twoWayBindingSet(ctx.selectedArea, $event) || (ctx.selectedArea = $event);
         return \u0275\u0275resetView($event);
+      });
+      \u0275\u0275listener("change", function FoodMapComponent_Template_select_change_5_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.choiceArea(ctx.selectedArea));
       });
       \u0275\u0275elementStart(6, "option", 3);
       \u0275\u0275text(7, "\u8ACB\u9078\u64C7\u5730\u5340");
