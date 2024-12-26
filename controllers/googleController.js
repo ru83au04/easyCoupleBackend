@@ -75,4 +75,5 @@ const searchByArea = async (req, res) => {
 module.exports = {
     findFood,
     getAreaList,
+    searchByArea,
 }
