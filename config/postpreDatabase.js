@@ -91,9 +91,9 @@ async function getAreaList(){
 
 async function searchByArea(area){
   console.log('area', area);
-  const query = `SELECT * FROM trash_collection_points WHERE area = ${area}`
+  const query = `SELECT * FROM trash_collection_points WHERE area = $1`
   try{
-    const result = await pool.query(query);
+    const result = await pool.query(query, [area]);
     return result.rows;
   }catch(err){
     console.error('取得區域資料失敗:', err.message);
