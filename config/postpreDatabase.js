@@ -90,11 +90,10 @@ async function getAreaList(){
 }
 
 async function searchByArea(area){
-  console.log('area', area);
   const query = `SELECT * FROM trash_collection_points WHERE area = $1`
   try{
     const result = await pool.query(query, [area]);
-    return result.rows;
+    return result.rows; // TODO: 一個 row為一個JSON物件，會回傳 row[]陣列
   }catch(err){
     console.error('取得區域資料失敗:', err.message);
     throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤

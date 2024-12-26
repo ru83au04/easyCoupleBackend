@@ -42288,7 +42288,7 @@ var MapService = class _MapService {
         return areaPosition;
       } catch (err) {
         console.error("Failed to fetch places data: ", err);
-        return {};
+        return [];
       }
     });
   }
@@ -42500,7 +42500,7 @@ var FoodMapComponent = class _FoodMapComponent {
   choiceArea(area) {
     return __async(this, null, function* () {
       let resultArea = yield this.mapSrv.searchByArea(area);
-      console.log("area choice", resultArea);
+      this.addMarkersToMap(resultArea, 1);
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
