@@ -42282,7 +42282,7 @@ var MapService = class _MapService {
   searchByArea(area) {
     return __async(this, null, function* () {
       try {
-        let params = new HttpParams().set("area", `'${area}'`);
+        let params = new HttpParams().set("area", area);
         const res = this.http.get(`${this.rootUrl}/api/google/searchByArea`, { params });
         const areaPosition = yield lastValueFrom(res);
         return areaPosition;
