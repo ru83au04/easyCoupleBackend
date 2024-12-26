@@ -42265,6 +42265,33 @@ var MapService = class _MapService {
       }
     });
   }
+  // 取得行政區列表
+  getAreaList() {
+    return __async(this, null, function* () {
+      try {
+        const res = this.http.get(`${this.rootUrl}/api/google/areaList`);
+        const areas = yield lastValueFrom(res);
+        return areas;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return [];
+      }
+    });
+  }
+  // 搜尋選定行政區內的所有地點
+  searchByArea(area) {
+    return __async(this, null, function* () {
+      try {
+        let params = new HttpParams().set("area", area);
+        const res = this.http.get(`${this.rootUrl}/api/google/searchByArea`, { params });
+        const areaPosition = yield lastValueFrom(res);
+        return areaPosition;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return {};
+      }
+    });
+  }
   // 搜尋垃圾車地點 //TODO: 可能要刪除
   getCarRoute(param) {
     return __async(this, null, function* () {
@@ -42279,18 +42306,6 @@ var MapService = class _MapService {
       }
     });
   }
-  getAreaList() {
-    return __async(this, null, function* () {
-      try {
-        const res = this.http.get(`${this.rootUrl}/api/google/areaList`);
-        const areas = yield lastValueFrom(res);
-        return areas;
-      } catch (err) {
-        console.error("Failed to fetch places data: ", err);
-        return [];
-      }
-    });
-  }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
   };
@@ -42301,15 +42316,21 @@ var MapService = class _MapService {
 var _c0 = ["mapContainer"];
 function FoodMapComponent_option_8_Template(rf, ctx) {
   if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "option", 6);
+    \u0275\u0275listener("click", function FoodMapComponent_option_8_Template_option_click_0_listener() {
+      const area_r3 = \u0275\u0275restoreView(_r2).$implicit;
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.choiceArea(area_r3.area));
+    });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const area_r2 = ctx.$implicit;
-    \u0275\u0275property("value", area_r2.area);
+    const area_r3 = ctx.$implicit;
+    \u0275\u0275property("value", area_r3.area);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(area_r2.area);
+    \u0275\u0275textInterpolate(area_r3.area);
   }
 }
 var FoodMapComponent = class _FoodMapComponent {
@@ -42324,7 +42345,7 @@ var FoodMapComponent = class _FoodMapComponent {
     this.mapSrv = mapSrv;
   }
   ngOnInit() {
-    this.setArea();
+    this.setAreaList();
   }
   ngAfterViewInit() {
     this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey).then(() => this.getUserLocation()).then(() => this.initMap()).catch((err) => console.error("Google Maps \u52A0\u8F09\u5931\u6557", err));
@@ -42477,10 +42498,15 @@ var FoodMapComponent = class _FoodMapComponent {
       return carId;
     });
   }
-  setArea() {
+  setAreaList() {
     return __async(this, null, function* () {
       this.areas = yield this.mapSrv.getAreaList();
-      console.log("areas", this.areas);
+    });
+  }
+  choiceArea(area) {
+    return __async(this, null, function* () {
+      let resultArea = yield this.mapSrv.searchByArea(area);
+      console.log("area choice", resultArea);
     });
   }
   static \u0275fac = function FoodMapComponent_Factory(__ngFactoryType__) {
@@ -42494,7 +42520,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "ngModel"], ["value", "", "disabled", ""], [3, "value", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "value"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "ngModel"], ["value", "", "disabled", ""], [3, "value", "click", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "click", "value"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "main")(1, "button", 1);

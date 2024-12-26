@@ -77,21 +77,26 @@ try {
   }
 }
 
-async function getData(param){
-  let paramQuery = `SELECT * FROM trash_collection_points WHERE area = '安南區'`;
-  let result = await pool.query(paramQuery);
-  console.log("result", result.rows);
-  return result.rows;
-}
 // 取得所有 AREA的值
 async function getAreaList(){
   const query = `SELECT DISTINCT area FROM trash_collection_points`;
   try {
     const result = await pool.query(query);
-    console.log('不重複的區域:', result.rows);
     return result.rows; // 返回區域資料
-  } catch (error) {
-    console.error('取得不重複區域失敗:', error.message);
+  } catch (err) {
+    console.error('取得不重複區域失敗:', err.message);
+    throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤
+  }
+}
+
+async function searchByArea(area){
+  console.log('area', area);
+  const query = `SELECT * FROM trash_collection_points WHERE area = ${area}`
+  try{
+    const result = await pool.query(query);
+    return result.rows;
+  }catch(err){
+    console.error('取得區域資料失敗:', err.message);
     throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤
   }
 }
@@ -189,4 +194,11 @@ async function getAreaList(){
 //   return stats.mtime > lastProcessedTime;
 // }
 
-module.exports = { pool, initDatabaseWithCsv, getData, getAreaList}
+// async function getData(param){
+//   let paramQuery = `SELECT * FROM trash_collection_points WHERE area = '安南區'`;
+//   let result = await pool.query(paramQuery);
+//   console.log("result", result.rows);
+//   return result.rows;
+// }
+
+module.exports = { pool, initDatabaseWithCsv, getAreaList, searchByArea}
