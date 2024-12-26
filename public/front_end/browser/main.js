@@ -42452,12 +42452,12 @@ var FoodMapComponent = class _FoodMapComponent {
               map: this.map,
               // 將標記放置到現有地圖上
               position: {
-                lat: parseFloat(place.LATITUDE),
-                lng: parseFloat(place.LONGITUDE)
+                lat: parseFloat(place.latitude),
+                lng: parseFloat(place.longitude)
               },
-              title: place.TIME,
+              title: place.time,
               // 標示標題
-              content: this.createMark(place.TIME, 1)
+              content: this.createMark(place.time, 1)
               // 標示樣式
             });
             break;
