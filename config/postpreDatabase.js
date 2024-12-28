@@ -212,4 +212,9 @@ async function searchByAreaAndTime(area, time){
 //   return result.rows;
 // }
 
-module.exports = { pool, initDatabaseWithCsv, getAreaList, searchByArea}
+module.exports = { pool, 
+  initDatabaseWithCsv, 
+  getAreaList, 
+  searchByArea, 
+  searchByAreaAndTime
+}
