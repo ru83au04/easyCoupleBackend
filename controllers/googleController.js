@@ -42,6 +42,32 @@ const findFood = async (req, res) => {
     }
 };
 
+const getAreaList = async (req, res) => {
+    let areas = await db.getAreaList();
+    res.status(200).json(areas || {});
+}
+
+const searchByArea = async (req, res) => {
+    const { area } = req.query;
+    console.log("req.query", req.query) //TODO: query會拿到一個JSON物件
+    let result = await db.searchByArea(area);
+    console.log("db result", result); //TODO: 取得的是物件陣列
+    res.status(200).json(result || []);
+}
+
+const searchByAreaAndTime = async (req, res) => {
+    const { area, time } = req.query;
+    let result = await db.searchByAreaAndTime(area, time);
+    res.status(200).json(result || []);
+}
+
+module.exports = {
+    findFood,
+    getAreaList,
+    searchByArea,
+    searchByAreaAndTime,
+}
+
 // const findCarRouteid = async (req, res) => {
 //     const { position } = req.query;
 //     const results = [];
@@ -58,22 +84,3 @@ const findFood = async (req, res) => {
 //         console.log("搜尋資料完畢");
 //     });
 // }
-
-const getAreaList = async (req, res) => {
-    let areas = await db.getAreaList();
-    res.status(200).json(areas || {});
-}
-
-const searchByArea = async (req, res) => {
-    const { area } = req.query;
-    console.log("req.query", req.query) //TODO: query會拿到一個JSON物件
-    let result = await db.searchByArea(area);
-    console.log("db result", result); //TODO: 取得的是物件陣列
-    res.status(200).json(result || []);
-}
-
-module.exports = {
-    findFood,
-    getAreaList,
-    searchByArea,
-}

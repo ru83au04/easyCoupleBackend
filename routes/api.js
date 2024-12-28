@@ -8,5 +8,6 @@ router.get('/google/food', googleController.findFood);
 // router.get('/google/carRouteid', googleController.findCarRouteid);
 router.get('/google/areaList', googleController.getAreaList);
 router.get('/google/searchByArea', googleController.searchByArea);
+router.get('/google/searchByAreaAndTime', googleController.searchByAreaAndTime);
 
 module.exports = router;

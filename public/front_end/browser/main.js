@@ -42292,6 +42292,20 @@ var MapService = class _MapService {
       }
     });
   }
+  // 搜尋選定區域與時間段內的所有地點
+  searchByAreaAndTime(area, time) {
+    return __async(this, null, function* () {
+      try {
+        let params = new HttpParams().set("area", area).set("time", time);
+        const res = this.http.get(`${this.rootUrl}/api/google/searchByAreaAndTime`, { params });
+        const areaPosition = yield lastValueFrom(res);
+        return areaPosition;
+      } catch (err) {
+        console.error("Failed to fetch places data: ", err);
+        return [];
+      }
+    });
+  }
   // 搜尋垃圾車地點 //TODO: 可能要刪除
   getCarRoute(param) {
     return __async(this, null, function* () {
@@ -42327,6 +42341,19 @@ function FoodMapComponent_option_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(area_r2.area);
   }
 }
+function FoodMapComponent_option_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const t_r3 = ctx.$implicit;
+    \u0275\u0275property("value", t_r3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(t_r3);
+  }
+}
 var FoodMapComponent = class _FoodMapComponent {
   mapSrv;
   currentLocation;
@@ -42334,12 +42361,15 @@ var FoodMapComponent = class _FoodMapComponent {
   map;
   resultMarks = [];
   areas;
+  timeList = [];
   selectedArea = "";
+  selectedTIme = "";
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
   }
   ngOnInit() {
     this.setAreaList();
+    this.setTimeList();
   }
   ngAfterViewInit() {
     this.mapSrv.loadGoogleMapsApi(environment.googleMapsApiKey).then(() => this.getUserLocation()).then(() => this.initMap()).catch((err) => console.error("Google Maps \u52A0\u8F09\u5931\u6557", err));
@@ -42483,23 +42513,34 @@ var FoodMapComponent = class _FoodMapComponent {
       yield this.addMarkersToMap(foodResult, 0);
     });
   }
-  // 搜尋垃圾車地點 //TODO:可能要替換掉
-  getCarRoute() {
-    return __async(this, null, function* () {
-      let carId;
-      carId = yield this.mapSrv.getCarRoute("\u5B89\u535715\u7DDA");
-      yield this.addMarkersToMap(carId, 1);
-      return carId;
-    });
-  }
+  // 建立行政區清單(做為選項清單，所以結果不重複)
   setAreaList() {
     return __async(this, null, function* () {
       this.areas = yield this.mapSrv.getAreaList();
     });
   }
+  // 建立時間選項清單
+  setTimeList() {
+    for (let h = 0; h < 24; h++) {
+      const hour = h.toString().padStart(2, "0");
+      this.timeList.push(`${hour}:00`, `${hour}:30`);
+    }
+  }
+  // 選定 AREA後，將該區域內所有清運地點標示在地圖上
   choiceArea(area) {
     return __async(this, null, function* () {
       let resultArea = yield this.mapSrv.searchByArea(area);
+      this.addMarkersToMap(resultArea, 1);
+    });
+  }
+  // 選定 AREA與 Time之後搜尋並建立地標
+  search(area, time) {
+    return __async(this, null, function* () {
+      if (area === "" || time === "") {
+        console.log("\u6642\u9593\u6216\u5730\u9EDE\u4E0D\u5F97\u70BA\u7A7A");
+        return;
+      }
+      let resultArea = yield this.mapSrv.searchByAreaAndTime(area, time);
       this.addMarkersToMap(resultArea, 1);
     });
   }
@@ -42514,7 +42555,7 @@ var FoodMapComponent = class _FoodMapComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.mapContainer = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 2, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "change", "ngModel"], ["value", "", "disabled", ""], [3, "value", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "value"]], template: function FoodMapComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 17, vars: 4, consts: [["mapContainer", ""], [3, "click"], [3, "ngModelChange", "ngModel"], ["value", "", "disabled", ""], [3, "value", 4, "ngFor", "ngForOf"], [1, "map_container"], [3, "value"]], template: function FoodMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "main")(1, "button", 1);
@@ -42537,16 +42578,30 @@ var FoodMapComponent = class _FoodMapComponent {
         \u0275\u0275twoWayBindingSet(ctx.selectedArea, $event) || (ctx.selectedArea = $event);
         return \u0275\u0275resetView($event);
       });
-      \u0275\u0275listener("change", function FoodMapComponent_Template_select_change_5_listener() {
-        \u0275\u0275restoreView(_r1);
-        return \u0275\u0275resetView(ctx.choiceArea(ctx.selectedArea));
-      });
       \u0275\u0275elementStart(6, "option", 3);
       \u0275\u0275text(7, "\u8ACB\u9078\u64C7\u5730\u5340");
       \u0275\u0275elementEnd();
       \u0275\u0275template(8, FoodMapComponent_option_8_Template, 2, 2, "option", 4);
       \u0275\u0275elementEnd();
-      \u0275\u0275element(9, "div", 5, 0);
+      \u0275\u0275elementStart(9, "select", 2);
+      \u0275\u0275twoWayListener("ngModelChange", function FoodMapComponent_Template_select_ngModelChange_9_listener($event) {
+        \u0275\u0275restoreView(_r1);
+        \u0275\u0275twoWayBindingSet(ctx.selectedTIme, $event) || (ctx.selectedTIme = $event);
+        return \u0275\u0275resetView($event);
+      });
+      \u0275\u0275elementStart(10, "option", 3);
+      \u0275\u0275text(11, "\u8ACB\u9078\u64C7\u6642\u9593");
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(12, FoodMapComponent_option_12_Template, 2, 2, "option", 4);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(13, "button", 1);
+      \u0275\u0275listener("click", function FoodMapComponent_Template_button_click_13_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.search(ctx.selectedArea, ctx.selectedTIme));
+      });
+      \u0275\u0275text(14, "\u641C\u5C0B");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(15, "div", 5, 0);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -42554,6 +42609,10 @@ var FoodMapComponent = class _FoodMapComponent {
       \u0275\u0275twoWayProperty("ngModel", ctx.selectedArea);
       \u0275\u0275advance(3);
       \u0275\u0275property("ngForOf", ctx.areas);
+      \u0275\u0275advance();
+      \u0275\u0275twoWayProperty("ngModel", ctx.selectedTIme);
+      \u0275\u0275advance(3);
+      \u0275\u0275property("ngForOf", ctx.timeList);
     }
   }, dependencies: [FormsModule, NgSelectOption, \u0275NgSelectMultipleOption, SelectControlValueAccessor, NgControlStatus, NgModel, NgForOf], styles: ["\n\n.map_container[_ngcontent-%COMP%] {\n  height: 100%;\n  margin: 10px;\n}\n.map_container[_ngcontent-%COMP%] {\n  height: 500px;\n}\n/*# sourceMappingURL=food-map.component.css.map */"] });
 };
