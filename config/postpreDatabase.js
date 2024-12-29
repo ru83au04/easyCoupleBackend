@@ -104,11 +104,8 @@ async function searchByAreaAndTime(area, time){
   let currentDate = new Date();
   let tempTime = new Date(currentDate.setHours(time.split(":")[0], time.split(":")[1], 0, 0));
   let temp1 = new Date(tempTime);
-  let temp2 = new Date(tempTime);
-  temp1.setMinutes(tempTime.getMinutes() - 15);
-  temp2.setMinutes(tempTime.getMinutes() + 15);
-  let t1 = temp1.getTime();
-  let t2 = temp2.getTime();
+  let t1 = `${temp1.getHours()}:${temp1.getMinutes - 15}`;
+  let t2 = `${temp1.getHours()}:${temp1.getMinutes + 15}`;
   const query = `SELECT * FROM trash_collection_points WHERE area = $1 AND CAST(time AS time) BETWEEN $2 AND $3`
   try{
     const result = await pool.query(query, [area, t1, t2]);
