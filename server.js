@@ -3,22 +3,9 @@ const express = require('express');
 const api = require('./routes/api');
 const path = require('path');
 const lineRoutes = require('./routes/line'); // line的路由
-// 測試用
 const db = require('./config/postpreDatabase');
 
 const app = express();
-
-// TODO: 以下為 Line登入功能
-// 提供登入連結
-// const CLIENT_ID = process.env.LINE_CLIENT_ID;
-// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
-
-// app.get('/auth/login', (req, res) => {
-//   const state = Math.random().toString(36).substring(2, 15);
-//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
-//   console.log("loginURL", loginUrl);
-//   res.redirect(loginUrl);
-// });
 
 const DIST_DIR = path.join(__dirname, 'public/front_end/browser'); // 設定靜態資料位置
 app.use(express.static(DIST_DIR)); // 前端取得靜態資料的位置
@@ -48,6 +35,18 @@ async function startServer(){
     console.error('伺服器啟動失敗', err);
   }
 }
+
+// TODO: 以下為 Line登入功能
+// 提供登入連結
+// const CLIENT_ID = process.env.LINE_CLIENT_ID;
+// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
+
+// app.get('/auth/login', (req, res) => {
+//   const state = Math.random().toString(36).substring(2, 15);
+//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
+//   console.log("loginURL", loginUrl);
+//   res.redirect(loginUrl);
+// });
 
 // 授權回調處理
 // const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
@@ -115,6 +114,3 @@ async function startServer(){
 // https.createServer(httpsOptions, app).listen(PORT, () => {
 //   console.log('HTTPS Server running on port 3000');
 // });
-
-
-

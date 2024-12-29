@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const weatherController = require('../controllers/weatherController');
-const googleController = require('../controllers/googleController');
+const mapController = require('../controllers/mapController');
 
 router.get('/weather/local', weatherController.getWeather);
-router.get('/google/food', googleController.findFood);
-// router.get('/google/carRouteid', googleController.findCarRouteid);
-router.get('/google/areaList', googleController.getAreaList);
-router.get('/google/searchByArea', googleController.searchByArea);
-router.get('/google/searchByAreaAndTime', googleController.searchByAreaAndTime);
+
+router.get('/google/food', mapController.findFood);
+router.get('/google/areaList', mapController.getAreaList);
+router.get('/google/searchByArea', mapController.searchByArea);
+router.get('/google/searchByAreaAndTime', mapController.searchByAreaAndTime);
 
 module.exports = router;

@@ -42306,20 +42306,6 @@ var MapService = class _MapService {
       }
     });
   }
-  // 搜尋垃圾車地點 //TODO: 可能要刪除
-  getCarRoute(param) {
-    return __async(this, null, function* () {
-      let params = new HttpParams().set("position", param);
-      try {
-        const res = this.http.get(`${this.rootUrl}/api/google/carRouteid`, { params });
-        const data = yield lastValueFrom(res);
-        return data;
-      } catch (err) {
-        console.error("Failed to fetch places data: ", err);
-        return {};
-      }
-    });
-  }
   static \u0275fac = function MapService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MapService)(\u0275\u0275inject(HttpClient));
   };
@@ -42536,6 +42522,9 @@ var FoodMapComponent = class _FoodMapComponent {
   // 選定 AREA與 Time之後搜尋並建立地標
   search(area, time) {
     return __async(this, null, function* () {
+      if (this.resultMarks.length > 0) {
+        this.clearMarkers();
+      }
       if (area === "" || time === "") {
         console.log("\u6642\u9593\u6216\u5730\u9EDE\u4E0D\u5F97\u70BA\u7A7A");
         return;

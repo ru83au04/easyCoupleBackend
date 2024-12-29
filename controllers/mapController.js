@@ -1,13 +1,10 @@
 const axios = require('axios');
-// const csv = require('csv-parser');
-// const fs = require('fs');
-const path = require('path');
 const db = require("../config/postpreDatabase");
 
 // 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 
-// 定義搜尋附近地點的 API
+// 使用 Google搜尋地點 API搜尋指定區域附近的餐廳
 const findFood = async (req, res) => {
   const { lat, lon, radius } = req.query;
 
@@ -36,29 +33,44 @@ const findFood = async (req, res) => {
     });
 
         res.status(200).json(response.data.places || []);
-  } catch (error) {
-        console.error('Google Places API Error:', error.message);
+  } catch (err) {
+        console.error('Google Places API Error:', err.message);
         res.status(500).json({ error: 'Failed to fetch places data' });
     }
 };
-
+// 從 DB中取得垃圾清運地點中的行政區欄位，回傳給前端作為選項列表
 const getAreaList = async (req, res) => {
-    let areas = await db.getAreaList();
-    res.status(200).json(areas || {});
+    try{
+        let areas = await db.getAreaList();
+        res.status(200).json(areas || {});
+    }catch(err){
+        console.error('DB Error:', err.message);
+        res.status(500).json({ error: 'Failed to use the DataBase' });
+    }
 }
-
+// 從 DB中搜尋指定 area中的所有清運地點資訊並回傳給前端建立 mark標註在地圖上
 const searchByArea = async (req, res) => {
     const { area } = req.query;
     console.log("req.query", req.query) //TODO: query會拿到一個JSON物件
-    let result = await db.searchByArea(area);
-    console.log("db result", result); //TODO: 取得的是物件陣列
-    res.status(200).json(result || []);
+    try{
+        let result = await db.searchByArea(area);
+        console.log("db result", result); //TODO: 取得的是物件陣列
+        res.status(200).json(result || []);
+    }catch(err){
+        console.error('DB Error:', err.message);
+        res.status(500).json({ error: 'Failed to use the DataBase' });
+    }
 }
-
+// 從 DB中搜尋指定 area、time中所有清運地點資訊，並回傳給前端建立 mark標註在地圖上
 const searchByAreaAndTime = async (req, res) => {
     const { area, time } = req.query;
-    let result = await db.searchByAreaAndTime(area, time);
+    try{
+        let result = await db.searchByAreaAndTime(area, time);
     res.status(200).json(result || []);
+    }catch(err){
+        console.error('DB Error:', err.message);
+        res.status(500).json({ error: 'Failed to use the DataBase' });
+    }
 }
 
 module.exports = {
@@ -67,20 +79,3 @@ module.exports = {
     searchByArea,
     searchByAreaAndTime,
 }
-
-// const findCarRouteid = async (req, res) => {
-//     const { position } = req.query;
-//     const results = [];
-//     const csvUrl = path.join(__dirname, '../public/assets/TrashRoutes.csv')
-//     fs.createReadStream(csvUrl)
-//     .pipe(csv())
-//     .on('data', (row) => {
-//         if(row.ROUTEID === position){
-//             results.push(row);
-//         }
-//     })
-//     .on('end', () => {
-//         res.status(200).json(results || []);
-//         console.log("搜尋資料完畢");
-//     });
-// }
