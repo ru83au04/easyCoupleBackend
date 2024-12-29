@@ -88,7 +88,7 @@ async function getAreaList(){
     throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤
   }
 }
-
+// 使用 area值搜尋資料庫
 async function searchByArea(area){
   const query = `SELECT * FROM trash_collection_points WHERE area = $1`
   try{
@@ -99,12 +99,17 @@ async function searchByArea(area){
     throw new Error('資料庫查詢失敗'); // 拋出更有描述性的錯誤
   }
 }
-
+// 使用 area、time值搜尋資料庫
 async function searchByAreaAndTime(area, time){
-  let hour = time.split(':')[0] + "%";
-  const query = `SELECT * FROM trash_collection_points WHERE area = $1 AND time LIKE $2`
+  let currentDate = new Date();
+  let tempTime = new Date(currentDate.setHours(time.split(":")[0], time.split(":")[1], 0, 0));
+  let t1 = new Date(tempTime);
+  let t2 = new Date(tempTime);
+  t1.setMinutes(tempTime.getMinutes() - 15);
+  t2.setMinutes(tempTime.getMinutes() + 15);
+  const query = `SELECT * FROM trash_collection_points WHERE area = $1 AND CAST(time AS time) BETWEEN $2 AND $3`
   try{
-    const result = await pool.query(query, [area, hour]);
+    const result = await pool.query(query, [area, t1, t2]);
     return result.rows; // TODO: 一個 row為一個JSON物件，會回傳 row[]陣列
   }catch(err){
     console.error('取得區域資料失敗:', err.message);
