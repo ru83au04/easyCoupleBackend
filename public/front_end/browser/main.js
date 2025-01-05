@@ -42556,7 +42556,7 @@ var AppComponent = class _AppComponent {
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 22, vars: 8, consts: [[1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], [3, "routerLink", "queryParams"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 20, vars: 4, consts: [[1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div", 1)(3, "div", 2)(4, "div", 3);
       \u0275\u0275text(5, " N ");
@@ -42568,28 +42568,23 @@ var AppComponent = class _AppComponent {
       \u0275\u0275text(10, " Wang ");
       \u0275\u0275elementEnd()()()();
       \u0275\u0275elementStart(11, "div", 6)(12, "button", 7);
-      \u0275\u0275text(13, "\u9996\u9801");
+      \u0275\u0275text(13, "Blog");
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(14, "button", 8);
-      \u0275\u0275text(15, "Blog");
+      \u0275\u0275text(15, "\u4F5C\u54C1");
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(16, "button", 9);
-      \u0275\u0275text(17, "\u4F5C\u54C1");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(18, "button", 10);
-      \u0275\u0275text(19, "\u95DC\u65BC");
+      \u0275\u0275text(17, "\u95DC\u65BC");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(20, "div", 11);
-      \u0275\u0275element(21, "router-outlet");
+      \u0275\u0275elementStart(18, "div", 10);
+      \u0275\u0275element(19, "router-outlet");
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
       \u0275\u0275advance(3);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c03))("queryParams", \u0275\u0275pureFunction0(5, _c12));
-      \u0275\u0275advance(9);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(6, _c03))("queryParams", \u0275\u0275pureFunction0(7, _c12));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c03))("queryParams", \u0275\u0275pureFunction0(3, _c12));
     }
-  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ['\n\nbutton[_ngcontent-%COMP%] {\n  font-family: "Cinzel", serif;\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  padding: 30px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  border: 5px solid rgb(0, 140, 255);\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 150px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 50px;\n  }\n  button[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n}\n@media (max-width: 530px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 5px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    font-size: 0.8rem;\n  }\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=app.component.css.map */'] });
+  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  padding: 5px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  border: 5px solid rgb(0, 140, 255);\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  gap: 120px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 60px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 2rem;\n  }\n}\n@media (max-width: 530px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 10px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1.5rem;\n  }\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=app.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src\\app\\app.component.ts", lineNumber: 12 });
