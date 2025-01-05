@@ -1,3 +1,13 @@
 /* src/styles.css */
+@font-face {
+  font-family: "jf-open";
+  src: url("./media/jf-openhuninn-2.1.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  font-family: "jf-open", serif;
+}
+
 /* angular:styles/global:styles */
 /*# sourceMappingURL=styles.css.map */

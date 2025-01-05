@@ -35691,11 +35691,23 @@ function provideRouterInitializer() {
 var VERSION4 = new Version("18.2.12");
 
 // src/app/Page/home/home.component.ts
-var _c0 = (a0) => ({ "line-two": a0 });
-var _c1 = (a0) => ({ "line-three": a0 });
+var _c0 = (a0) => ({ "main-fade-out": a0 });
+var _c1 = (a0) => ({ "line-two": a0 });
+var _c2 = (a0) => ({ "line-three": a0 });
 var HomeComponent = class _HomeComponent {
+  router;
+  active;
   oneReady = false;
   twoReady = false;
+  goToAbout = false;
+  firstVisit;
+  constructor(router, active) {
+    this.router = router;
+    this.active = active;
+  }
+  ngOnInit() {
+    this.active.queryParams.subscribe((params) => this.firstVisit = params["notFirst"]);
+  }
   animationEnd(event) {
     switch (event.animationName) {
       case "line-one-fade-in":
@@ -35703,13 +35715,21 @@ var HomeComponent = class _HomeComponent {
         break;
       case "line-two-fade-in":
         this.twoReady = true;
+        setTimeout(() => {
+          if (!this.firstVisit) {
+            this.goToAbout = true;
+            setTimeout(() => {
+              this.router.navigate(["/about"]);
+            }, 1e3);
+          }
+        }, 1e3);
         break;
       default:
         break;
     }
   }
   static \u0275fac = function HomeComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HomeComponent)();
+    return new (__ngFactoryType__ || _HomeComponent)(\u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(ActivatedRoute));
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HomeComponent, selectors: [["app-home"]], hostBindings: function HomeComponent_HostBindings(rf, ctx) {
     if (rf & 1) {
@@ -35717,28 +35737,29 @@ var HomeComponent = class _HomeComponent {
         return ctx.animationEnd($event);
       });
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 6, consts: [[1, "line", "line-one"], [1, "line", 3, "ngClass"]], template: function HomeComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 9, consts: [[3, "ngClass"], [1, "line", "line-one"], [1, "line", 3, "ngClass"]], template: function HomeComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "main")(1, "div", 0);
+      \u0275\u0275elementStart(0, "main", 0)(1, "div", 1);
       \u0275\u0275text(2, "Welcome to");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(3, "div", 1);
+      \u0275\u0275elementStart(3, "div", 2);
       \u0275\u0275text(4, "Noah's");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(5, "div", 1);
+      \u0275\u0275elementStart(5, "div", 2);
       \u0275\u0275text(6, "Easy Life");
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(3, _c0, ctx.goToAbout));
       \u0275\u0275advance(3);
-      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(2, _c0, ctx.oneReady));
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(5, _c1, ctx.oneReady));
       \u0275\u0275advance(2);
-      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(4, _c1, ctx.oneReady));
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(7, _c2, ctx.oneReady));
     }
-  }, dependencies: [NgClass], styles: ["/* src/app/Page/home/home.component.css */\n@keyframes line-one-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(-20px, -20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes line-two-fade-in {\n  0% {\n    opacity: 0;\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes line-three-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n.line {\n  font-size: 10rem;\n  font-weight: bold;\n  visibility: hidden;\n}\n.line-one {\n  visibility: visible;\n  color: #000;\n  animation: line-one-fade-in 1.5s ease-in-out;\n}\n.line-two {\n  visibility: visible;\n  color: #000;\n  animation: line-two-fade-in 3s ease-in-out;\n  text-align: center;\n}\n.line-three {\n  visibility: visible;\n  color: #000;\n  animation: line-three-fade-in 2s ease-in-out;\n  text-align: end;\n}\n@media (max-width: 850px) and (min-width: 320px) {\n  .line {\n    font-size: 5rem;\n  }\n}\n@media (max-width: 450px) {\n  .line {\n    font-size: 3rem;\n  }\n}\n/*# sourceMappingURL=home.component.css.map */\n"], encapsulation: 2 });
+  }, dependencies: [NgClass], styles: ["/* src/app/Page/home/home.component.css */\n@keyframes line-one-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, -20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes line-two-fade-in {\n  0% {\n    opacity: 0;\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes line-three-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes fade-out {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-20px, -20px);\n  }\n}\n.main-fade-out {\n  animation: fade-out 1s ease-in-out;\n  visibility: hidden;\n}\n.line {\n  font-size: 5.8rem;\n  font-weight: bold;\n  visibility: hidden;\n}\n.line-one {\n  visibility: visible;\n  color: #000;\n  animation: line-one-fade-in 1.5s ease-in-out;\n  text-align: center;\n  margin-right: 200px;\n}\n.line-two {\n  visibility: visible;\n  color: #000;\n  animation: line-two-fade-in 3s ease-in-out;\n  text-align: center;\n}\n.line-three {\n  visibility: visible;\n  color: #000;\n  animation: line-three-fade-in 2s ease-in-out;\n  text-align: center;\n  margin-left: 300px;\n}\n@media (max-width: 1200px) {\n  .line {\n    font-size: 5rem;\n  }\n  .line-one {\n    margin-right: 0px;\n  }\n  .line-three {\n    margin-left: 0px;\n  }\n}\n@media (max-width: 530px) {\n  .line {\n    font-size: 3rem;\n  }\n}\n/*# sourceMappingURL=home.component.css.map */\n"], encapsulation: 2 });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 13 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 14 });
 })();
 
 // src/app/Service/weather.service.ts
@@ -42426,6 +42447,60 @@ var BlogComponent = class _BlogComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src\\app\\Page\\blog\\blog.component.ts", lineNumber: 10 });
 })();
 
+// src/app/Page/about/about.component.ts
+function AboutComponent_p_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const line_r1 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", line_r1, " ");
+  }
+}
+var AboutComponent = class _AboutComponent {
+  // article: string = `
+  //   這邊除了記錄成為全端工程式的心路歷程外，
+  //   也會分享學習過程中的紀錄，也要向數位游牧夥伴們打聲招呼，
+  //   如果你已經找到你的帳篷，恭喜你；
+  //   如果還在努力中，你並不孤單，我們都在同一條路上。
+  // `
+  article = `
+  \u6210\u70BA\u524D\u7AEF\u5DE5\u7A0B\u5E2B\u524D\uFF0C\u6211\u662F\u4E00\u4F4D\u96FB\u68AF\u6280\u5E2B\uFF0C\u5728\u8AAA\u4E0D\u6E96\u7684\u547D\u904B\u5B89\u6392\u4E0B\uFF0C\u5E78\u904B\u7684\u9032\u5165\u8EDF\u9AD4\u7522\u696D\uFF0C\u6C38\u9060\u611F\u8B1D\u9858\u610F\u7D66\u6211\u6A5F\u6703\u7684\u8CB4\u4EBA\u3002
+  \u8EAB\u70BA\u96FB\u68AF\u6280\u5E2B\u5728\u7B2C\u4E00\u7DDA\u7684\u5DE5\u4F5C\u7D93\u9A57\u4E2D\uFF0C\u9664\u975E\u6703\u6709\u7121\u6CD5\u633D\u56DE\u7684\u7D50\u679C\uFF0C\u5426\u5247\u89AA\u8EAB\u7D93\u6B77\u3001\u7F6E\u8EAB\u5176\u4E2D\u7684\u5B78\u7FD2\uFF0C\u662F\u5BE6\u52D9\u4E0A\u6700\u6709\u6548\u7387\u7684\u505A\u6CD5\u3002
+  \u8F49\u8077\u5230\u8EDF\u9AD4\u7522\u696D\uFF0C\u7576\u4EE3\u8FC5\u901F\u767C\u5C55\u7684 AI\u53EF\u4EE5\u662F\u963B\u529B\uFF0C\u4E5F\u53EF\u4EE5\u662F\u52A9\u529B\uFF0C\u800C\u6211\u50BE\u5411\u65BC\u5C07\u5B83\u8996\u70BA\u5F8C\u8005\uFF0CAI\u8A60\u5531\u5E2B\u53EF\u4EE5\u662F\u4E00\u500B\u8077\u6DAF\u65B9\u5411\u3002     
+  "\u559C\u6B61\u5DE5\u4F5C\uFF0C\u4F46\u4E0D\u559C\u6B61\u4E0A\u73ED"\uFF0C\u5728\u5F9E\u4E8B\u8EDF\u9AD4\u5DE5\u4F5C\u7684\u671F\u9593\uFF0C\u807D\u5230\u9019\u6A23\u7684\u9673\u8FF0\u8B93\u6211\u66F4\u8A8D\u8B58\u81EA\u5DF1\uFF0C\u6703\u6D88\u6EC5\u71B1\u60C5\u7684\u4E0D\u662F\u5DE5\u4F5C\uFF0C\u662F\u4E0A\u73ED\u3002
+  \u76EE\u524D\u6B63\u671D\u8457"\u6578\u4F4D\u6E38\u7267"\u7684\u65B9\u5411\u52AA\u529B\uFF0C\u5982\u679C\u4F60\u4E5F\u5728\u9019\u689D\u8DEF\u4E0A\uFF0C\u6211\u5011\u53EF\u80FD\u662F\u540C\u6EAB\u5C64\uFF0C\u5E0C\u671B\u6211\u5011\u90FD\u80FD\u76E1\u65E9\u8B93\u81EA\u5DF1\u653E\u624B\u5728\u4E16\u754C\u5404\u89D2\u843D\u5954\u99B3\u3002
+  \u800C\u6709\u9700\u8981\u7DB2\u9801\u76F8\u95DC\u7684\u670D\u52D9\uFF0C\u6216\u9858\u610F\u63D0\u4F9B\u5408\u4F5C\u6A5F\u6703\uFF0C\u53EF\u4EE5\u900F\u904E\u4E0B\u65B9\u8CC7\u8A0A\u8207\u6211\u806F\u7D61\u3002\u6211\u662F Noah~  
+  `;
+  forFrontEnd = this.article.split("\n");
+  static \u0275fac = function AboutComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AboutComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AboutComponent, selectors: [["app-about"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 9, vars: 1, consts: [[1, "out-zone"], [1, "about-zone"], [1, "about-title"], [1, "about-article"], ["class", "line", 4, "ngFor", "ngForOf"], [1, "img-zone"], ["src", "../../../assets/myself.jpg"], [1, "line"]], template: function AboutComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "main")(1, "div", 0)(2, "div", 1)(3, "div", 2);
+      \u0275\u0275text(4, " \u95DC\u65BC\u6211 ");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(5, "div", 3);
+      \u0275\u0275template(6, AboutComponent_p_6_Template, 2, 1, "p", 4);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(7, "div", 5);
+      \u0275\u0275element(8, "img", 6);
+      \u0275\u0275elementEnd()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(6);
+      \u0275\u0275property("ngForOf", ctx.forFrontEnd);
+    }
+  }, dependencies: [NgForOf], styles: ['\n\n@keyframes _ngcontent-%COMP%_fadeIn {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\nmain[_ngcontent-%COMP%] {\n  animation: _ngcontent-%COMP%_fadeIn 1.5s ease-in-out;\n}\n.out-zone[_ngcontent-%COMP%] {\n  display: flex;\n}\n.about-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 50%;\n  margin-top: 50px;\n  margin-left: 100px;\n}\n.about-title[_ngcontent-%COMP%] {\n  font-size: 2rem;\n}\n.about-article[_ngcontent-%COMP%] {\n  background-image: url("./media/centered_kraft_paper_texture.png");\n  padding: 10px;\n  border-radius: 50px;\n}\n.line[_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to top,\n      transparent,\n      rgba(255, 255, 255, 0.555));\n  font-size: 16px;\n}\n.img-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 50%;\n}\nimg[_ngcontent-%COMP%] {\n  height: 400px;\n  border-radius: 50px;\n  border-color: blue;\n  margin-top: 100px;\n}\n/*# sourceMappingURL=about.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AboutComponent, { className: "AboutComponent", filePath: "src\\app\\Page\\about\\about.component.ts", lineNumber: 11 });
+})();
+
 // src/app/app.routes.ts
 var routes = [
   { path: "", component: HomeComponent },
@@ -42433,7 +42508,8 @@ var routes = [
   { path: "project", component: FoodMapComponent },
   { path: "signin", component: SignInComponent },
   { path: "external/:path", component: ExternalComponent },
-  { path: "blog", component: BlogComponent }
+  { path: "blog", component: BlogComponent },
+  { path: "about", component: AboutComponent }
 ];
 
 // src/app/Service/attendance.service.ts
@@ -42467,6 +42543,8 @@ var appConfig = {
 };
 
 // src/app/app.component.ts
+var _c03 = () => [""];
+var _c12 = () => ({ notFirst: true });
 var AppComponent = class _AppComponent {
   mapSrv;
   title = "angular_capacitor_2";
@@ -42478,28 +42556,43 @@ var AppComponent = class _AppComponent {
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 12, vars: 0, consts: [[1, "button_container"], ["routerLink", ""], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 22, vars: 8, consts: [[1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], [3, "routerLink", "queryParams"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "button", 1);
-      \u0275\u0275text(3, "\u9996\u9801");
+      \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div", 1)(3, "div", 2)(4, "div", 3);
+      \u0275\u0275text(5, " N ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "button", 2);
-      \u0275\u0275text(5, "Blog");
+      \u0275\u0275elementStart(6, "div")(7, "div", 4);
+      \u0275\u0275text(8, " oah ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "button", 3);
-      \u0275\u0275text(7, "\u4F5C\u54C1\u53C3\u8003");
+      \u0275\u0275elementStart(9, "div", 5);
+      \u0275\u0275text(10, " Wang ");
+      \u0275\u0275elementEnd()()()();
+      \u0275\u0275elementStart(11, "div", 6)(12, "button", 7);
+      \u0275\u0275text(13, "\u9996\u9801");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(8, "button", 4);
-      \u0275\u0275text(9, "\u95DC\u65BC");
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(10, "div", 5);
-      \u0275\u0275element(11, "router-outlet");
+      \u0275\u0275elementStart(14, "button", 8);
+      \u0275\u0275text(15, "Blog");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(16, "button", 9);
+      \u0275\u0275text(17, "\u4F5C\u54C1");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(18, "button", 10);
+      \u0275\u0275text(19, "\u95DC\u65BC");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(20, "div", 11);
+      \u0275\u0275element(21, "router-outlet");
       \u0275\u0275elementEnd()();
     }
-  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ['\n\nbutton[_ngcontent-%COMP%] {\n  font-family: "Cinzel", serif;\n  background-color: #805c36;\n  color: #f0e6d2;\n  border: 2px solid #d2a679;\n  border-radius: 8px;\n  padding: 10px 20px;\n  font-size: 1.1rem;\n  margin: 8px;\n  cursor: pointer;\n  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background-color: #b3863b;\n  transform: translateY(-2px);\n  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.button_container[_ngcontent-%COMP%] {\n  text-align: center;\n  margin: 20px 0;\n}\n/*# sourceMappingURL=app.component.css.map */'] });
+    if (rf & 2) {
+      \u0275\u0275advance(3);
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c03))("queryParams", \u0275\u0275pureFunction0(5, _c12));
+      \u0275\u0275advance(9);
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(6, _c03))("queryParams", \u0275\u0275pureFunction0(7, _c12));
+    }
+  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ['\n\nbutton[_ngcontent-%COMP%] {\n  font-family: "Cinzel", serif;\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  padding: 30px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  border: 5px solid rgb(0, 140, 255);\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 150px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 50px;\n  }\n  button[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n}\n@media (max-width: 530px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 5px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    font-size: 0.8rem;\n  }\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=app.component.css.map */'] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src\\app\\app.component.ts", lineNumber: 13 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src\\app\\app.component.ts", lineNumber: 12 });
 })();
 
 // src/main.ts

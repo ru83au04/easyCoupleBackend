@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": [],
-  "sourcesContent": [],
-  "mappings": "",
+  "sources": ["src/styles.css"],
+  "sourcesContent": ["/* You can add global styles to this file, and also import other style files */\r\n@font-face {\r\n    font-family: 'jf-open';\r\n    src: url('../fonts/jf-openhuninn-2.1.ttf') format('truetype');\r\n    font-weight: normal;\r\n    font-style: normal;\r\n}\r\n\r\nbody{\r\n    font-family: 'jf-open', serif;\r\n}"],
+  "mappings": ";AACA;AACI,eAAa;AACb,OAAK,qCAAsC,OAAO;AAClD,eAAa;AACb,cAAY;AAChB;AAEA;AACI,eAAa,SAAS,EAAE;AAC5B;",
   "names": []
 }
