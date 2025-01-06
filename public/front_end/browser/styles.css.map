@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["src/styles.css"],
-  "sourcesContent": ["/* You can add global styles to this file, and also import other style files */\r\n@font-face {\r\n    font-family: 'jf-open';\r\n    src: url('../fonts/jf-openhuninn-2.1.ttf') format('truetype');\r\n    font-weight: normal;\r\n    font-style: normal;\r\n}\r\n\r\nbody{\r\n    font-family: 'jf-open', serif;\r\n}"],
-  "mappings": ";AACA;AACI,eAAa;AACb,OAAK,qCAAsC,OAAO;AAClD,eAAa;AACb,cAAY;AAChB;AAEA;AACI,eAAa,SAAS,EAAE;AAC5B;",
+  "sourcesContent": ["/* You can add global styles to this file, and also import other style files */\r\n@font-face {\r\n    font-family: 'jf-open';\r\n    src: url('../fonts/jf-openhuninn-2.1.ttf') format('truetype');\r\n    font-weight: normal;\r\n    font-style: normal;\r\n}\r\n\r\nbody{\r\n    height: auto;\r\n    width: auto;\r\n    font-family: 'jf-open', serif;\r\n    color: rgb(244, 228, 198);\r\n    margin: 0px;\r\n    background-image: linear-gradient(to left bottom, rgba(3, 74, 110, 0.79), rgba(9, 3, 110, 0.79));\r\n    background-repeat: no-repeat;\r\n}\r\nmain{\r\n    height: 100vh;\r\n    width: 100vw;\r\n}"],
+  "mappings": ";AACA;AACI,eAAa;AACb,OAAK,qCAAsC,OAAO;AAClD,eAAa;AACb,cAAY;AAChB;AAEA;AACI,UAAQ;AACR,SAAO;AACP,eAAa,SAAS,EAAE;AACxB,SAAO,IAAI,GAAG,EAAE,GAAG,EAAE;AACrB,UAAQ;AACR;AAAA,IAAkB;AAAA,MAAgB,GAAG,KAAK,MAAxB;AAAA,MAAgC,KAAK,CAAC,EAAE,EAAE,EAAE,GAAG,EAAE,KAAjD;AAAA,MAAwD,KAAK,CAAC,EAAE,CAAC,EAAE,GAAG,EAAE;AAC1F,qBAAmB;AACvB;AACA;AACI,UAAQ;AACR,SAAO;AACX;",
   "names": []
 }

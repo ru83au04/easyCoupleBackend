@@ -6,7 +6,21 @@
   font-style: normal;
 }
 body {
+  height: auto;
+  width: auto;
   font-family: "jf-open", serif;
+  color: rgb(244, 228, 198);
+  margin: 0px;
+  background-image:
+    linear-gradient(
+      to left bottom,
+      rgba(3, 74, 110, 0.79),
+      rgba(9, 3, 110, 0.79));
+  background-repeat: no-repeat;
+}
+main {
+  height: 100vh;
+  width: 100vw;
 }
 
 /* angular:styles/global:styles */
