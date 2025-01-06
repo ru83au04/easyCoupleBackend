@@ -20,7 +20,11 @@ body {
 }
 main {
   height: 100vh;
+<<<<<<< HEAD
   width: auto;
+=======
+  width: 100vw;
+>>>>>>> 9974f3ce6c5a0870e31abe08762598bf3d7aadf5
 }
 
 /* angular:styles/global:styles */
