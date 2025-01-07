@@ -1178,6 +1178,175 @@ var BehaviorSubject = class extends Subject {
   }
 };
 
+// node_modules/rxjs/dist/esm/internal/scheduler/dateTimestampProvider.js
+var dateTimestampProvider = {
+  now() {
+    return (dateTimestampProvider.delegate || Date).now();
+  },
+  delegate: void 0
+};
+
+// node_modules/rxjs/dist/esm/internal/scheduler/Action.js
+var Action = class extends Subscription {
+  constructor(scheduler, work) {
+    super();
+  }
+  schedule(state, delay = 0) {
+    return this;
+  }
+};
+
+// node_modules/rxjs/dist/esm/internal/scheduler/intervalProvider.js
+var intervalProvider = {
+  setInterval(handler, timeout, ...args) {
+    const {
+      delegate
+    } = intervalProvider;
+    if (delegate === null || delegate === void 0 ? void 0 : delegate.setInterval) {
+      return delegate.setInterval(handler, timeout, ...args);
+    }
+    return setInterval(handler, timeout, ...args);
+  },
+  clearInterval(handle) {
+    const {
+      delegate
+    } = intervalProvider;
+    return ((delegate === null || delegate === void 0 ? void 0 : delegate.clearInterval) || clearInterval)(handle);
+  },
+  delegate: void 0
+};
+
+// node_modules/rxjs/dist/esm/internal/scheduler/AsyncAction.js
+var AsyncAction = class extends Action {
+  constructor(scheduler, work) {
+    super(scheduler, work);
+    this.scheduler = scheduler;
+    this.work = work;
+    this.pending = false;
+  }
+  schedule(state, delay = 0) {
+    var _a;
+    if (this.closed) {
+      return this;
+    }
+    this.state = state;
+    const id = this.id;
+    const scheduler = this.scheduler;
+    if (id != null) {
+      this.id = this.recycleAsyncId(scheduler, id, delay);
+    }
+    this.pending = true;
+    this.delay = delay;
+    this.id = (_a = this.id) !== null && _a !== void 0 ? _a : this.requestAsyncId(scheduler, this.id, delay);
+    return this;
+  }
+  requestAsyncId(scheduler, _id, delay = 0) {
+    return intervalProvider.setInterval(scheduler.flush.bind(scheduler, this), delay);
+  }
+  recycleAsyncId(_scheduler, id, delay = 0) {
+    if (delay != null && this.delay === delay && this.pending === false) {
+      return id;
+    }
+    if (id != null) {
+      intervalProvider.clearInterval(id);
+    }
+    return void 0;
+  }
+  execute(state, delay) {
+    if (this.closed) {
+      return new Error("executing a cancelled action");
+    }
+    this.pending = false;
+    const error = this._execute(state, delay);
+    if (error) {
+      return error;
+    } else if (this.pending === false && this.id != null) {
+      this.id = this.recycleAsyncId(this.scheduler, this.id, null);
+    }
+  }
+  _execute(state, _delay) {
+    let errored = false;
+    let errorValue;
+    try {
+      this.work(state);
+    } catch (e) {
+      errored = true;
+      errorValue = e ? e : new Error("Scheduled action threw falsy error");
+    }
+    if (errored) {
+      this.unsubscribe();
+      return errorValue;
+    }
+  }
+  unsubscribe() {
+    if (!this.closed) {
+      const {
+        id,
+        scheduler
+      } = this;
+      const {
+        actions
+      } = scheduler;
+      this.work = this.state = this.scheduler = null;
+      this.pending = false;
+      arrRemove(actions, this);
+      if (id != null) {
+        this.id = this.recycleAsyncId(scheduler, id, null);
+      }
+      this.delay = null;
+      super.unsubscribe();
+    }
+  }
+};
+
+// node_modules/rxjs/dist/esm/internal/Scheduler.js
+var Scheduler = class _Scheduler {
+  constructor(schedulerActionCtor, now = _Scheduler.now) {
+    this.schedulerActionCtor = schedulerActionCtor;
+    this.now = now;
+  }
+  schedule(work, delay = 0, state) {
+    return new this.schedulerActionCtor(this, work).schedule(state, delay);
+  }
+};
+Scheduler.now = dateTimestampProvider.now;
+
+// node_modules/rxjs/dist/esm/internal/scheduler/AsyncScheduler.js
+var AsyncScheduler = class extends Scheduler {
+  constructor(SchedulerAction, now = Scheduler.now) {
+    super(SchedulerAction, now);
+    this.actions = [];
+    this._active = false;
+  }
+  flush(action) {
+    const {
+      actions
+    } = this;
+    if (this._active) {
+      actions.push(action);
+      return;
+    }
+    let error;
+    this._active = true;
+    do {
+      if (error = action.execute(action.state, action.delay)) {
+        break;
+      }
+    } while (action = actions.shift());
+    this._active = false;
+    if (error) {
+      while (action = actions.shift()) {
+        action.unsubscribe();
+      }
+      throw error;
+    }
+  }
+};
+
+// node_modules/rxjs/dist/esm/internal/scheduler/async.js
+var asyncScheduler = new AsyncScheduler(AsyncAction);
+var async = asyncScheduler;
+
 // node_modules/rxjs/dist/esm/internal/observable/empty.js
 var EMPTY = new Observable((subscriber) => subscriber.complete());
 
@@ -1659,6 +1828,11 @@ function lastValueFrom(source, config2) {
   });
 }
 
+// node_modules/rxjs/dist/esm/internal/util/isDate.js
+function isValidDate(value) {
+  return value instanceof Date && !isNaN(value);
+}
+
 // node_modules/rxjs/dist/esm/internal/operators/map.js
 function map(project, thisArg) {
   return operate((source, subscriber) => {
@@ -1896,6 +2070,43 @@ function forkJoin(...args) {
     }
   });
   return resultSelector ? result.pipe(mapOneOrManyArgs(resultSelector)) : result;
+}
+
+// node_modules/rxjs/dist/esm/internal/observable/timer.js
+function timer(dueTime = 0, intervalOrScheduler, scheduler = async) {
+  let intervalDuration = -1;
+  if (intervalOrScheduler != null) {
+    if (isScheduler(intervalOrScheduler)) {
+      scheduler = intervalOrScheduler;
+    } else {
+      intervalDuration = intervalOrScheduler;
+    }
+  }
+  return new Observable((subscriber) => {
+    let due = isValidDate(dueTime) ? +dueTime - scheduler.now() : dueTime;
+    if (due < 0) {
+      due = 0;
+    }
+    let n = 0;
+    return scheduler.schedule(function() {
+      if (!subscriber.closed) {
+        subscriber.next(n++);
+        if (0 <= intervalDuration) {
+          this.schedule(void 0, intervalDuration);
+        } else {
+          subscriber.complete();
+        }
+      }
+    }, due);
+  });
+}
+
+// node_modules/rxjs/dist/esm/internal/observable/interval.js
+function interval(period = 0, scheduler = asyncScheduler) {
+  if (period < 0) {
+    period = 0;
+  }
+  return timer(period, period, scheduler);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/filter.js
@@ -24645,8 +24856,8 @@ function invalidPipeArgumentError(type, value) {
   return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
 }
 var SubscribableStrategy = class {
-  createSubscription(async, updateLatestValue) {
-    return untracked(() => async.subscribe({
+  createSubscription(async2, updateLatestValue) {
+    return untracked(() => async2.subscribe({
       next: updateLatestValue,
       error: (e) => {
         throw e;
@@ -24658,8 +24869,8 @@ var SubscribableStrategy = class {
   }
 };
 var PromiseStrategy = class {
-  createSubscription(async, updateLatestValue) {
-    return async.then(updateLatestValue, (e) => {
+  createSubscription(async2, updateLatestValue) {
+    return async2.then(updateLatestValue, (e) => {
       throw e;
     });
   }
@@ -24721,8 +24932,8 @@ var AsyncPipe = class _AsyncPipe {
     this._subscription = null;
     this._obj = null;
   }
-  _updateLatestValue(async, value) {
-    if (async === this._obj) {
+  _updateLatestValue(async2, value) {
+    if (async2 === this._obj) {
       this._latestValue = value;
       if (this.markForCheckOnValueUpdate) {
         this._ref?.markForCheck();
@@ -35690,6 +35901,80 @@ function provideRouterInitializer() {
 }
 var VERSION4 = new Version("18.2.12");
 
+// src/app/Kennel/timecounter/timecounter.component.ts
+var TimecounterComponent = class _TimecounterComponent {
+  days = 0;
+  hours = 0;
+  min = 0;
+  sec = 0;
+  inputData;
+  destroy$ = new Subject();
+  ngOnInit() {
+    this.startCountdown();
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  startCountdown() {
+    interval(1e3).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const currentTime = (/* @__PURE__ */ new Date()).getTime();
+      let distance = 0;
+      if (this.inputData.plus) {
+        distance = currentTime - this.inputData.targetDate.getTime();
+      } else {
+        distance = this.inputData.targetDate.getTime() - currentTime;
+      }
+      if (distance > 0) {
+        this.days = Math.floor(distance / (1e3 * 60 * 60 * 24));
+        this.hours = Math.floor(distance % (1e3 * 60 * 60 * 24) / (1e3 * 60 * 60));
+        this.min = Math.floor(distance % (1e3 * 60 * 60) / (1e3 * 60));
+        this.sec = Math.floor(distance % (1e3 * 60) / 1e3);
+      } else {
+        this.days = this.hours = this.min = this.sec = 0;
+        this.destroy$.next();
+      }
+    });
+  }
+  static \u0275fac = function TimecounterComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _TimecounterComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TimecounterComponent, selectors: [["app-timecounter"]], inputs: { inputData: "inputData" }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 17, vars: 5, consts: [[1, "outbox"], [1, "countdown"], [1, "time_box"], [1, "time"]], template: function TimecounterComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div");
+      \u0275\u0275text(3);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "div", 1)(5, "div", 2)(6, "span", 3);
+      \u0275\u0275text(7);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(8, "div", 2)(9, "span", 3);
+      \u0275\u0275text(10);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(11, "div", 2)(12, "span", 3);
+      \u0275\u0275text(13);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(14, "div", 2)(15, "span", 3);
+      \u0275\u0275text(16);
+      \u0275\u0275elementEnd()()()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate(ctx.inputData.title);
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1("", ctx.days, " \u5929");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate1("", ctx.hours, " \u6642");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate1("", ctx.min, " \u5206");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate1("", ctx.sec, " \u79D2");
+    }
+  }, styles: ["\n\n.main[_ngcontent-%COMP%] {\n  align-items: center;\n}\n.outbox[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.outbox[_ngcontent-%COMP%]    > div[_ngcontent-%COMP%]:first-child {\n  font-size: 1em;\n  font-weight: bold;\n  color: #f7d794;\n  text-shadow: 2px 2px 8px #000;\n  border-bottom: 2px solid #7f5c37;\n  padding-bottom: 10px;\n  margin-bottom: 15px;\n}\n.countdown[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 20px;\n  font-family: Arial, sans-serif;\n  display: flex;\n  gap: 20px;\n  padding: 20px;\n  background: #1b1b1b;\n  border: 2px solid #4b3621;\n  border-radius: 15px;\n  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px #4b3621;\n}\n.time_box[_ngcontent-%COMP%] {\n  text-align: center;\n  background: #3d2b1f;\n  padding: 20px;\n  border: 2px solid #7f5c37;\n  border-radius: 10px;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);\n  text-align: center;\n  position: relative;\n}\n.time[_ngcontent-%COMP%] {\n  font-size: 1em;\n  font-weight: bold;\n  color: #f0e6d2;\n  text-shadow: 0 2px 5px #000;\n}\n.label[_ngcontent-%COMP%] {\n  display: block;\n  font-size: 1em;\n  margin-top: 5px;\n}\n.image_adjust[_ngcontent-%COMP%] {\n  align-items: center;\n}\n.image_adjust[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  max-width: 100vw;\n  height: auto;\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n  border: 5px solid #7f5c37;\n  background-color: #7f5c37;\n  border-radius: 10px;\n  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);\n}\n.image_itself[_ngcontent-%COMP%] {\n  width: 100%;\n  height: auto;\n}\n@media screen and (max-width: 768px) {\n  img[_ngcontent-%COMP%] {\n    height: auto;\n    width: 90%;\n  }\n}\n/*# sourceMappingURL=timecounter.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimecounterComponent, { className: "TimecounterComponent", filePath: "src\\app\\Kennel\\timecounter\\timecounter.component.ts", lineNumber: 12 });
+})();
+
 // src/app/Page/home/home.component.ts
 var _c0 = (a0) => ({ "main-fade-out": a0 });
 var _c1 = (a0) => ({ "line-two": a0 });
@@ -35701,6 +35986,8 @@ var HomeComponent = class _HomeComponent {
   twoReady = false;
   goToAbout = false;
   firstVisit;
+  learningTime = { title: "\u958B\u59CB\u5B78\u7FD2 Coding\u7D2F\u8A08\u81F3\u4ECA", targetDate: /* @__PURE__ */ new Date("2023/01/01"), plus: true };
+  careerTime = { title: "\u5F9E\u4E8B\u524D\u7AEF\u5DE5\u7A0B\u5E2B\u5DE5\u4F5C\u7D2F\u8A08\u81F3\u4ECA", targetDate: /* @__PURE__ */ new Date("2024/04/08"), plus: true };
   constructor(router, active) {
     this.router = router;
     this.active = active;
@@ -35737,7 +36024,7 @@ var HomeComponent = class _HomeComponent {
         return ctx.animationEnd($event);
       });
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 7, vars: 9, consts: [[3, "ngClass"], [1, "line", "line-one"], [1, "line", 3, "ngClass"]], template: function HomeComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 11, consts: [[3, "ngClass"], [1, "line", "line-one"], [1, "line", 3, "ngClass"], [1, "timer"], [3, "inputData"]], template: function HomeComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "main", 0)(1, "div", 1);
       \u0275\u0275text(2, "Welcome to");
@@ -35747,19 +36034,26 @@ var HomeComponent = class _HomeComponent {
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(5, "div", 2);
       \u0275\u0275text(6, "Easy Life");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(7, "div", 3);
+      \u0275\u0275element(8, "app-timecounter", 4)(9, "app-timecounter", 4);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
-      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(3, _c0, ctx.goToAbout));
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(5, _c0, ctx.goToAbout));
       \u0275\u0275advance(3);
-      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(5, _c1, ctx.oneReady));
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(7, _c1, ctx.oneReady));
       \u0275\u0275advance(2);
-      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(7, _c2, ctx.oneReady));
+      \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(9, _c2, ctx.oneReady));
+      \u0275\u0275advance(3);
+      \u0275\u0275property("inputData", ctx.learningTime);
+      \u0275\u0275advance();
+      \u0275\u0275property("inputData", ctx.careerTime);
     }
-  }, dependencies: [NgClass], styles: ["/* src/app/Page/home/home.component.css */\n@keyframes line-one-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, -20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes line-two-fade-in {\n  0% {\n    opacity: 0;\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes line-three-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes fade-out {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-20px, -20px);\n  }\n}\n.main-fade-out {\n  animation: fade-out 1s ease-in-out;\n  visibility: hidden;\n}\n.line {\n  font-size: 5.8rem;\n  font-weight: bold;\n  visibility: hidden;\n}\n.line-one {\n  visibility: visible;\n  color: #000;\n  animation: line-one-fade-in 1.5s ease-in-out;\n  text-align: center;\n  margin-right: 200px;\n}\n.line-two {\n  visibility: visible;\n  color: #000;\n  animation: line-two-fade-in 3s ease-in-out;\n  text-align: center;\n}\n.line-three {\n  visibility: visible;\n  color: #000;\n  animation: line-three-fade-in 2s ease-in-out;\n  text-align: center;\n  margin-left: 300px;\n}\n@media (max-width: 1200px) {\n  .line {\n    font-size: 5rem;\n  }\n  .line-one {\n    margin-right: 0px;\n  }\n  .line-three {\n    margin-left: 0px;\n  }\n}\n@media (max-width: 530px) {\n  .line {\n    font-size: 3rem;\n  }\n}\n/*# sourceMappingURL=home.component.css.map */\n"], encapsulation: 2 });
+  }, dependencies: [NgClass, TimecounterComponent], styles: ["/* src/app/Page/home/home.component.css */\n@keyframes line-one-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, -20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes line-two-fade-in {\n  0% {\n    opacity: 0;\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes line-three-fade-in {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes fade-out {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-20px, -20px);\n  }\n}\n.main-fade-out {\n  animation: fade-out 1s ease-in-out;\n  visibility: hidden;\n}\n.line {\n  font-size: 5.8rem;\n  font-weight: bold;\n  visibility: hidden;\n}\n.line-one {\n  visibility: visible;\n  animation: line-one-fade-in 1.5s ease-in-out;\n  text-align: center;\n  margin-right: 200px;\n}\n.line-two {\n  visibility: visible;\n  animation: line-two-fade-in 3s ease-in-out;\n  text-align: center;\n}\n.line-three {\n  visibility: visible;\n  animation: line-three-fade-in 2s ease-in-out;\n  text-align: center;\n  margin-left: 300px;\n}\n.timer {\n  height: 200px;\n  width: 500px;\n}\n@media (max-width: 1200px) {\n  .line {\n    font-size: 5rem;\n  }\n  .line-one {\n    margin-right: 0px;\n  }\n  .line-three {\n    margin-left: 0px;\n  }\n}\n@media (max-width: 530px) {\n  .line {\n    font-size: 3rem;\n  }\n}\n/*# sourceMappingURL=home.component.css.map */\n"], encapsulation: 2 });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 14 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HomeComponent, { className: "HomeComponent", filePath: "src\\app\\Page\\home\\home.component.ts", lineNumber: 15 });
 })();
 
 // src/app/Service/weather.service.ts
@@ -42493,7 +42787,7 @@ var AboutComponent = class _AboutComponent {
       \u0275\u0275advance(8);
       \u0275\u0275property("ngForOf", ctx.forFrontEnd);
     }
-  }, dependencies: [NgForOf], styles: ["\n\n@keyframes _ngcontent-%COMP%_fadeIn {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\nmain[_ngcontent-%COMP%] {\n  animation: _ngcontent-%COMP%_fadeIn 1.5s ease-in-out;\n  height: auto;\n}\n.about-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin-top: 50px;\n}\n.about-title[_ngcontent-%COMP%] {\n  font-size: 2rem;\n  color: rgb(244, 228, 198);\n}\n.about-article[_ngcontent-%COMP%] {\n  padding: 10px;\n  border-radius: 50px;\n  width: 50%;\n  color: rgb(244, 228, 198);\n}\n.line[_ngcontent-%COMP%] {\n  font-size: 16px;\n  border-radius: 10px;\n}\n.img-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\nimg[_ngcontent-%COMP%] {\n  height: 200px;\n  border-radius: 30px;\n  border-color: blue;\n  margin-top: 50px;\n}\n@media (max-width: 1200px) {\n  .img-zone[_ngcontent-%COMP%] {\n    z-index: -1;\n    width: 100%;\n    position: absolute;\n    filter: blur(30px);\n  }\n  .about-zone[_ngcontent-%COMP%] {\n    margin: 0px;\n    margin-top: 100px;\n    width: 100%;\n  }\n  .about-article[_ngcontent-%COMP%] {\n    width: 70%;\n  }\n}\n@media (max-width: 530px) {\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=about.component.css.map */"] });
+  }, dependencies: [NgForOf], styles: ["\n\n@keyframes _ngcontent-%COMP%_fadeIn {\n  0% {\n    opacity: 0;\n    transform: translate(20px, 20px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\nmain[_ngcontent-%COMP%] {\n  animation: _ngcontent-%COMP%_fadeIn 1s ease-in-out;\n}\n.out-zone[_ngcontent-%COMP%] {\n  height: auto;\n}\n.about-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin-top: 50px;\n}\n.about-title[_ngcontent-%COMP%] {\n  font-size: 2rem;\n  color: rgb(244, 228, 198);\n}\n.about-article[_ngcontent-%COMP%] {\n  padding: 10px;\n  border-radius: 50px;\n  width: 50%;\n  color: rgb(244, 228, 198);\n}\n.line[_ngcontent-%COMP%] {\n  font-size: 16px;\n  border-radius: 10px;\n}\n.img-zone[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\nimg[_ngcontent-%COMP%] {\n  height: 200px;\n  border-radius: 30px;\n  border-color: blue;\n  margin-top: 50px;\n}\n@media (max-width: 1200px) {\n  .img-zone[_ngcontent-%COMP%] {\n    z-index: -1;\n    width: 100%;\n    position: absolute;\n    filter: blur(30px);\n  }\n  .about-zone[_ngcontent-%COMP%] {\n    margin: 0px;\n    margin-top: 100px;\n    width: 100%;\n  }\n  .about-article[_ngcontent-%COMP%] {\n    width: 70%;\n  }\n}\n@media (max-width: 530px) {\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=about.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AboutComponent, { className: "AboutComponent", filePath: "src\\app\\Page\\about\\about.component.ts", lineNumber: 11 });
@@ -42554,27 +42848,27 @@ var AppComponent = class _AppComponent {
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 20, vars: 4, consts: [[1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "main"]], template: function AppComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 20, vars: 4, consts: [[1, "main-container"], [1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "app-root"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div", 1)(3, "div", 2)(4, "div", 3);
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3)(4, "div", 4);
       \u0275\u0275text(5, " N ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "div")(7, "div", 4);
+      \u0275\u0275elementStart(6, "div")(7, "div", 5);
       \u0275\u0275text(8, " oah ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(9, "div", 5);
+      \u0275\u0275elementStart(9, "div", 6);
       \u0275\u0275text(10, " Wang ");
       \u0275\u0275elementEnd()()()();
-      \u0275\u0275elementStart(11, "div", 6)(12, "button", 7);
+      \u0275\u0275elementStart(11, "div", 7)(12, "button", 8);
       \u0275\u0275text(13, "Blog");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(14, "button", 8);
+      \u0275\u0275elementStart(14, "button", 9);
       \u0275\u0275text(15, "\u4F5C\u54C1");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "button", 9);
+      \u0275\u0275elementStart(16, "button", 10);
       \u0275\u0275text(17, "\u95DC\u65BC");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(18, "div", 10);
+      \u0275\u0275elementStart(18, "div", 11);
       \u0275\u0275element(19, "router-outlet");
       \u0275\u0275elementEnd()();
     }
@@ -42582,7 +42876,7 @@ var AppComponent = class _AppComponent {
       \u0275\u0275advance(3);
       \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c03))("queryParams", \u0275\u0275pureFunction0(3, _c12));
     }
-  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  padding: 5px;\n  max-height: fit-content;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  border: 5px solid rgb(0, 140, 255);\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  gap: 120px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 60px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 2rem;\n  }\n}\n@media (max-width: 530px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 10px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1.5rem;\n  }\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=app.component.css.map */"] });
+  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  color: rgb(244, 228, 198);\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.main-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100vh;\n  overflow-y: hidden;\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  padding: 5px;\n  height: 160px;\n  background-color: rgb(6, 74, 51);\n  border-bottom-right-radius: 20px;\n  border-bottom-left-radius: 20px;\n}\n.app-root[_ngcontent-%COMP%] {\n  height: 100%;\n  overflow-y: scroll;\n  border-top-left-radius: 20px;\n  border-top-right-radius: 20px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  margin-left: 10px;\n  border: 5px solid rgb(0, 140, 255);\n  border-radius: 15px;\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  gap: 120px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 60px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 2rem;\n  }\n}\n@media (max-width: 530px) {\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 10px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1.5rem;\n  }\n}\n@media (max-width: 320px) {\n}\n/*# sourceMappingURL=app.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src\\app\\app.component.ts", lineNumber: 12 });

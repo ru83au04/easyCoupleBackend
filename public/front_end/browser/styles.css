@@ -5,22 +5,20 @@
   font-weight: normal;
   font-style: normal;
 }
-body {
-  height: auto;
-  width: auto;
-  font-family: "jf-open", serif;
-  color: rgb(244, 228, 198);
-  margin: 0px;
-  background-image:
-    linear-gradient(
-      to left bottom,
-      rgba(3, 74, 110, 0.79),
-      rgba(9, 3, 110, 0.79));
-  background-repeat: no-repeat;
+:root {
+  --text-color: rgb(244, 228, 198);
+  --main-color: rgb(5, 7, 115);
 }
-main {
+body {
   height: 100vh;
-  width: auto;
+  overflow-y: hidden;
+  font-family: "jf-open", serif;
+  color: var(--text-color);
+  margin: 0px;
+  background-color: var(--main-color);
+}
+::-webkit-scrollbar {
+  display: none;
 }
 
 /* angular:styles/global:styles */
