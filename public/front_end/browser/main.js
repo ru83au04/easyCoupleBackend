@@ -44521,10 +44521,9 @@ var MapService = class _MapService {
         let params = new HttpParams().set("area", area);
         const res = this.http.get(`${this.rootUrl}/api/google/searchByArea`, { params });
         const areaPosition = yield lastValueFrom(res);
-        return areaPosition;
+        this.addMarkersToMap(areaPosition, 1);
       } catch (err) {
         console.error("Failed to fetch places data: ", err);
-        return [];
       }
     });
   }
@@ -44535,10 +44534,9 @@ var MapService = class _MapService {
         let params = new HttpParams().set("area", area).set("time", time);
         const res = this.http.get(`${this.rootUrl}/api/google/searchByAreaAndTime`, { params });
         const areaPosition = yield lastValueFrom(res);
-        return areaPosition;
+        this.addMarkersToMap(areaPosition, 1);
       } catch (err) {
         console.error("Failed to fetch places data: ", err);
-        return [];
       }
     });
   }
@@ -44549,10 +44547,9 @@ var MapService = class _MapService {
       try {
         const response = this.http.get(`${this.rootUrl}/api/google/food`, { params });
         const data = yield lastValueFrom(response);
-        return data;
+        this.addMarkersToMap(data, 0);
       } catch (err) {
         console.error("Failed to fetch places data: ", err);
-        return {};
       }
     });
   }
@@ -44659,17 +44656,22 @@ var FoodMapComponent = class _FoodMapComponent {
   // NOTE: 選定 AREA與 Time之後搜尋並建立地標
   search(area, time) {
     return __async(this, null, function* () {
-      if (area === "" || time === "") {
-        console.log("\u6642\u9593\u6216\u5730\u9EDE\u4E0D\u5F97\u70BA\u7A7A");
+      if (area === "") {
+        console.log("\u5730\u9EDE\u4E0D\u5F97\u70BA\u7A7A");
         return;
       }
-      let resultArea = yield this.mapSrv.searchByAreaAndTime(area, time);
-      this.mapSrv.addMarkersToMap(resultArea, 1);
+      if (time === "" && area !== "") {
+        yield this.mapSrv.searchByArea(area);
+        return;
+      }
+      yield this.mapSrv.searchByAreaAndTime(area, time);
     });
   }
   // NOTE: 搜尋使用者所在地附近的餐廳
   findFood() {
-    this.mapSrv.findFood();
+    return __async(this, null, function* () {
+      yield this.mapSrv.findFood();
+    });
   }
   // NOTE: 清除地圖上使用者位置以外的座標
   clearMarkers() {
