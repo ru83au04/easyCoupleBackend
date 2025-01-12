@@ -44653,7 +44653,7 @@ var FoodMapComponent = class _FoodMapComponent {
       this.timeList.push(`${hour}:00`, `${hour}:30`);
     }
   }
-  // NOTE: 選定 AREA與 Time之後搜尋並建立地標
+  // NOTE: 選定指定條件後搜尋並建立地標(指定地點或指定地點、時間)
   search(area, time) {
     return __async(this, null, function* () {
       if (area === "") {
@@ -45326,8 +45326,12 @@ var HighlightModule = class _HighlightModule {
 
 // src/app/Service/blog.service.ts
 var BlogService = class _BlogService {
-  constructor() {
+  http;
+  articles = [];
+  constructor(http) {
+    this.http = http;
   }
+  // NOTE: 插入 Highlight.js腳本(讓 Code區塊可以針對不同語法標示高亮字體)
   loadHighlightScript() {
     return new Promise((resolve, reject) => {
       if (!document.getElementById("highlightJsScript")) {
@@ -45342,8 +45346,24 @@ var BlogService = class _BlogService {
       }
     });
   }
+  getArticleList() {
+    return __async(this, null, function* () {
+      let res = yield lastValueFrom(this.http.get("https://public-api.wordpress.com/rest/v1.1/sites/ru83au04.wordpress.com/posts/"));
+      let articles = res.posts;
+      return articles.map((art) => {
+        this.articles.push(art);
+        return art.title;
+      });
+    });
+  }
+  getArticle(title) {
+    const article = this.articles.find((art) => {
+      return art.title === title;
+    });
+    return article?.content || "";
+  }
   static \u0275fac = function BlogService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _BlogService)();
+    return new (__ngFactoryType__ || _BlogService)(\u0275\u0275inject(HttpClient));
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _BlogService, factory: _BlogService.\u0275fac, providedIn: "root" });
 };
@@ -45351,6 +45371,7 @@ var BlogService = class _BlogService {
 // src/app/Page/blog/blog.component.ts
 var BlogComponent = class _BlogComponent {
   blogSrv;
+  titles;
   constructor(blogSrv) {
     this.blogSrv = blogSrv;
   }
@@ -45360,44 +45381,43 @@ var BlogComponent = class _BlogComponent {
     }).catch((err) => {
       console.error("Failed to load Highlight.js", err);
     });
+    this.getArticleList();
   }
-  code = `
-    let a = 1;
-    switch(a) {
-      case 1:
-        console.log('a is 1');
-        break;
-      case 2:
-        console.log('a is 2');
-        break;
-      default:
-        console.log('a is neither 1 nor 2');
+  getArticleList() {
+    return __async(this, null, function* () {
+      let outer = document.getElementById("outer");
+      this.titles = yield this.blogSrv.getArticleList();
+      this.titles.map((title) => {
+        const txt = document.createElement("h1");
+        txt.innerHTML = title;
+        txt.tabIndex = 0;
+        txt.addEventListener("click", () => this.getArticle(title));
+        outer.appendChild(txt);
+      });
+    });
+  }
+  getArticle(title) {
+    const content = this.blogSrv.getArticle(title);
+    let articleInner = document.getElementById("articleInner");
+    if (articleInner) {
+      articleInner.innerHTML = content;
+      return;
     }
-  `;
-  htmlCode = `
-    <div>
-      <button (click)="clickEvent()">Click me</button>
-    </div>
-  `;
+    let textDiv = document.createElement("div");
+    textDiv.id = "articleInner";
+    textDiv.innerHTML = content;
+    document.getElementById("articleTxt")?.appendChild(textDiv);
+  }
   static \u0275fac = function BlogComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BlogComponent)(\u0275\u0275directiveInject(BlogService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlogComponent, selectors: [["app-blog"]], decls: 6, vars: 4, consts: [[3, "highlight", "language"]], template: function BlogComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlogComponent, selectors: [["app-blog"]], decls: 3, vars: 0, consts: [["id", "outer"], ["id", "articleTxt"]], template: function BlogComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div")(1, "div")(2, "pre");
-      \u0275\u0275element(3, "code", 0);
+      \u0275\u0275elementStart(0, "main");
+      \u0275\u0275element(1, "div", 0)(2, "div", 1);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "pre");
-      \u0275\u0275element(5, "code", 0);
-      \u0275\u0275elementEnd()()();
     }
-    if (rf & 2) {
-      \u0275\u0275advance(3);
-      \u0275\u0275property("highlight", ctx.code)("language", "typescript");
-      \u0275\u0275advance(2);
-      \u0275\u0275property("highlight", ctx.htmlCode)("language", "html");
-    }
-  }, dependencies: [HighlightModule, Highlight], encapsulation: 2 });
+  }, dependencies: [HighlightModule], encapsulation: 2 });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src/app/page/blog/blog.component.ts", lineNumber: 12 });
