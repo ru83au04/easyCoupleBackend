@@ -11,7 +11,7 @@ const getAllUsers = () => {
 };
 
 module.exports = { getAllUsers };
-
+  
 
 // TODO: mySQL用法
 // const db = require('../config/db');

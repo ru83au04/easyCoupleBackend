@@ -95,8 +95,6 @@ async function startServer(){
 //   }
 // });
 
-
-
 // TODO: 查詢簽到記錄(如果已經搭配DB使用的話)
 // app.get('/api/signin-records', async (req, res) => {
 //   const records = await db.collection('signins').find({}).toArray();
