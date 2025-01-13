@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -60,6 +61,13 @@ var __async = (__this, __arguments, generator) => {
     step((generator = generator.apply(__this, __arguments)).next());
   });
 };
+=======
+import {
+  __async,
+  __spreadProps,
+  __spreadValues
+} from "./chunk-YP43Q66R.js";
+>>>>>>> becc2848ff3597c35e336af8913ee428d4f229d6
 
 // node_modules/highlight.js/lib/core.js
 var require_core = __commonJS({
@@ -69518,6 +69526,7 @@ var HighlightLoader = class _HighlightLoader {
       if (this.options?.themePath) {
         this.loadTheme(this.options.themePath);
       }
+<<<<<<< HEAD
     }
   }
   /**
@@ -70156,6 +70165,586 @@ var BlogComponent = class _BlogComponent {
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src/app/page/blog/blog.component.ts", lineNumber: 14 });
+=======
+    }
+  }
+  /**
+   * Lazy-Load highlight.js library
+   */
+  _loadLibrary() {
+    if (this.options) {
+      if (this.options.fullLibraryLoader && this.options.coreLibraryLoader) {
+        return throwError(() => LoaderErrors.FULL_WITH_CORE_LIBRARY_IMPORTS);
+      }
+      if (this.options.fullLibraryLoader && this.options.languages) {
+        return throwError(() => LoaderErrors.FULL_WITH_LANGUAGE_IMPORTS);
+      }
+      if (this.options.coreLibraryLoader && !this.options.languages) {
+        return throwError(() => LoaderErrors.CORE_WITHOUT_LANGUAGE_IMPORTS);
+      }
+      if (!this.options.coreLibraryLoader && this.options.languages) {
+        return throwError(() => LoaderErrors.LANGUAGE_WITHOUT_CORE_IMPORTS);
+      }
+      if (this.options.fullLibraryLoader) {
+        return this.loadFullLibrary();
+      }
+      if (this.options.coreLibraryLoader && this.options.languages && Object.keys(this.options.languages).length) {
+        return this.loadCoreLibrary().pipe(switchMap((hljs) => this._loadLanguages(hljs)));
+      }
+    }
+    return throwError(() => LoaderErrors.NO_FULL_AND_NO_CORE_IMPORTS);
+  }
+  /**
+   * Lazy-load highlight.js languages
+   */
+  _loadLanguages(hljs) {
+    const languages = Object.entries(this.options.languages).map(([langName, langLoader]) => importModule(langLoader()).pipe(tap((langFunc) => hljs.registerLanguage(langName, langFunc))));
+    return forkJoin(languages).pipe(map(() => hljs));
+  }
+  /**
+   * Import highlight.js core library
+   */
+  loadCoreLibrary() {
+    return importModule(this.options.coreLibraryLoader());
+  }
+  /**
+   * Import highlight.js library with all languages
+   */
+  loadFullLibrary() {
+    return importModule(this.options.fullLibraryLoader());
+  }
+  /**
+   * Import line numbers library
+   */
+  loadLineNumbers() {
+    return from(this.options.lineNumbersLoader());
+  }
+  /**
+   * Reload theme styles
+   */
+  setTheme(path) {
+    if (this.isPlatformBrowser) {
+      if (this._themeLinkElement) {
+        this._themeLinkElement.href = path;
+      } else {
+        this.loadTheme(path);
+      }
+    }
+  }
+  /**
+   * Load theme
+   */
+  loadTheme(path) {
+    this._themeLinkElement = this.document.createElement("link");
+    this._themeLinkElement.href = path;
+    this._themeLinkElement.type = "text/css";
+    this._themeLinkElement.rel = "stylesheet";
+    this._themeLinkElement.media = "screen,print";
+    this.document.head.appendChild(this._themeLinkElement);
+  }
+  static {
+    this.\u0275fac = function HighlightLoader_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HighlightLoader)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+      token: _HighlightLoader,
+      factory: _HighlightLoader.\u0275fac,
+      providedIn: "root"
+    });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HighlightLoader, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+var importModule = (moduleLoader) => {
+  return from(moduleLoader).pipe(filter((module) => !!module?.default), map((module) => module.default));
+};
+var HighlightJS = class _HighlightJS {
+  constructor() {
+    this.loader = inject(HighlightLoader);
+    this.options = inject(HIGHLIGHT_OPTIONS, {
+      optional: true
+    });
+    this.hljsSignal = signal(null);
+    this.hljs = computed(() => this.hljsSignal());
+    this.loader.ready.then((hljs) => {
+      this.hljsSignal.set(hljs);
+      if (this.options?.highlightOptions) {
+        hljs.configure(this.options.highlightOptions);
+      }
+    });
+  }
+  /**
+   * Core highlighting function. Accepts the code to highlight (string) and a list of options (object)
+   */
+  highlight(code, options) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      return hljs.highlight(code, options);
+    });
+  }
+  /**
+   * Highlighting with language detection.
+   */
+  highlightAuto(value, languageSubset) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      return hljs.highlightAuto(value, languageSubset);
+    });
+  }
+  /**
+   * Applies highlighting to a DOM node containing code.
+   * This function is the one to use to apply highlighting dynamically after page load or within initialization code of third-party JavaScript frameworks.
+   * The function uses language detection by default but you can specify the language in the class attribute of the DOM node. See the scopes reference for all available language names and scopes.
+   */
+  highlightElement(element) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.highlightElement(element);
+    });
+  }
+  /**
+   * Applies highlighting to all elements on a page matching the configured cssSelector. The default cssSelector value is 'pre code',
+   * which highlights all code blocks. This can be called before or after the page’s onload event has fired.
+   */
+  highlightAll() {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.highlightAll();
+    });
+  }
+  /**
+   * @deprecated in version 12
+   * Configures global options:
+   */
+  configure(config2) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.configure(config2);
+    });
+  }
+  /**
+   * Adds new language to the library under the specified name. Used mostly internally.
+   * The function is passed the hljs object to be able to use common regular expressions defined within it.
+   */
+  registerLanguage(languageName, languageDefinition) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.registerLanguage(languageName, languageDefinition);
+    });
+  }
+  /**
+   * Removes a language and its aliases from the library. Used mostly internally
+   */
+  unregisterLanguage(languageName) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.unregisterLanguage(languageName);
+    });
+  }
+  /**
+   * Adds new language alias or aliases to the library for the specified language name defined under languageName key.
+   */
+  registerAliases(_0, _1) {
+    return __async(this, arguments, function* (alias, {
+      languageName
+    }) {
+      const hljs = yield this.loader.ready;
+      hljs.registerAliases(alias, {
+        languageName
+      });
+    });
+  }
+  /**
+   * @return The languages names list.
+   */
+  listLanguages() {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      return hljs.listLanguages();
+    });
+  }
+  /**
+   * Looks up a language by name or alias.
+   */
+  getLanguage(name) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      return hljs.getLanguage(name);
+    });
+  }
+  /**
+   * Enables safe mode. This is the default mode, providing the most reliable experience for production usage.
+   */
+  safeMode() {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.safeMode();
+    });
+  }
+  /**
+   * Enables debug/development mode.
+   */
+  debugMode() {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      hljs.debugMode();
+    });
+  }
+  /**
+   * Display line numbers
+   */
+  lineNumbersBlock(el, options) {
+    return __async(this, null, function* () {
+      const hljs = yield this.loader.ready;
+      if (hljs.lineNumbersBlock) {
+        hljs.lineNumbersBlock(el, options);
+      }
+    });
+  }
+  static {
+    this.\u0275fac = function HighlightJS_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HighlightJS)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+      token: _HighlightJS,
+      factory: _HighlightJS.\u0275fac,
+      providedIn: "root"
+    });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HighlightJS, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+var policy2;
+function getPolicy2() {
+  if (!policy2) {
+    try {
+      policy2 = window?.trustedTypes?.createPolicy("ngx-highlightjs", {
+        createHTML: (s) => s
+      });
+    } catch {
+    }
+  }
+  return policy2;
+}
+function trustedHTMLFromStringBypass2(html) {
+  return getPolicy2()?.createHTML(html) || html;
+}
+var HighlightBase = class _HighlightBase {
+  constructor() {
+    this._hljs = inject(HighlightJS);
+    this._nativeElement = inject(ElementRef).nativeElement;
+    this._sanitizer = inject(DomSanitizer);
+    afterRenderEffect({
+      write: () => {
+        const code = this.code();
+        this.setTextContent(code || "");
+        if (code) {
+          this.highlightElement(code);
+        }
+      }
+    });
+    afterRenderEffect({
+      write: () => {
+        const res = this.highlightResult();
+        this.setInnerHTML(res?.value);
+        this.highlighted.emit(res);
+      }
+    });
+  }
+  setTextContent(content) {
+    requestAnimationFrame(() => this._nativeElement.textContent = content);
+  }
+  setInnerHTML(content) {
+    requestAnimationFrame(() => this._nativeElement.innerHTML = trustedHTMLFromStringBypass2(this._sanitizer.sanitize(SecurityContext.HTML, content) || ""));
+  }
+  static {
+    this.\u0275fac = function HighlightBase_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HighlightBase)();
+    };
+  }
+  static {
+    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+      type: _HighlightBase
+    });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HighlightBase, [{
+    type: Directive
+  }], () => [], null);
+})();
+var Highlight = class _Highlight extends HighlightBase {
+  constructor() {
+    super(...arguments);
+    this.code = input(null, {
+      alias: "highlight"
+    });
+    this.highlightResult = signal(null);
+    this.language = input.required();
+    this.ignoreIllegals = input(void 0, {
+      transform: booleanAttribute
+    });
+    this.highlighted = output();
+  }
+  highlightElement(code) {
+    return __async(this, null, function* () {
+      const res = yield this._hljs.highlight(code, {
+        language: this.language(),
+        ignoreIllegals: this.ignoreIllegals()
+      });
+      this.highlightResult.set(res);
+    });
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275Highlight_BaseFactory;
+      return function Highlight_Factory(__ngFactoryType__) {
+        return (\u0275Highlight_BaseFactory || (\u0275Highlight_BaseFactory = \u0275\u0275getInheritedFactory(_Highlight)))(__ngFactoryType__ || _Highlight);
+      };
+    })();
+  }
+  static {
+    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+      type: _Highlight,
+      selectors: [["", "highlight", ""]],
+      hostVars: 2,
+      hostBindings: function Highlight_HostBindings(rf, ctx) {
+        if (rf & 2) {
+          \u0275\u0275classProp("hljs", true);
+        }
+      },
+      inputs: {
+        code: [1, "highlight", "code"],
+        language: [1, "language"],
+        ignoreIllegals: [1, "ignoreIllegals"]
+      },
+      outputs: {
+        highlighted: "highlighted"
+      },
+      features: [\u0275\u0275ProvidersFeature([{
+        provide: HighlightBase,
+        useExisting: _Highlight
+      }]), \u0275\u0275InheritDefinitionFeature]
+    });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Highlight, [{
+    type: Directive,
+    args: [{
+      selector: "[highlight]",
+      providers: [{
+        provide: HighlightBase,
+        useExisting: Highlight
+      }],
+      host: {
+        "[class.hljs]": "true"
+      }
+    }]
+  }], null, null);
+})();
+var HighlightAuto = class _HighlightAuto extends HighlightBase {
+  constructor() {
+    super(...arguments);
+    this.code = input(null, {
+      alias: "highlightAuto"
+    });
+    this.highlightResult = signal(null);
+    this.languages = input();
+    this.highlighted = output();
+  }
+  highlightElement(code) {
+    return __async(this, null, function* () {
+      const res = yield this._hljs.highlightAuto(code, this.languages());
+      this.highlightResult.set(res);
+    });
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275HighlightAuto_BaseFactory;
+      return function HighlightAuto_Factory(__ngFactoryType__) {
+        return (\u0275HighlightAuto_BaseFactory || (\u0275HighlightAuto_BaseFactory = \u0275\u0275getInheritedFactory(_HighlightAuto)))(__ngFactoryType__ || _HighlightAuto);
+      };
+    })();
+  }
+  static {
+    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+      type: _HighlightAuto,
+      selectors: [["", "highlightAuto", ""]],
+      hostVars: 2,
+      hostBindings: function HighlightAuto_HostBindings(rf, ctx) {
+        if (rf & 2) {
+          \u0275\u0275classProp("hljs", true);
+        }
+      },
+      inputs: {
+        code: [1, "highlightAuto", "code"],
+        languages: [1, "languages"]
+      },
+      outputs: {
+        highlighted: "highlighted"
+      },
+      features: [\u0275\u0275ProvidersFeature([{
+        provide: HighlightBase,
+        useExisting: _HighlightAuto
+      }]), \u0275\u0275InheritDefinitionFeature]
+    });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HighlightAuto, [{
+    type: Directive,
+    args: [{
+      selector: "[highlightAuto]",
+      providers: [{
+        provide: HighlightBase,
+        useExisting: HighlightAuto
+      }],
+      host: {
+        "[class.hljs]": "true"
+      }
+    }]
+  }], null, null);
+})();
+var HighlightModule = class _HighlightModule {
+  static {
+    this.\u0275fac = function HighlightModule_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HighlightModule)();
+    };
+  }
+  static {
+    this.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+      type: _HighlightModule
+    });
+  }
+  static {
+    this.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HighlightModule, [{
+    type: NgModule,
+    args: [{
+      imports: [Highlight, HighlightAuto],
+      exports: [Highlight, HighlightAuto]
+    }]
+  }], null, null);
+})();
+
+// src/app/Service/blog.service.ts
+var BlogService = class _BlogService {
+  http;
+  articles = [];
+  constructor(http) {
+    this.http = http;
+  }
+  // NOTE: 插入 Highlight.js腳本(讓 Code區塊可以針對不同語法標示高亮字體)
+  loadHighlightScript() {
+    return new Promise((resolve, reject) => {
+      if (!document.getElementById("highlightJsScript")) {
+        const script = document.createElement("script");
+        script.id = "highlightJsScript";
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js";
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load highlight.js"));
+        document.head.appendChild(script);
+      } else {
+        resolve();
+      }
+    });
+  }
+  getArticleList() {
+    return __async(this, null, function* () {
+      let res = yield lastValueFrom(this.http.get("https://public-api.wordpress.com/rest/v1.1/sites/ru83au04.wordpress.com/posts/"));
+      let articles = res.posts;
+      return articles.map((art) => {
+        this.articles.push(art);
+        return art.title;
+      });
+    });
+  }
+  getArticle(title) {
+    const article = this.articles.find((art) => {
+      return art.title === title;
+    });
+    return article?.content || "";
+  }
+  static \u0275fac = function BlogService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BlogService)(\u0275\u0275inject(HttpClient));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _BlogService, factory: _BlogService.\u0275fac, providedIn: "root" });
+};
+
+// src/app/Page/blog/blog.component.ts
+var BlogComponent = class _BlogComponent {
+  blogSrv;
+  titles;
+  constructor(blogSrv) {
+    this.blogSrv = blogSrv;
+  }
+  ngOnInit() {
+    this.blogSrv.loadHighlightScript().then(() => {
+      console.log("Highlight.js loaded successfully");
+    }).catch((err) => {
+      console.error("Failed to load Highlight.js", err);
+    });
+    this.getArticleList();
+  }
+  getArticleList() {
+    return __async(this, null, function* () {
+      let outer = document.getElementById("outer");
+      this.titles = yield this.blogSrv.getArticleList();
+      this.titles.map((title) => {
+        const txt = document.createElement("h1");
+        txt.innerHTML = title;
+        txt.tabIndex = 0;
+        txt.addEventListener("click", () => this.getArticle(title));
+        outer.appendChild(txt);
+      });
+    });
+  }
+  getArticle(title) {
+    const content = this.blogSrv.getArticle(title);
+    let articleInner = document.getElementById("articleInner");
+    if (articleInner) {
+      articleInner.innerHTML = content;
+      return;
+    }
+    let textDiv = document.createElement("div");
+    textDiv.id = "articleInner";
+    textDiv.innerHTML = content;
+    document.getElementById("articleTxt")?.appendChild(textDiv);
+  }
+  static \u0275fac = function BlogComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BlogComponent)(\u0275\u0275directiveInject(BlogService));
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlogComponent, selectors: [["app-blog"]], decls: 3, vars: 0, consts: [["id", "outer"], ["id", "articleTxt"]], template: function BlogComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "main");
+      \u0275\u0275element(1, "div", 0)(2, "div", 1);
+      \u0275\u0275elementEnd();
+    }
+  }, dependencies: [HighlightModule], encapsulation: 2 });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src/app/page/blog/blog.component.ts", lineNumber: 12 });
+>>>>>>> becc2848ff3597c35e336af8913ee428d4f229d6
 })();
 
 // src/app/Page/about/about.component.ts
@@ -70249,6 +70838,23 @@ var appConfig = {
     WeatherService,
     MapService,
     BlogService,
+<<<<<<< HEAD
+=======
+    {
+      provide: HIGHLIGHT_OPTIONS,
+      useValue: {
+        coreLibraryLoader: () => import("./chunk-K37OQN4L.js"),
+        languages: {
+          typescript: () => import("./chunk-TGQNIRA3.js"),
+          css: () => import("./chunk-5WOXSTZP.js"),
+          xml: () => import("./chunk-F72Z7VBS.js"),
+          json: () => import("./chunk-P6KO27AV.js"),
+          scss: () => import("./chunk-OTQJ6PRB.js"),
+          javascript: () => import("./chunk-METZFU5M.js")
+        }
+      }
+    },
+>>>>>>> becc2848ff3597c35e336af8913ee428d4f229d6
     AttendanceService
   ]
 };
