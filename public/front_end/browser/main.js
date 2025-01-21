@@ -70005,10 +70005,15 @@ var es_default = import_lib.default;
 
 // src/app/Kennel/article/article.component.ts
 var _c03 = ["articleOuter"];
+var _c12 = ["articleTitle"];
 var ArticleComponent = class _ArticleComponent {
   article;
   closeArticle = new EventEmitter();
   articleOuter;
+  articleTitle;
+  title = "";
+  content = "";
+  showBackButton = false;
   constructor() {
   }
   ngOnInit() {
@@ -70016,45 +70021,156 @@ var ArticleComponent = class _ArticleComponent {
   ngAfterViewInit() {
     this.buildArticle();
   }
-  close() {
-    this.closeArticle.emit(false);
-  }
+  // NOTE: 重構 wordpress 文章內容
   buildArticle() {
+    let titleHTML = this.articleTitle.nativeElement;
+    titleHTML.innerHTML = this.article?.title;
     let articleHTML = this.articleOuter.nativeElement;
-    articleHTML.innerHTML = this.article;
+    articleHTML.innerHTML = this.article?.content;
     articleHTML.querySelectorAll("pre code").forEach((block) => {
       es_default.highlightElement(block);
       block.style.borderRadius = "10px";
     });
+    articleHTML.querySelectorAll("h3").forEach((block) => {
+      block.style.textShadow = "5px 5px 5px #000";
+    });
+    articleHTML.querySelectorAll("h4").forEach((block) => {
+      block.style.textShadow = "5px 5px 5px #000";
+    });
+    articleHTML.querySelectorAll("li").forEach((block) => {
+      block.className = "custom";
+    });
+    articleHTML.querySelectorAll("tr").forEach((block) => {
+      block.style.paddingRight = "20px";
+      block.style.paddingLeft = "20px";
+      block.style.margin = "0px";
+    });
+    articleHTML.querySelectorAll("td").forEach((block) => {
+      block.style.paddingRight = "20px";
+      block.style.paddingLeft = "20px";
+      block.style.margin = "0px";
+    });
+    articleHTML.querySelectorAll("em").forEach((block) => {
+      block.style.paddingRight = "20px";
+    });
+  }
+  // NOTE: 關閉文章視窗(使用 @Output發送事件)
+  close() {
+    this.closeArticle.emit(false);
+  }
+  // NOTE: 返回按鈕的收放
+  onMouseMove(event) {
+    const backButton = document.getElementById("back");
+    if (backButton) {
+      const rect = backButton.getBoundingClientRect();
+      const distance = 50;
+      if (event.clientX >= rect.left - distance && event.clientX <= rect.right + distance && event.clientY >= rect.top - distance && event.clientY <= rect.bottom + distance) {
+        backButton.classList.add("show");
+      } else {
+        backButton.classList.remove("show");
+      }
+    }
   }
   static \u0275fac = function ArticleComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ArticleComponent)();
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ArticleComponent, selectors: [["app-article"]], viewQuery: function ArticleComponent_Query(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275viewQuery(_c03, 7);
+      \u0275\u0275viewQuery(_c03, 5);
+      \u0275\u0275viewQuery(_c12, 5);
     }
     if (rf & 2) {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.articleOuter = _t.first);
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.articleTitle = _t.first);
     }
-  }, inputs: { article: "article" }, outputs: { closeArticle: "closeArticle" }, decls: 5, vars: 0, consts: [["articleOuter", ""], [3, "click"], ["id", "articleOuter"]], template: function ArticleComponent_Template(rf, ctx) {
+  }, hostBindings: function ArticleComponent_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("mousemove", function ArticleComponent_mousemove_HostBindingHandler($event) {
+        return ctx.onMouseMove($event);
+      }, false, \u0275\u0275resolveWindow);
+    }
+  }, inputs: { article: "article" }, outputs: { closeArticle: "closeArticle" }, decls: 7, vars: 0, consts: [["articleTitle", ""], ["articleOuter", ""], ["id", "articleOuter"], ["id", "back", 3, "click"]], template: function ArticleComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
-      \u0275\u0275elementStart(0, "main")(1, "button", 1);
-      \u0275\u0275listener("click", function ArticleComponent_Template_button_click_1_listener() {
+      \u0275\u0275elementStart(0, "main");
+      \u0275\u0275element(1, "h1", null, 0)(3, "div", 2, 1);
+      \u0275\u0275elementStart(5, "button", 3);
+      \u0275\u0275listener("click", function ArticleComponent_Template_button_click_5_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.close());
       });
-      \u0275\u0275text(2, "CloseArticle");
-      \u0275\u0275elementEnd();
-      \u0275\u0275element(3, "div", 2, 0);
-      \u0275\u0275elementEnd();
+      \u0275\u0275text(6, "\u8FD4\u56DE");
+      \u0275\u0275elementEnd()();
     }
-  }, styles: ["\n\n#articleOuter[_ngcontent-%COMP%] {\n  margin: 2rem;\n  padding: 1rem;\n  font-size: 1.5rem;\n}\n/*# sourceMappingURL=article.component.css.map */"] });
+  }, styles: ["\n\nh1[_ngcontent-%COMP%] {\n  text-align: center;\n  font-size: 3rem;\n  text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);\n}\n#articleOuter[_ngcontent-%COMP%] {\n  margin-left: 50px;\n  margin-right: 50px;\n  padding-top: 10px;\n  padding-left: 50px;\n  padding-right: 50px;\n  padding-bottom: 50px;\n  font-size: 1.5rem;\n  background-color: var(--block-color);\n  border-radius: 25px;\n  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);\n}\n#back[_ngcontent-%COMP%] {\n  color: var(--text-color);\n  font-size: 2rem;\n  position: absolute;\n  bottom: 40px;\n  right: -80px;\n  background-color: rgba(var(--block-color-truth), 0.5);\n  border-radius: 40px;\n  height: 90px;\n  width: 100px;\n  transition: right 0.3s ease;\n}\n  li {\n  margin: 5px 0;\n  padding: 5px;\n}\n#back.show[_ngcontent-%COMP%] {\n  right: 10px;\n}\n/*# sourceMappingURL=article.component.css.map */"] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ArticleComponent, { className: "ArticleComponent", filePath: "src/app/kennel/article/article.component.ts", lineNumber: 10 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ArticleComponent, { className: "ArticleComponent", filePath: "src/app/kennel/article/article.component.ts", lineNumber: 11 });
+})();
+
+// src/app/Kennel/guidblock/guidblock.component.ts
+var _c04 = ["guidblock"];
+var GuidblockComponent = class _GuidblockComponent {
+  article;
+  guidblock;
+  constructor() {
+  }
+  ngAfterViewInit() {
+    this.setBlock();
+  }
+  setBlock() {
+    this.guidblock.nativeElement.querySelectorAll("div").forEach((div) => {
+      switch (div.id) {
+        case "title":
+          div.innerHTML = this.article.title;
+          break;
+        case "excerpt":
+          div.innerHTML = this.article.excerpt;
+          break;
+        case "name":
+          div.innerHTML = this.article.author.name;
+          break;
+        case "date":
+          div.innerHTML = `\u5EFA\u7ACB\u6642\u9593\uFF1A${this.formatDate(this.article.date)}`;
+          break;
+        case "modified":
+          div.innerHTML = `\u6700\u5F8C\u4FEE\u6539\uFF1A${this.formatDate(this.article.modified)}`;
+          break;
+        default:
+          break;
+      }
+    });
+  }
+  formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  }
+  static \u0275fac = function GuidblockComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _GuidblockComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GuidblockComponent, selectors: [["app-guidblock"]], viewQuery: function GuidblockComponent_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(_c04, 7);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.guidblock = _t.first);
+    }
+  }, inputs: { article: "article" }, decls: 9, vars: 0, consts: [["guidblock", ""], ["id", "guidblock"], ["id", "title"], ["id", "excerpt"], ["id", "author"], ["id", "name"], ["id", "date"], ["id", "modified"]], template: function GuidblockComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 1, 0);
+      \u0275\u0275element(2, "div", 2)(3, "div", 3);
+      \u0275\u0275elementStart(4, "div", 4);
+      \u0275\u0275element(5, "div", 5);
+      \u0275\u0275elementStart(6, "div");
+      \u0275\u0275element(7, "div", 6)(8, "div", 7);
+      \u0275\u0275elementEnd()()();
+    }
+  }, styles: ["\n\n#guidblock[_ngcontent-%COMP%] {\n  background-color: var(--block-color);\n  display: flex;\n  flex-direction: column;\n  text-align: center;\n  height: 350px;\n  padding: 10px;\n}\n#title[_ngcontent-%COMP%] {\n  margin-top: 10px;\n  font-size: 1.5rem;\n  font-weight: bold;\n}\n#excerpt[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  display: flex;\n  text-align: left;\n  font-size: 1rem;\n  overflow: scroll;\n  padding: 20px;\n}\n#author[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  padding: 10px;\n  height: 30px;\n}\n#name[_ngcontent-%COMP%] {\n  text-align: left;\n}\n#date[_ngcontent-%COMP%] {\n  text-align: right;\n}\n/*# sourceMappingURL=guidblock.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GuidblockComponent, { className: "GuidblockComponent", filePath: "src/app/kennel/guidblock/guidblock.component.ts", lineNumber: 11 });
 })();
 
 // src/app/Service/blog.service.ts
@@ -70064,21 +70180,18 @@ var BlogService = class _BlogService {
   constructor(http) {
     this.http = http;
   }
-  getArticleList() {
+  // NOTE: 取得所有文章
+  getArticles() {
     return __async(this, null, function* () {
-      let res = yield lastValueFrom(this.http.get("https://public-api.wordpress.com/rest/v1.1/sites/ru83au04.wordpress.com/posts/"));
-      let articles = res.posts;
-      return articles.map((art) => {
-        this.articles.push(art);
-        return art.title;
-      });
+      try {
+        let res = yield lastValueFrom(this.http.get("https://public-api.wordpress.com/rest/v1.1/sites/ru83au04.wordpress.com/posts/"));
+        this.articles = res.posts;
+        return this.articles;
+      } catch (err) {
+        console.error(err);
+        return [];
+      }
     });
-  }
-  getArticle(title) {
-    const article = this.articles.find((art) => {
-      return art.title === title;
-    });
-    return article?.content || "";
   }
   static \u0275fac = function BlogService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BlogService)(\u0275\u0275inject(HttpClient));
@@ -70087,27 +70200,54 @@ var BlogService = class _BlogService {
 };
 
 // src/app/Page/blog/blog.component.ts
-function BlogComponent_div_2_Template(rf, ctx) {
+function BlogComponent_main_0_app_guidblock_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "app-article", 3);
-    \u0275\u0275listener("closeArticle", function BlogComponent_div_2_Template_app_article_closeArticle_1_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.closeArticle());
+    \u0275\u0275elementStart(0, "app-guidblock", 4);
+    \u0275\u0275listener("click", function BlogComponent_main_0_app_guidblock_2_Template_app_guidblock_click_0_listener() {
+      const article_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.getArticle(article_r2.title));
     });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const article_r2 = ctx.$implicit;
+    \u0275\u0275property("article", article_r2);
+  }
+}
+function BlogComponent_main_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "main")(1, "div", 2);
+    \u0275\u0275template(2, BlogComponent_main_0_app_guidblock_2_Template, 1, 1, "app-guidblock", 3);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("article", ctx_r1.content);
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", ctx_r2.articles);
+  }
+}
+function BlogComponent_app_article_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "app-article", 5);
+    \u0275\u0275listener("closeArticle", function BlogComponent_app_article_1_Template_app_article_closeArticle_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.closeArticle());
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("article", ctx_r2.article);
   }
 }
 var BlogComponent = class _BlogComponent {
   blogSrv;
-  titles;
-  content = "";
+  articles;
+  article;
   articleOpen = false;
   constructor(blogSrv) {
     this.blogSrv = blogSrv;
@@ -70115,47 +70255,37 @@ var BlogComponent = class _BlogComponent {
   ngOnInit() {
     this.getArticleList();
   }
+  // NOTE: 取得所有文章
   getArticleList() {
     return __async(this, null, function* () {
-      let outer = document.getElementById("outer");
-      this.titles = yield this.blogSrv.getArticleList();
-      this.titles.map((title) => {
-        const txt = document.createElement("h1");
-        txt.innerHTML = title;
-        txt.tabIndex = 0;
-        txt.addEventListener("click", () => {
-          this.articleOpen = false;
-          this.getArticle(title);
-        });
-        outer.appendChild(txt);
-      });
+      this.articles = yield this.blogSrv.getArticles();
     });
   }
+  // NOTE: 取出文章內文
   getArticle(title) {
     this.articleOpen = true;
-    this.content = this.blogSrv.getArticle(title);
+    this.article = this.articles.find((art) => art.title === title);
   }
+  // NOTE: 文章列表與文章頁面切換
   closeArticle() {
     this.articleOpen = false;
   }
   static \u0275fac = function BlogComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BlogComponent)(\u0275\u0275directiveInject(BlogService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlogComponent, selectors: [["app-blog"]], decls: 3, vars: 1, consts: [[2, "display", "flex", "flex-direction", "column", "overflow", "hidden"], ["id", "outer"], [4, "ngIf"], [3, "closeArticle", "article"]], template: function BlogComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlogComponent, selectors: [["app-blog"]], decls: 2, vars: 2, consts: [[4, "ngIf"], [3, "article", "closeArticle", 4, "ngIf"], ["id", "articles"], [3, "article", "click", 4, "ngFor", "ngForOf"], [3, "click", "article"], [3, "closeArticle", "article"]], template: function BlogComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "main", 0);
-      \u0275\u0275element(1, "div", 1);
-      \u0275\u0275template(2, BlogComponent_div_2_Template, 2, 1, "div", 2);
-      \u0275\u0275elementEnd();
+      \u0275\u0275template(0, BlogComponent_main_0_Template, 3, 1, "main", 0)(1, BlogComponent_app_article_1_Template, 1, 1, "app-article", 1);
     }
     if (rf & 2) {
-      \u0275\u0275advance(2);
+      \u0275\u0275property("ngIf", !ctx.articleOpen);
+      \u0275\u0275advance();
       \u0275\u0275property("ngIf", ctx.articleOpen);
     }
-  }, dependencies: [HighlightModule, ArticleComponent, NgIf], encapsulation: 2 });
+  }, dependencies: [HighlightModule, NgIf, ArticleComponent, GuidblockComponent, NgForOf], styles: ["\n\n#articles[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 30px;\n  padding: 50px;\n}\napp-guidblock[_ngcontent-%COMP%] {\n  overflow: hidden;\n  align-items: center;\n  border-radius: 25px;\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\n  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.5);\n}\napp-guidblock[_ngcontent-%COMP%]:hover {\n  transform: translate(10px, -10px);\n  box-shadow:\n    0 4px 8px rgb(255, 255, 255),\n    0 6px 20px rgba(255, 255, 255, 0.662),\n    0 8px 30px rgba(255, 255, 255, 0.364);\n  border-radius: 25px;\n  cursor: pointer;\n}\napp-article[_ngcontent-%COMP%] {\n  gap: 30px;\n  padding: 50px;\n}\n/*# sourceMappingURL=blog.component.css.map */"] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src/app/page/blog/blog.component.ts", lineNumber: 14 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlogComponent, { className: "BlogComponent", filePath: "src/app/page/blog/blog.component.ts", lineNumber: 15 });
 })();
 
 // src/app/Page/about/about.component.ts
@@ -70254,51 +70384,93 @@ var appConfig = {
 };
 
 // src/app/app.component.ts
-var _c04 = () => [""];
-var _c12 = () => ({ notFirst: true });
+var _c05 = () => [""];
+var _c13 = () => ({ notFirst: true });
+function AppComponent_div_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5)(1, "div", 6)(2, "div", 7);
+    \u0275\u0275text(3, " N ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div")(5, "div", 8);
+    \u0275\u0275text(6, " oah ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "div", 9);
+    \u0275\u0275text(8, " Wang ");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c05))("queryParams", \u0275\u0275pureFunction0(3, _c13));
+  }
+}
+function AppComponent_div_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 10)(1, "button", 11);
+    \u0275\u0275text(2, "Blog");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 12);
+    \u0275\u0275text(4, "\u4F5C\u54C1");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "button", 13);
+    \u0275\u0275text(6, "\u95DC\u65BC");
+    \u0275\u0275elementEnd()();
+  }
+}
 var AppComponent = class _AppComponent {
   mapSrv;
   title = "angular_capacitor_2";
+  headVisible = true;
   constructor(mapSrv) {
     this.mapSrv = mapSrv;
   }
   ngOnInit() {
   }
+  onMouseMove(event) {
+    const head = document.getElementById("head");
+    const title = document.getElementById("head-title");
+    const buttons = document.getElementById("button-container");
+    if (head) {
+      const rect = head.getBoundingClientRect();
+      const distance = 50;
+      if (event.clientX >= rect.left - distance && event.clientX <= rect.right + distance && event.clientY >= rect.top - distance && event.clientY <= rect.bottom + distance) {
+        head.classList.add("show");
+        title.style.visibility = "visible";
+        buttons.style.visibility = "visible";
+      } else {
+        head.classList.remove("show");
+        title.style.visibility = "hidden";
+        buttons.style.visibility = "hidden";
+      }
+    }
+  }
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(MapService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 20, vars: 4, consts: [[1, "main-container"], [1, "head"], [1, "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], [1, "button-container"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"], [1, "app-root"]], template: function AppComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], hostBindings: function AppComponent_HostBindings(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3)(4, "div", 4);
-      \u0275\u0275text(5, " N ");
+      \u0275\u0275listener("mousemove", function AppComponent_mousemove_HostBindingHandler($event) {
+        return ctx.onMouseMove($event);
+      }, false, \u0275\u0275resolveWindow);
+    }
+  }, decls: 6, vars: 2, consts: [[1, "main-container"], ["id", "head"], ["id", "head-title", 4, "ngIf"], ["id", "button-container", 4, "ngIf"], [1, "app-root"], ["id", "head-title"], [1, "name-size", "en-name", 3, "routerLink", "queryParams"], [1, "name-start"], [1, "en-name-size", "first-name"], [1, "en-name-size", "last-name"], ["id", "button-container"], ["routerLink", "/blog"], ["routerLink", "/project"], ["routerLink", "/about"]], template: function AppComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
+      \u0275\u0275template(2, AppComponent_div_2_Template, 9, 4, "div", 2)(3, AppComponent_div_3_Template, 7, 0, "div", 3);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "div")(7, "div", 5);
-      \u0275\u0275text(8, " oah ");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(9, "div", 6);
-      \u0275\u0275text(10, " Wang ");
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275elementStart(11, "div", 7)(12, "button", 8);
-      \u0275\u0275text(13, "Blog");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(14, "button", 9);
-      \u0275\u0275text(15, "\u4F5C\u54C1");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "button", 10);
-      \u0275\u0275text(17, "\u95DC\u65BC");
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(18, "div", 11);
-      \u0275\u0275element(19, "router-outlet");
+      \u0275\u0275elementStart(4, "div", 4);
+      \u0275\u0275element(5, "router-outlet");
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
-      \u0275\u0275advance(3);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c04))("queryParams", \u0275\u0275pureFunction0(3, _c12));
+      \u0275\u0275advance(2);
+      \u0275\u0275property("ngIf", ctx.headVisible);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.headVisible);
     }
-  }, dependencies: [RouterOutlet, RouterModule, RouterLink], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  color: rgb(244, 228, 198);\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.main-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100vh;\n  overflow-y: hidden;\n}\n.head[_ngcontent-%COMP%] {\n  display: flex;\n  padding: 5px;\n  height: 160px;\n  background-color: rgb(6, 74, 51);\n  border-bottom-right-radius: 20px;\n  border-bottom-left-radius: 20px;\n}\n.app-root[_ngcontent-%COMP%] {\n  height: 100%;\n  overflow-y: scroll;\n  border-top-left-radius: 20px;\n  border-top-right-radius: 20px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  margin-left: 10px;\n  border: 5px solid rgb(0, 140, 255);\n  border-radius: 15px;\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n.button-container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  gap: 120px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .head[_ngcontent-%COMP%] {\n    height: 110px;\n  }\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 60px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 2rem;\n  }\n}\n@media (max-width: 530px) {\n  .head[_ngcontent-%COMP%] {\n    height: 80px;\n  }\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 10px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1.5rem;\n  }\n}\n@media (max-width: 320px) {\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1rem;\n  }\n}\n/*# sourceMappingURL=app.component.css.map */"] });
+  }, dependencies: [RouterOutlet, RouterModule, RouterLink, NgIf], styles: ["\n\nbutton[_ngcontent-%COMP%] {\n  background: none;\n  border-radius: 8px;\n  border: 0px;\n  padding: 5px 10px;\n  font-size: 2rem;\n  margin: 2px;\n  cursor: pointer;\n  color: rgb(244, 228, 198);\n  text-shadow: 0 5px 10px rgba(8, 8, 8, 0.466);\n  text-transform: uppercase;\n  transition: background-color 0.3s, transform 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  text-shadow: 0 8px 15px rgba(151, 234, 177, 0.8);\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);\n}\n.main-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100vh;\n  overflow-y: hidden;\n}\n#head.show[_ngcontent-%COMP%] {\n  height: 160px;\n  display: flex;\n  padding: 5px;\n  border-radius: 25px;\n  margin-top: 20px;\n  margin-right: 20px;\n  margin-left: 20px;\n  margin-bottom: 10px;\n  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);\n  background-color: var(--title-color);\n  visibility: visible;\n}\n#head[_ngcontent-%COMP%] {\n  height: 0px;\n  display: flex;\n  padding: 5px;\n  border-radius: 25px;\n  margin-right: 20px;\n  margin-left: 20px;\n  margin-bottom: 10px;\n  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);\n  background-color: var(--title-color);\n  background-color: var(--title-color);\n  visibility: hidden;\n  transition:\n    height 1s ease,\n    visibility 1s ease,\n    margin 0.5s ease;\n}\n.app-root[_ngcontent-%COMP%] {\n  height: 100%;\n  overflow-y: scroll;\n  border-top-left-radius: 20px;\n  border-top-right-radius: 20px;\n}\n.name-size[_ngcontent-%COMP%] {\n  font-size: 6rem;\n}\n.en-name-size[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.name-start[_ngcontent-%COMP%] {\n  margin-left: 10px;\n  border: 5px solid rgb(0, 140, 255);\n  border-radius: 15px;\n}\n.first-name[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n#head-title[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.en-name[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n#button-container[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  gap: 120px;\n  margin: 20px;\n}\n@media (max-width: 1200px) {\n  .head[_ngcontent-%COMP%] {\n    height: 110px;\n  }\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 4rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1.5rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 60px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 2rem;\n  }\n}\n@media (max-width: 530px) {\n  .head[_ngcontent-%COMP%] {\n    height: 80px;\n  }\n  .name-size[_ngcontent-%COMP%] {\n    font-size: 3rem;\n  }\n  .en-name-size[_ngcontent-%COMP%] {\n    font-size: 1rem;\n  }\n  .button-container[_ngcontent-%COMP%] {\n    gap: 10px;\n    margin: 10px;\n  }\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1.5rem;\n  }\n}\n@media (max-width: 320px) {\n  button[_ngcontent-%COMP%] {\n    margin: 0px;\n    padding: 2px;\n    font-size: 1rem;\n  }\n}\n/*# sourceMappingURL=app.component.css.map */"] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 12 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 13 });
 })();
 
 // src/main.ts

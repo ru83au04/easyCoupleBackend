@@ -1,6 +1,6 @@
 const db = require('../config/postpreDatabase');
 
-// TODO: PostpreSQL用法
+// NOTE: PostpreSQL用法
 const getAllUsers = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM users', (err, result) => {

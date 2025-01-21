@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Page/blog/blog.component.css"],
+  "sourcesContent": ["#articles {\r\n  display: grid;\r\n  grid-template-columns: repeat(3, 1fr);\r\n  gap: 30px;\r\n  padding: 50px;\r\n}\r\napp-guidblock{\r\n  overflow: hidden;\r\n  align-items: center;\r\n  border-radius: 25px;\r\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\r\n  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.5);\r\n}\r\napp-guidblock:hover{\r\n  transform: translate(10px, -10px);\r\n  box-shadow: 0 4px 8px rgb(255, 255, 255),\r\n              0 6px 20px rgba(255, 255, 255, 0.662),\r\n              0 8px 30px rgba(255, 255, 255, 0.364);\r\n  border-radius: 25px;\r\n  cursor: pointer;\r\n}\r\n\r\napp-article{\r\n  gap: 30px;\r\n  padding: 50px;\r\n}"],
+  "mappings": ";AAAA,CAAC;AACC,WAAS;AACT,yBAAuB,OAAO,CAAC,EAAE;AACjC,OAAK;AACL,WAAS;AACX;AACA;AACE,YAAU;AACV,eAAa;AACb,iBAAe;AACf,cAAY,UAAU,KAAK,IAAI,EAAE,WAAW,KAAK;AACjD,cAAY,KAAK,KAAK,KAAK,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC3C;AACA,aAAa;AACX,aAAW,UAAU,IAAI,EAAE;AAC3B;AAAA,IAAY,EAAE,IAAI,IAAI,IAAI,GAAG,EAAE,GAAG,EAAE,IAAI;AAAA,IAC5B,EAAE,IAAI,KAAK,KAAK,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,MAAM;AAAA,IACrC,EAAE,IAAI,KAAK,KAAK,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE;AAC3C,iBAAe;AACf,UAAQ;AACV;AAEA;AACE,OAAK;AACL,WAAS;AACX;",
+  "names": []
+}
