@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const api = require('./routes/api');
 const path = require('path');
-const lineRoutes = require('./routes/line'); // line的路由
-const db = require('./config/postpreDatabase');
+// const lineRoutes = require('./routes/line'); // TODO: 待調整或刪除，line的路由
+// const db = require('./config/postpreDatabase');
 
 const app = express();
 
@@ -12,7 +12,7 @@ app.use(express.static(DIST_DIR)); // 前端取得靜態資料的位置
 
 app.use(express.json()); // 中介層處理 json格式資料
 
-app.use('/line', lineRoutes); // line功能路由
+// app.use('/line', lineRoutes); // line功能路由
 
 app.use('/api', api); // 前端發送 API路由
 
@@ -24,7 +24,7 @@ startServer();
 
 async function startServer(){
   try{
-    await db.initDatabaseWithCsv();
+    // await db.initDatabaseWithCsv();
 
     // TODO: Render 測試用
     const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
