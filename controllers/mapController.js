@@ -2,16 +2,13 @@ const axios = require('axios');
 const db = require("../config/postpreDatabase");
 const carModel = require("../models/trashcarModel");
 
-// 從環境變數中讀取 Google Maps API Key
+// NOTE: 從環境變數中讀取 Google Maps API Key
 const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAP_KEY;
 
-// 使用 Google搜尋地點 API搜尋指定區域附近的餐廳
+// NOTE: 使用 Google搜尋地點 API搜尋指定區域附近的餐廳
 const findFood = async (req, res) => {
-
     const { lat, lon, radius } = req.query;
-
     const url = `https://places.googleapis.com/v1/places:searchNearby`;
-    
     try {
         // NOTE: 調用 Google Places API
         const response = await axios.post(url,{
@@ -39,7 +36,17 @@ const findFood = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch places data' });
     }
 };
-// 從 DB中取得垃圾清運地點中的行政區欄位，回傳給前端作為選項列表
+// NOTE: 初始化垃圾清運點列表
+const initTrashCar = async (req, res) => {
+    try {
+        await carModel.initDatabaseWithCsv();
+        res.status(200).json({ message: '垃圾車列表初始化成功' });
+    } catch (err) {
+        console.error('垃圾車列表初始化失敗', err.message);
+        res.status(500).json({ error: '垃圾車列表初始化失敗' });
+    }
+}
+// NOTE: 從 DB中取得垃圾清運地點中的行政區欄位，回傳給前端作為選項列表
 const getAreaList = async (req, res) => {
     try{
         let areas = await carModel.getAreaList();
@@ -49,7 +56,7 @@ const getAreaList = async (req, res) => {
         res.status(500).json({ error: 'Failed to use the DataBase' });
     }
 }
-// 從 DB中搜尋指定 area中的所有清運地點資訊並回傳給前端建立 mark標註在地圖上
+// NOTE: 從 DB中搜尋指定 area中的所有清運地點資訊並回傳給前端建立 mark標註在地圖上
 const searchByArea = async (req, res) => {
     const { area } = req.query;
     console.log("req.query", req.query) //NOTE: query會拿到一個JSON物件
@@ -62,7 +69,7 @@ const searchByArea = async (req, res) => {
         res.status(500).json({ error: 'Failed to use the DataBase' });
     }
 }
-// 從 DB中搜尋指定 area、time中所有清運地點資訊，並回傳給前端建立 mark標註在地圖上
+// NOTE: 從 DB中搜尋指定 area、time中所有清運地點資訊，並回傳給前端建立 mark標註在地圖上
 const searchByAreaAndTime = async (req, res) => {
     const { area, time } = req.query;
     try{
@@ -76,6 +83,7 @@ const searchByAreaAndTime = async (req, res) => {
 
 module.exports = {
     findFood,
+    initTrashCar,
     getAreaList,
     searchByArea,
     searchByAreaAndTime,

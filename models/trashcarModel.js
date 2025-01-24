@@ -6,6 +6,8 @@ require('dotenv').config();  // 載入 .env 檔案中的環境變數
 
 
 // NOTE: 確認DB中表格狀態，視情況從CSV將檔案存入或更新至DB
+// TODO: 因為目前資料庫內已經存在資料，還需要將該方法補上到前端邏輯中
+// 這樣才能確保資料庫中的資料是最新的
 async function initDatabaseWithCsv() {
     // NOTE: 建立表格指令語法  
     const createTableQuery = `

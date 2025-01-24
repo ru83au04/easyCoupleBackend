@@ -9,7 +9,6 @@ const getUsers = (req, res) => {
     res.json(result.rows);  // PostgreSQL 回傳的結果放在 `rows` 屬性中
   });
 };
-
 module.exports = { getUsers };
 
 // TODO: mySQL用法
