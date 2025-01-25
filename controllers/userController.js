@@ -1,30 +1,31 @@
-const db = require("../config/postpreDatabase");
+const users = require('../models/userModel');
 
-// TODO: PostpreSQL用法
-const getUsers = (req, res) => {
-  db.query('SELECT * FROM users', (err, result) => {
-    if (err) {
-      return res.status(500).send({ message: '查詢失敗', error: err });
-    }
-    res.json(result.rows);  // PostgreSQL 回傳的結果放在 `rows` 屬性中
-  });
+// NOTE: 建立新使用者
+const register = async (req, res) => {
+  try {
+    const { username, password } = req.query;
+    await users.createUser(username, password);
+    res.status(200).json({ message: '註冊成功' });
+  } catch (err) {
+    console.error('註冊失敗:', err);
+    res.status(500).json({ message: '註冊失敗' });
+  }
 };
-module.exports = { getUsers };
 
-// TODO: mySQL用法
-// const db = require("../config/database");
+const deleteUser = (req, res) => {
+  try {
+    const { id } = req.query;
+    users.deleteUser(id);
+    res.status(200).json({ message: '刪除成功' });
+  } catch (err) {
+    console.error('刪除失敗:', err);
+    res.status(500).json({ message: '刪除失敗' });
+  }
+};
 
-// const getUsers = (req, res) => {
-//   db.query('SELECT * FROM users', (err, results) => {
-//     if (err) {
-//       return res.status(500).send({ message: '查詢失敗', error: err });
-//     }
-//     res.json(results);
-//   });
-// };
-
-// module.exports = { getUsers };
-
-// controllers/userController.js
+module.exports = {
+  register,
+  deleteUser,
+};
 
 

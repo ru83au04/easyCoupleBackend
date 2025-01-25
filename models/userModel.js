@@ -19,7 +19,14 @@ async function initUserTable() {
 }
 // NOTE: 新增使用者資料
 async function createUser(username, password) {
-  const hashedPassword = await bcrypt.hash(password, 10);
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 10);
+  } catch (err) {
+    console.error('密碼加密失敗:', err.message);
+    throw new Error('密碼加密失敗');
+  }
+
   const createUserQuery = `
   INSERT INTO test_users (username, password, level)
   VALUES ($1, $2, $3)
