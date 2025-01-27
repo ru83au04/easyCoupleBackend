@@ -37,8 +37,14 @@ async function startServer(){
   try{
     // TODO: Render 測試用
     const PORT = process.env.PORT || 3000; // 默認為 3000，但 Render 會提供 PORT 環境變數
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    app.listen(PORT, async () => {
+      try {
+        await trashCar.initDatabaseWithCsv();
+        await user.initTable("dev_users");
+      } catch (err) {
+        console.error('資料庫初始化失敗', err);
+      }
+      console.log(`開發伺服器已經在 ${PORT} port運行`);
     });
   }catch (err){
     console.error('伺服器啟動失敗', err);
@@ -55,11 +61,11 @@ async function startDevServer() {
   https.createServer(httpsOptions, app).listen(PORT, async () => {
     try {
       await trashCar.initDatabaseWithCsv();
-      await user.initUserTable();
+      await user.initTable("dev_users");
     } catch (err) {
       console.error('資料庫初始化失敗', err);
     }
-    console.log(`Dev HTTPS Server running on port ${PORT}`);
+    console.log(`開發伺服器已經在 ${PORT} port運行`);
   });
 }
 

@@ -12,7 +12,8 @@ router.get('/google/searchByArea', mapController.searchByArea);
 router.get('/google/searchByAreaAndTime', mapController.searchByAreaAndTime);
 
 router.get('/user/register', userController.register);
+router.get('/user/login', userController.login);
 router.get('/user/delete', userController.deleteUser);
-
+router.get('/user/check', userController.verifyToken, userController.checkData);
 
 module.exports = router;
