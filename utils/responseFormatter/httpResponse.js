@@ -1,12 +1,9 @@
-function successResponse(status, message, ...data) {
-    const res = new HttpResponse({
+function httpResponse(status, message, ...data) {
+    let res = {
         status: status,
-        body: {
-            message: message,
-            data: data
-        }
-    });
-    
+        message: message, 
+        data: data
+    }
     return res;
 }
 
@@ -18,5 +15,5 @@ class HttpResponse {
 }
 
 module.exports = {
-    successResponse
+    httpResponse
 }
