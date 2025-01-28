@@ -6,14 +6,19 @@ const httpRes = require('../utils/responseFormatter/httpResponse')
 const register = async (req, res) => {
   try {
     const { username, password } = req.query;
-    await users.createUser(username, password);
-    res.status(200).send(httpRes.httpResponse(200, '註冊成功'));
+    // TEST: 確認回傳的是物件還是陣列(應該要是物件)
+    const result = await users.createUser(username, password);
+    if (result.username === username) {
+      res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
+    } else {
+      res.status(500).send(httpRes.httpResponse(500, '註冊失敗'));
+    }
   } catch (err) {
     console.error('註冊失敗:', err);
     res.status(500).send(httpRes.httpResponse(500, '註冊失敗'));
   }
 };
-// NOTE: 刪除使用者
+// TODO: 待完善，刪除使用者
 const deleteUser = (req, res) => {
   try {
     const { id } = req.query;
@@ -30,21 +35,31 @@ const login = (req, res) => {
     const { username, password } = req.query;
     const user = users.loginUser(username, password);
     if (user) {
-      const token = jwt.sign({ user_id: user.userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      console.log('登入成功');
-      
+      const token = jwt.sign({
+        id: user.id,
+        level: user.level,
+        department: user.department_id
+      }, process.env.JWT_SECRET, { expiresIn: '1h' });      
 
-      res.status(200).send(httpRes.httpResponse(200, '登入成功', token));
+      res.status(200).send(httpRes.httpResponse(200, '登入成功', token, {
+        role: user.role_id,
+        name: user.username,
+        emergency: user.emergency,
+        add: user.address,
+        start_date: user.start_date,
+        special_date: user.special_date,
+        special_date_delay: user.special_date_delay,
+        rank: user.rank,
+        regist_date: user.regist_date
+      }));
     } else {
-      console.log('登入成功');
-      res.status(401).send(httpRes.httpResponse(401, '登入失敗'));
+      res.status(401).send(httpRes.httpResponse(401, '身分驗證失敗'));
     }
   } catch (err) {
-    console.error('登入失敗:', err);
     res.status(500).send(httpRes.httpResponse(500, '登入失敗'));
   }
 };
-// NOTE: Token 驗證
+// TODO: 待完善後應用，Token 驗證
 const verifyToken = (req, res, next) => {
   const token = req.headers['authorization'];
   if (!token) {
@@ -60,7 +75,7 @@ const verifyToken = (req, res, next) => {
     }
   }
 }
-// NOTE: 查詢使用者資料
+// TODO: 待完善，查詢使用者資料
 const checkData = async (req, res) => {
   const { id } = req.query;
   try {
