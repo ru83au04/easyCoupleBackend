@@ -61,9 +61,6 @@ async function createUser(username, password) {
   `;
   let hashedPassword;
   try {
-    if (checkUser(username)) {
-      errRes(errorCause.FRONTEND, '使用者已存在');
-    }
     hashedPassword = await bcrypt.hash(password, 10);
   } catch (err) {
     if (err.cause) {
@@ -245,7 +242,7 @@ async function checkUser(username) {
   const checkUserQuery = `SELECT 1 FROM ${useTable} WHERE username = $1`;
   try {
     const check = await db.query(checkUserQuery, [username]);
-    return check.length > 0;
+    return check.rows.length > 0;
   } catch (err) {
     errRes(errorCause.BACKEND, '查詢使用者失敗' + err.message);
   }
@@ -266,5 +263,6 @@ module.exports = {
   createUser,
   loginUser,
   getInfo,
+  checkUser,
   // updateUser,
  };

@@ -3,6 +3,24 @@ const jwt = require('jsonwebtoken');
 const httpRes = require('../utils/responseFormatter/httpResponse');
 const ErrorCause = require('../utils/responseFormatter/errorCause');
 
+// NOTE: 確認帳號名稱可以使用
+const checkUser = async (req, res) => {
+  try {
+    const { username } = req.query;
+    const result = await users.checkUser(username);
+    if (!result) {
+      res.status(200).send(httpRes.httpResponse(200, '帳號可以使用', result));
+    } else {
+      res.status(200).send(httpRes.httpResponse(200, '帳號已存在', result));
+    }
+  } catch (err) {
+    if (err.cause === ErrorCause.BACKEND) {
+      res.status(500).send(httpRes.httpResponse(500, '帳號註冊失敗'));
+    } else {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
+    }
+  }
+};
 // NOTE: 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
 const register = async (req, res) => {
   try {
@@ -97,6 +115,7 @@ const getInfo = async (req, res) => {
 };
 
 module.exports = {
+  checkUser,
   verifyToken,
   register,
   login,
