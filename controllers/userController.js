@@ -1,21 +1,21 @@
 const users = require('../models/userModel');
 const jwt = require('jsonwebtoken');
-const httpRes = require('../utils/responseFormatter/httpResponse')
+const httpRes = require('../utils/responseFormatter/httpResponse');
+const ErrorCause = require('../utils/responseFormatter/errorCause');
 
-// NOTE: 建立新使用者
+// NOTE: 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
 const register = async (req, res) => {
   try {
     const { username, password } = req.query;
-    // TEST: 確認回傳的是物件還是陣列(應該要是物件)
     const result = await users.createUser(username, password);
-    if (result.username === username) {
-      res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
+    res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
+  } catch (err) {
+    console.error('註冊失敗:', err.message);
+    if (err.cause === ErrorCause.FRONTEND) {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
     } else {
       res.status(500).send(httpRes.httpResponse(500, '註冊失敗'));
     }
-  } catch (err) {
-    console.error('註冊失敗:', err);
-    res.status(500).send(httpRes.httpResponse(500, '註冊失敗'));
   }
 };
 // TODO: 待完善，刪除使用者
@@ -29,61 +29,70 @@ const deleteUser = (req, res) => {
     res.status(500).send(httpRes.httpResponse(500, '刪除失敗'));
   }
 };
-// NOTE: 登入
-const login = (req, res) => {
+// NOTE: 登入成功回傳 token，token中附加內容為使用者id、權限等級、部門
+const login = async (req, res) => {
   try {
     const { username, password } = req.query;
-    const user = users.loginUser(username, password);
-    if (user) {
-      const token = jwt.sign({
-        id: user.id,
-        level: user.level,
-        department: user.department_id
-      }, process.env.JWT_SECRET, { expiresIn: '1h' });      
+    // NOTE: 在資料庫操作中已經處理例外狀況，這裡只需回傳結果
+    const user = await users.loginUser(username, password);
+    const token = jwt.sign({
+      id: user.id,
+      level: user.level,
+      department: user.department_id
+    }, process.env.JWT_SECRET, { expiresIn: '1h' });      
 
-      res.status(200).send(httpRes.httpResponse(200, '登入成功', token, {
-        role: user.role_id,
-        name: user.username,
-        emergency: user.emergency,
-        add: user.address,
-        start_date: user.start_date,
-        special_date: user.special_date,
-        special_date_delay: user.special_date_delay,
-        rank: user.rank,
-        regist_date: user.regist_date
-      }));
-    } else {
-      res.status(401).send(httpRes.httpResponse(401, '身分驗證失敗'));
-    }
+    res.status(200).send(httpRes.httpResponse(200, '登入成功', token, {
+      role: user.role_id,
+      name: user.username,
+      emergency: user.emergency,
+      add: user.address,
+      start_date: user.start_date,
+      special_date: user.special_date,
+      special_date_delay: user.special_date_delay,
+      rank: user.rank,
+      regist_date: user.regist_date
+    }));
   } catch (err) {
-    res.status(500).send(httpRes.httpResponse(500, '登入失敗'));
+    console.error('登入失敗:', err.message);
+    if (err.cause === ErrorCause.FRONTEND) {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
+    } else {
+      res.status(500).send(httpRes.httpResponse(500, '登入失敗'));
+    }
   }
 };
-// TODO: 待完善後應用，Token 驗證
+// NOTE: Token 驗證
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) {
-    return res.status(401).send(httpRes.httpResponse(401, 'token無效'));
+  const bearerToken = req.headers['authorization'];
+  const token = bearerToken.split(' ')[1];
+  if (token === 'null') {
+    let error = new Error();
+    error.message = 'token無效';
+    throw error;
   } else {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token.trim(), process.env.JWT_SECRET);
       req.user = decoded;
       next();
     }catch(err) {
-      console.error('驗證失敗:', err);
-      res.status(401).send(httpRes.httpResponse(401, 'token無效'));
+      console.error('驗證失敗:', err.message);
+      res.status(400).send(httpRes.httpResponse(400, 'token無效'));
     }
   }
 }
-// TODO: 待完善，查詢使用者資料
-const checkData = async (req, res) => {
-  const { id } = req.query;
+// NOTE: 查詢使用者資料
+const getInfo = async (req, res) => {
+  // NOTE: 經過 token驗證後，能夠取得使用的敏感資料，再透過該資料去查詢料庫
+  const user = req.user;
   try {
-    const result = await users.checkData(id);
-    res.status(200).json(result || {});
+    const result = await users.getInfo(user.id);
+    if (!result) {
+      throw new Error('查無資料');
+    }
+    res.status(200).json(result);
   } catch (err) {
     console.error('查詢失敗:', err.message);
-    throw new Error('查詢失敗');
+    res.status(400).send(httpRes.httpResponse(400, '查詢失敗'));
   }
 };
 
@@ -92,7 +101,7 @@ module.exports = {
   register,
   login,
   deleteUser,
-  checkData,
+  getInfo,
 };
 
 
