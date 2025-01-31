@@ -24,8 +24,17 @@ const checkUser = async (req, res) => {
 // NOTE: 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
 const register = async (req, res) => {
   try {
-    const { username, password } = req.query;
-    const result = await users.createUser(username, password);
+    const { username, password, name, emergency, add, start_date, role_id, department_id } = req.query;
+    let date = new Date(start_date);
+    let userData = {
+      name,
+      emergency,
+      add,
+      date,
+      role_id,
+      department_id,
+    }
+    const result = await users.createUser(username, password, userData);
     res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
   } catch (err) {
     console.error('註冊失敗:', err.message);
@@ -56,20 +65,11 @@ const login = async (req, res) => {
     const token = jwt.sign({
       id: user.id,
       level: user.level,
-      department: user.department_id
+      department: user.department_id,
+      role: user.role_id
     }, process.env.JWT_SECRET, { expiresIn: '1h' });      
 
-    res.status(200).send(httpRes.httpResponse(200, '登入成功', token, {
-      role: user.role_id,
-      name: user.username,
-      emergency: user.emergency,
-      add: user.address,
-      start_date: user.start_date,
-      special_date: user.special_date,
-      special_date_delay: user.special_date_delay,
-      rank: user.rank,
-      regist_date: user.regist_date
-    }));
+    res.status(200).send(httpRes.httpResponse(200, '登入成功', token));
   } catch (err) {
     console.error('登入失敗:', err.message);
     if (err.cause === ErrorCause.FRONTEND) {
@@ -107,7 +107,8 @@ const getInfo = async (req, res) => {
     if (!result) {
       throw new Error('查無資料');
     }
-    res.status(200).json(result);
+    result.password = '********';
+    res.status(200).send(httpRes.httpResponse(200, '登入成功', result));
   } catch (err) {
     console.error('查詢失敗:', err.message);
     res.status(400).send(httpRes.httpResponse(400, '查詢失敗'));

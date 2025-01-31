@@ -53,11 +53,12 @@ async function initTable(tableType = ''){
   }
 }
 // NOTE: 新增使用者資料，若建立成功回傳，id、 名稱、權限等級
-async function createUser(username, password) {
+async function createUser(username, password, userData) {
   const createUserQuery = `
-  INSERT INTO ${useTable} (username, password, role_id)
-  VALUES ($1, $2, $3)
-  RETURNING id, username, role_id;
+  INSERT INTO ${useTable}
+  (username, password, level, real_name, emergency, address, start_date, regist_date, role_id, department_id)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+  RETURNING id, username, role_id, department_id;
   `;
   let hashedPassword;
   try {
@@ -70,7 +71,19 @@ async function createUser(username, password) {
   }
 
   try {
-    const insert = await db.query(createUserQuery, [username, hashedPassword, 10]);
+    const insert = await db.query(createUserQuery,
+      [
+        username,
+        hashedPassword,
+        10,
+        userData.name,
+        userData.emergency,
+        userData.add,
+        userData.date,
+        new Date(),
+        userData.role_id,
+        userData.department_id
+      ]);
     return insert.rows[0];    
   } catch (err) {
     errRes(errorCause.BACKEND, '新增使用者失敗' + err.message);
@@ -99,7 +112,7 @@ async function loginUser(username, password) {
   WHERE username = $1
   `;
   try {
-    if (await checkUser(username)) {
+    if (!await checkUser(username)) {
       errRes(errorCause.FRONTEND, '使用者不存在');
     }
     const result = await db.query(getUserQuery, [username]);
@@ -119,7 +132,7 @@ async function loginUser(username, password) {
 }
 // NOTE: 查詢使用者資料
 async function getInfo(id) {
-  const query = `SELECT address, regist_date, special_date, special_date_delay, start_date, username FROM ${useTable} WHERE id = $1`;
+  const query = `SELECT * FROM ${useTable} WHERE id = $1`;
   try {
     const result = await db.query(query, [id]);
     return result.rows[0];
@@ -136,9 +149,9 @@ async function initUserTable(tableType) {
           level NUMERIC,
           FOREIGN KEY (level) REFERENCES system_level(level),
           role_id INTEGER NOT NULL,
-          FOREIGN KEY (role_id) REFERENCES roles (id),
-          department_id INTEGER,
-          FOREIGN KEY (department_id) REFERENCES department (id),
+          FOREIGN KEY (role_id) REFERENCES roles (role_id),
+          department_id INTEGER NOT NULL,
+          FOREIGN KEY (department_id) REFERENCES department (department_id),
           username TEXT NOT NULL,
           password TEXT NOT NULL,
           emergency TEXT,
@@ -159,16 +172,16 @@ async function initUserTable(tableType) {
 async function initDepartmentTable() {
   const initDepartmentQuery = `
         CREATE TABLE IF NOT EXISTS department (
-          id SERIAL PRIMARY KEY,
+          department_id INTEGER PRIMARY KEY,
           department TEXT,
           members NUMERIC,
           boss_num NUMERIC
         )`;
   const insertSystemLevelsQuery = `
-  INSERT INTO department (department, members, boss_num)
+  INSERT INTO department (department_id, department, members, boss_num)
   VALUES 
-    ('Back', 50, 2),
-    ('Front', 100, 4)
+    (1, 'Back', 50, 2),
+    (2, 'Front', 100, 4)
   ON CONFLICT DO NOTHING;
   `;
   try {
@@ -182,15 +195,14 @@ async function initDepartmentTable() {
 async function initRoleTable() {
   const initRoleQuery = `
   CREATE TABLE IF NOT EXISTS roles (
-    id SERIAL PRIMARY KEY,
+    role_id INTEGER PRIMARY KEY,
     role TEXT,
-    role_level NUMERIC,
     min_salary NUMERIC,
     max_salary NUMERIC,
     bonus NUMERIC
   )`;
   const insertSystemUserQuery = `
-  INSERT INTO roles (role, role_level, min_salary, max_salary, bonus)
+  INSERT INTO roles (role, role_id, min_salary, max_salary, bonus)
   VALUES 
     ('boss', 1, 50000, 100000, 10000),
     ('employee_two', 2, 30000, 50000, 5000)
@@ -227,7 +239,7 @@ async function initSystemLevelTable() {
   INSERT INTO system_level (level, level_name, attence, rest_apply, rest_confirm, rest_adjust, personal_info, department_info, componey_info, attence_adjust, personal_rank, department_rank, componey_rank, componey_rule_adjust, DB_adjust)
   VALUES 
     (1, 'admin', true, true, true, true, true, true, true, true, true, true, true, true, true),
-    (2, 'employee', true, true, false, false, true, true, false, true, false, true, false, true, false)
+    (10, 'employee', true, true, false, false, true, true, false, true, false, true, false, true, false)
   ON CONFLICT DO NOTHING;
   `;
   try {
