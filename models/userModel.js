@@ -30,7 +30,7 @@ const bcrypt = require('bcrypt');
 
 useTable = "";
 
-// NOTE: 確認資料庫有表格，有則取用，沒有則建立
+// NOTE: 確認資料庫有表格，有則取用，沒有則建立，server啟動運行時調用該方法
 async function initTable(tableType = ''){
   try {
     await initSystemLevelTable();
@@ -50,6 +50,16 @@ async function initTable(tableType = ''){
     }
   } catch (err) {
     errRes(errorCause.BACKEND, '資料庫初始化失敗' + err.message);
+  }
+}
+// NOTE: 確認使用者是否存在
+async function checkUser(username) {
+  const checkUserQuery = `SELECT 1 FROM ${useTable} WHERE username = $1`;
+  try {
+    const check = await db.query(checkUserQuery, [username]);
+    return check.rows.length > 0;
+  } catch (err) {
+    errRes(errorCause.BACKEND, '查詢使用者失敗' + err.message);
   }
 }
 // NOTE: 新增使用者資料，若建立成功回傳，id、 名稱、權限等級
@@ -89,26 +99,25 @@ async function createUser(username, password, userData) {
     errRes(errorCause.BACKEND, '新增使用者失敗' + err.message);
   }
 }
-// TODO: 待完善，刪除使用者資料
+// NOTE: 刪除使用者資料
 async function deleteUser(id) {
   const deleteUserQuery = `
   DELETE FROM ${useTable}
-  WHERE id = $1;
-  RETURNING *;
+  WHERE id = $1
+  RETURNING 1;
   `;
-
+  
   try {
     const result = await db.query(deleteUserQuery, [id]);
-    return result.rows[0];
+    return result.rows.length > 0;
   }catch(err) {
-    console.error('刪除使用者失敗:', err.message);
-    throw new Error('刪除使用者失敗');
+    errRes(errorCause.BACKEND, '刪除使用者失敗' + err.message);
   }
 }
 // NOTE: 使用者登入
 async function loginUser(username, password) {
   const getUserQuery = `
-  SELECT * FROM ${useTable}
+  SELECT password, id, department_id, role_id, level FROM ${useTable}
   WHERE username = $1
   `;
   try {
@@ -135,8 +144,14 @@ async function getInfo(id) {
   const query = `SELECT * FROM ${useTable} WHERE id = $1`;
   try {
     const result = await db.query(query, [id]);
+    if (result.rows.length === 0) {
+      errRes(errorCause.FRONTEND, '查無使用者資料');
+    }
     return result.rows[0];
   } catch (err) {
+    if (err.cause) {
+      throw err;
+    }
     errRes(errorCause.BACKEND, '查詢使用者資料失敗' + err.message);
   }
 }
@@ -249,16 +264,6 @@ async function initSystemLevelTable() {
     throw new Error('權限表格：' + err.message);
   }
 }
-// NOTE: 輔助方法，確認使用者是否存在
-async function checkUser(username) {
-  const checkUserQuery = `SELECT 1 FROM ${useTable} WHERE username = $1`;
-  try {
-    const check = await db.query(checkUserQuery, [username]);
-    return check.rows.length > 0;
-  } catch (err) {
-    errRes(errorCause.BACKEND, '查詢使用者失敗' + err.message);
-  }
-}
 // NOTE: 輔助方法，Error要拋給外部處理需要使用此方法，type為標註 Error的前後端類型
 function errRes(type, message) {
   let error = new Error(message);
@@ -276,5 +281,6 @@ module.exports = {
   loginUser,
   getInfo,
   checkUser,
+  deleteUser,
   // updateUser,
  };

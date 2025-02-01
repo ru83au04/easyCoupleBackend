@@ -24,12 +24,12 @@ const checkUser = async (req, res) => {
 // NOTE: 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
 const register = async (req, res) => {
   try {
-    const { username, password, name, emergency, add, start_date, role_id, department_id } = req.query;
+    const { username, password, name, emergency, address, start_date, role_id, department_id } = req.query;
     let date = new Date(start_date);
     let userData = {
       name,
       emergency,
-      add,
+      address,
       date,
       role_id,
       department_id,
@@ -45,12 +45,15 @@ const register = async (req, res) => {
     }
   }
 };
-// TODO: 待完善，刪除使用者
-const deleteUser = (req, res) => {
+// NOTE: 刪除使用者
+const deleteUser = async (req, res) => {
   try {
     const { id } = req.query;
-    users.deleteUser(id);
-    res.status(200).send(httpRes.httpResponse(200, '刪除成功'));
+    if (await users.deleteUser(id)) {
+      res.status(200).send(httpRes.httpResponse(200, '刪除成功'));
+    } else {
+      res.status(400).send(httpRes.httpResponse(400, '該帳號不存在'))
+    }
   } catch (err) {
     console.error('刪除失敗:', err);
     res.status(500).send(httpRes.httpResponse(500, '刪除失敗'));
@@ -65,8 +68,8 @@ const login = async (req, res) => {
     const token = jwt.sign({
       id: user.id,
       level: user.level,
-      department: user.department_id,
-      role: user.role_id
+      department_id: user.department_id,
+      role_id: user.role_id
     }, process.env.JWT_SECRET, { expiresIn: '1h' });      
 
     res.status(200).send(httpRes.httpResponse(200, '登入成功', token));
@@ -79,14 +82,14 @@ const login = async (req, res) => {
     }
   }
 };
-// NOTE: Token 驗證
+// NOTE: Token驗證
 const verifyToken = (req, res, next) => {
   const bearerToken = req.headers['authorization'];
   const token = bearerToken.split(' ')[1];
   if (token === 'null') {
     let error = new Error();
     error.message = 'token無效';
-    throw error;
+    console.error('驗證失敗：', error.message);
   } else {
     try {
       const decoded = jwt.verify(token.trim(), process.env.JWT_SECRET);
@@ -98,20 +101,25 @@ const verifyToken = (req, res, next) => {
     }
   }
 }
-// NOTE: 查詢使用者資料
+// NOTE: 經過 Token驗證後，查詢使用者資料
 const getInfo = async (req, res) => {
   // NOTE: 經過 token驗證後，能夠取得使用的敏感資料，再透過該資料去查詢料庫
   const user = req.user;
+  const { id } = req.query;
   try {
-    const result = await users.getInfo(user.id);
+    const result = await users.getInfo((id === 0 || id === 'null' || id === 'undefined') ? user.id : id);
     if (!result) {
       throw new Error('查無資料');
     }
     result.password = '********';
-    res.status(200).send(httpRes.httpResponse(200, '登入成功', result));
+    res.status(200).send(httpRes.httpResponse(200, '查詢成功', result));
   } catch (err) {
     console.error('查詢失敗:', err.message);
-    res.status(400).send(httpRes.httpResponse(400, '查詢失敗'));
+    if (err.cause === ErrorCause.FRONTEND) {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
+    } else {
+      res.status(500).send(httpRes.httpResponse(500, '查詢失敗'));
+    }
   }
 };
 
