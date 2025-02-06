@@ -188,7 +188,7 @@ async function getInfo(id) {
 async function initUserTable(tableType) {
   const initTableQuery = `
         CREATE TABLE IF NOT EXISTS ${tableType} (
-          id SERIAL PRIMARY KEY,
+          id INTEGER PRIMARY KEY,
           real_name TEXT,
           level NUMERIC,
           FOREIGN KEY (level) REFERENCES system_level(level),
@@ -220,11 +220,11 @@ async function initDepartmentTable() {
         CREATE TABLE IF NOT EXISTS department (
           department_id INTEGER PRIMARY KEY,
           department TEXT,
-          members NUMERIC,
-          boss_num NUMERIC
+          members INTEGER,
+          manager_num INTEGER
         )`;
   const insertSystemLevelsQuery = `
-  INSERT INTO department (department_id, department, members, boss_num)
+  INSERT INTO department (department_id, department, members, manager_num)
   VALUES 
     (1, 'Back', 50, 2),
     (2, 'Front', 100, 4)
@@ -252,8 +252,8 @@ async function initRoleTable() {
   const insertSystemUserQuery = `
   INSERT INTO roles (role, role_id, min_salary, max_salary, bonus)
   VALUES 
-    ('boss', 1, 50000, 100000, 10000),
-    ('employee_two', 2, 30000, 50000, 5000)
+    ('mamager', 1, 50000, 100000, 10000),
+    ('employee', 2, 30000, 50000, 5000)
   ON CONFLICT DO NOTHING;
   `;
   try {
