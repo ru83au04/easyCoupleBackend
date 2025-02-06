@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Kennel/timecounter/timecounter.component.css"],
+  "sourcesContent": [".main{\r\n    align-items: center;\r\n}\r\n\r\n.outbox{\r\n    display: flex;\r\n    flex-direction: column;\r\n    align-items: center;\r\n    border: solid 5px rgba(2, 99, 216, 0.486);\r\n    border-radius: 10px;\r\n    padding: 5px;\r\n}\r\n\r\n.outbox > div:first-child {\r\n    font-size: 1em;\r\n    font-weight: bold;\r\n}\r\n\r\n.countdown {\r\n    display: flex;\r\n    gap: 20px;\r\n    display: flex;\r\n    gap: 10px;\r\n    padding: 10px;\r\n}\r\n\r\n.time {\r\n    font-size: 1em;\r\n    font-weight: bold;\r\n}\r\n\r\n@media (max-width: 768px){\r\n     \r\n}\r\n"],
+  "mappings": ";AAAA,CAAC;AACG,eAAa;AACjB;AAEA,CAAC;AACG,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,UAAQ,MAAM,IAAI,KAAK,CAAC,EAAE,EAAE,EAAE,GAAG,EAAE;AACnC,iBAAe;AACf,WAAS;AACb;AAEA,CATC,OASO,EAAE,GAAG;AACT,aAAW;AACX,eAAa;AACjB;AAEA,CAAC;AACG,WAAS;AACT,OAAK;AACL,WAAS;AACT,OAAK;AACL,WAAS;AACb;AAEA,CAAC;AACG,aAAW;AACX,eAAa;AACjB;AAEA,OAAO,CAAC,SAAS,EAAE;AAEnB;",
+  "names": []
+}

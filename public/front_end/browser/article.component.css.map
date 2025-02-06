@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Kennel/article/article.component.css"],
+  "sourcesContent": ["h1{\r\n    text-align: center;\r\n    font-size: 3rem;\r\n    text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);\r\n}\r\n#articleOuter{\r\n    margin-left: 50px;\r\n    margin-right: 50px;\r\n    padding-top: 10px;\r\n    padding-left: 50px;\r\n    padding-right: 50px;\r\n    padding-bottom: 50px;\r\n    font-size: 1.5rem;\r\n    background-color: var(--block-color);\r\n    border-radius: 25px;\r\n    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);\r\n}\r\n\r\n#back{\r\n    color: var(--text-color);\r\n    font-size: 2rem;\r\n    position: absolute;\r\n    bottom: 40px;\r\n    right: -80px;\r\n    background-color: rgba(var(--block-color-truth), 0.5);\r\n    border-radius: 40px;\r\n    height: 90px;\r\n    width: 100px;\r\n    transition: right 0.3s ease;\r\n}\r\n\r\n::ng-deep li {\r\n    margin: 5px 0;\r\n    padding: 5px;\r\n}\r\n\r\n#back.show{\r\n    right: 10px;\r\n}\r\n\r\n"],
+  "mappings": ";AAAA;AACI,cAAY;AACZ,aAAW;AACX,eAAa,KAAK,KAAK,KAAK,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC9C;AACA,CAAC;AACG,eAAa;AACb,gBAAc;AACd,eAAa;AACb,gBAAc;AACd,iBAAe;AACf,kBAAgB;AAChB,aAAW;AACX,oBAAkB,IAAI;AACtB,iBAAe;AACf,cAAY,KAAK,KAAK,KAAK,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC7C;AAEA,CAAC;AACG,SAAO,IAAI;AACX,aAAW;AACX,YAAU;AACV,UAAQ;AACR,SAAO;AACP,oBAAkB,KAAK,IAAI,oBAAoB,EAAE;AACjD,iBAAe;AACf,UAAQ;AACR,SAAO;AACP,cAAY,MAAM,KAAK;AAC3B;AAEA,UAAU;AACN,UAAQ,IAAI;AACZ,WAAS;AACb;AAEA,CAlBC,IAkBI,CAAC;AACF,SAAO;AACX;",
+  "names": []
+}
