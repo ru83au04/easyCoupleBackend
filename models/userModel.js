@@ -28,9 +28,12 @@ const bcrypt = require('bcrypt');
     暴露給外部使用的方法中，拋出的錯誤必須附加 cause 類型，用以標註前後端錯誤
 */
 
-useTable = "";
+useTable = '';
 
-// NOTE: 確認資料庫有表格，有則取用，沒有則建立，server啟動運行時調用該方法
+/**
+ * 確認資料庫有表格，有則取用，沒有則建立，server啟動運行時調用該方法
+ * @param {*} tableType 
+ */
 async function initTable(tableType = ''){
   try {
     await initSystemLevelTable();
@@ -52,7 +55,11 @@ async function initTable(tableType = ''){
     errRes(errorCause.BACKEND, '資料庫初始化失敗' + err.message);
   }
 }
-// NOTE: 確認使用者是否存在
+/**
+ * 確認使用者是否存在
+ * @param {*} username 
+ * @returns 
+ */
 async function checkUser(username) {
   const checkUserQuery = `SELECT 1 FROM ${useTable} WHERE username = $1`;
   try {
@@ -62,7 +69,13 @@ async function checkUser(username) {
     errRes(errorCause.BACKEND, '查詢使用者失敗' + err.message);
   }
 }
-// NOTE: 新增使用者資料，若建立成功回傳，id、 名稱、權限等級
+/**
+ * 新增使用者資料，若建立成功回傳，id、 名稱、權限等級
+ * @param {*} username 
+ * @param {*} password 
+ * @param {*} userData 
+ * @returns 
+ */
 async function createUser(username, password, userData) {
   const createUserQuery = `
   INSERT INTO ${useTable}
@@ -99,7 +112,11 @@ async function createUser(username, password, userData) {
     errRes(errorCause.BACKEND, '新增使用者失敗' + err.message);
   }
 }
-// NOTE: 刪除使用者資料
+/**
+ * 刪除使用者資料
+ * @param {*} id 
+ * @returns 
+ */
 async function deleteUser(id) {
   const deleteUserQuery = `
   DELETE FROM ${useTable}
@@ -114,7 +131,12 @@ async function deleteUser(id) {
     errRes(errorCause.BACKEND, '刪除使用者失敗' + err.message);
   }
 }
-// NOTE: 使用者登入
+/**
+ * 使用者登入
+ * @param {*} username 
+ * @param {*} password 
+ * @returns 
+ */
 async function loginUser(username, password) {
   const getUserQuery = `
   SELECT password, id, department_id, role_id, level FROM ${useTable}
@@ -139,7 +161,11 @@ async function loginUser(username, password) {
     errRes(errorCause.BACKEND, '登入失敗' + err.message);
   }
 }
-// NOTE: 查詢使用者資料
+/**
+ * 查詢使用者資料
+ * @param {*} id 
+ * @returns 
+ */
 async function getInfo(id) {
   const query = `SELECT * FROM ${useTable} WHERE id = $1`;
   try {
@@ -155,7 +181,10 @@ async function getInfo(id) {
     errRes(errorCause.BACKEND, '查詢使用者資料失敗' + err.message);
   }
 }
-// NOTE: 輔助方法，初始化使用者表格
+/**
+ * 輔助方法，初始化使用者表格
+ * @param {*} tableType 
+ */
 async function initUserTable(tableType) {
   const initTableQuery = `
         CREATE TABLE IF NOT EXISTS ${tableType} (
@@ -183,7 +212,9 @@ async function initUserTable(tableType) {
     throw new Error('使用者表格：' + err.message);
   }
 }
-// NOTE: 輔助方法，初始化部門表格，並建立基礎內容
+/**
+ * 輔助方法，初始化部門表格，並建立基礎內容
+ */
 async function initDepartmentTable() {
   const initDepartmentQuery = `
         CREATE TABLE IF NOT EXISTS department (
@@ -206,7 +237,9 @@ async function initDepartmentTable() {
     throw new Error('部門表格：' + err.message);
   }
 } 
-// NOTE: 輔助方法，初始化員工角色表格
+/**
+ * 輔助方法，初始化員工角色表格
+ */
 async function initRoleTable() {
   const initRoleQuery = `
   CREATE TABLE IF NOT EXISTS roles (
@@ -230,7 +263,9 @@ async function initRoleTable() {
     throw new Error('職務表格：' + err.message);
   }
 }
-// NOTE: 輔助方法，初始化權限表格
+/**
+ * 輔助方法，初始化權限表格
+ */
 async function initSystemLevelTable() {
   const initSystemLevelQuery = `
   CREATE TABLE IF NOT EXISTS system_level (
@@ -264,7 +299,11 @@ async function initSystemLevelTable() {
     throw new Error('權限表格：' + err.message);
   }
 }
-// NOTE: 輔助方法，Error要拋給外部處理需要使用此方法，type為標註 Error的前後端類型
+/**
+ * 輔助方法，Error要拋給外部處理需要使用此方法，type為標註 Error的前後端類型
+ * @param {*} type 
+ * @param {*} message 
+ */
 function errRes(type, message) {
   let error = new Error(message);
   error.cause = type;

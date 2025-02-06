@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const httpRes = require('../utils/responseFormatter/httpResponse');
 const ErrorCause = require('../utils/responseFormatter/errorCause');
 
-// NOTE: 確認帳號名稱可以使用
+/** 
+ * 確認帳號名稱可以使用
+ * @param {*} req 
+ * @param {*} res 
+ */
 const checkUser = async (req, res) => {
   try {
     const { username } = req.query;
@@ -21,7 +25,11 @@ const checkUser = async (req, res) => {
     }
   }
 };
-// NOTE: 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
+/**
+ * 建立新使用者，建立成功回傳給前端 id、帳號名稱、職務名稱
+ * @param {*} req 
+ * @param {*} res 
+ */
 const register = async (req, res) => {
   try {
     const { username, password, name, emergency, address, start_date, role_id, department_id } = req.query;
@@ -45,7 +53,11 @@ const register = async (req, res) => {
     }
   }
 };
-// NOTE: 刪除使用者
+/**
+ * 刪除使用者
+ * @param {*} req 
+ * @param {*} res 
+ */
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.query;
@@ -59,7 +71,11 @@ const deleteUser = async (req, res) => {
     res.status(500).send(httpRes.httpResponse(500, '刪除失敗'));
   }
 };
-// NOTE: 登入成功回傳 token，token中附加內容為使用者id、權限等級、部門
+/**
+ * 登入成功回傳 token，token中附加內容為使用者id、權限等級、部門
+ * @param {*} req 
+ * @param {*} res 
+ */
 const login = async (req, res) => {
   try {
     const { username, password } = req.query;
@@ -82,7 +98,12 @@ const login = async (req, res) => {
     }
   }
 };
-// NOTE: Token驗證
+/**
+ * Token驗證
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 const verifyToken = (req, res, next) => {
   const bearerToken = req.headers['authorization'];
   const token = bearerToken.split(' ')[1];
@@ -101,7 +122,11 @@ const verifyToken = (req, res, next) => {
     }
   }
 }
-// NOTE: 經過 Token驗證後，查詢使用者資料
+/**
+ * 經過 Token驗證後，查詢使用者資料
+ * @param {*} req 
+ * @param {*} res 
+ */
 const getInfo = async (req, res) => {
   // NOTE: 經過 token驗證後，能夠取得使用的敏感資料，再透過該資料去查詢料庫
   const user = req.user;
