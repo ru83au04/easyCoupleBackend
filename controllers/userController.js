@@ -32,7 +32,7 @@ const checkUser = async (req, res) => {
  */
 const register = async (req, res) => {
   try {
-    const { username, password, name, emergency, address, start_date, role_id, department_id } = req.query;
+    const { username, password, name, emergency, address, start_date, role_id, department_id, phone, emergency_phone } = req.query;
     let date = new Date(start_date);
     let userData = {
       name,
@@ -41,6 +41,8 @@ const register = async (req, res) => {
       date,
       role_id,
       department_id,
+      phone,
+      emergency_phone
     }
     const result = await users.createUser(username, password, userData);
     res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
@@ -130,9 +132,8 @@ const verifyToken = (req, res, next) => {
 const getInfo = async (req, res) => {
   // NOTE: 經過 token驗證後，能夠取得使用的敏感資料，再透過該資料去查詢料庫
   const user = req.user;
-  const { id } = req.query;
   try {
-    const result = await users.getInfo((id === 0 || id === 'null' || id === 'undefined') ? user.id : id);
+    const result = await users.getInfo(user.id);
     if (!result) {
       throw new Error('查無資料');
     }

@@ -42,9 +42,11 @@ async function initTable(tableType = ''){
     switch (tableType) {
       case 'prod_users':
         await initUserTable(tableType);
+        await initPhoneTable(tableType);
         break;
       case 'dev_users':
         await initUserTable(tableType);
+        await initPhoneTable(tableType);
         useTable = tableType;
         break;
       default:
@@ -83,6 +85,10 @@ async function createUser(username, password, userData) {
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
   RETURNING id, username, role_id, department_id;
   `;
+  const createPhoneQuery = `
+  INSERT INTO phones (phone, user_id, emergency)
+  VALUES ($1, $2, $3);
+  `;
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
@@ -94,20 +100,24 @@ async function createUser(username, password, userData) {
   }
 
   try {
-    const insert = await db.query(createUserQuery,
-      [
-        username,
-        hashedPassword,
-        10,
-        userData.name,
-        userData.emergency,
-        userData.add,
-        userData.date,
-        new Date(),
-        userData.role_id,
-        userData.department_id
-      ]);
-    return insert.rows[0];    
+        const insert = await db.query(createUserQuery,
+          [
+            username,
+            hashedPassword,
+            10,
+            userData.name,
+            userData.emergency,
+            userData.address,
+            userData.date,
+            new Date(),
+            userData.role_id,
+            userData.department_id
+          ]);
+      if(insert.rows[0].id){
+        await db.query(createPhoneQuery, [userData.phone, insert.rows[0].id, false]);
+        await db.query(createPhoneQuery, [userData.emergency_phone, insert.rows[0].id, true]);
+      }
+    return insert.rows[0];
   } catch (err) {
     errRes(errorCause.BACKEND, '新增使用者失敗' + err.message);
   }
@@ -188,7 +198,7 @@ async function getInfo(id) {
 async function initUserTable(tableType) {
   const initTableQuery = `
         CREATE TABLE IF NOT EXISTS ${tableType} (
-          id INTEGER PRIMARY KEY,
+          id SERIAL PRIMARY KEY,
           real_name TEXT,
           level NUMERIC,
           FOREIGN KEY (level) REFERENCES system_level(level),
@@ -210,6 +220,26 @@ async function initUserTable(tableType) {
     await db.query(initTableQuery);
   } catch (err) {
     throw new Error('使用者表格：' + err.message);
+  }
+}
+/**
+ * 輔助方法，初始化電話表格
+ * @param {*} tableType 
+ */
+async function initPhoneTable(tableType) {
+  const initPhoneQuery = `
+  CREATE TABLE IF NOT EXISTS phones (
+    id SERIAL PRIMARY KEY,
+    phone TEXT,
+    user_id INTEGER,
+    emergency BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES ${tableType}(id)
+  )`;
+  
+  try {
+    await db.query(initPhoneQuery);
+  } catch (err) {
+    throw new Error('電話表格：' + err.message);
   }
 }
 /**
