@@ -32,8 +32,10 @@ const checkUser = async (req, res) => {
  */
 const register = async (req, res) => {
   try {
-    const { username, password, name, emergency, address, start_date, role_id, department_id, phone, emergency_phone } = req.query;
+    const { username, password, name, emergency, address, start_date, role_id, department_id, phone, emergency_phone } = req.body;
     let date = new Date(start_date);
+    let spacialDate = getSpecialDate(date);
+    let delaySpacilaData = spacialDate / 2;
     let userData = {
       name,
       emergency,
@@ -42,7 +44,9 @@ const register = async (req, res) => {
       role_id,
       department_id,
       phone,
-      emergency_phone
+      emergency_phone,
+      spacialDate,
+      delaySpacilaData,
     }
     const result = await users.createUser(username, password, userData);
     res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
@@ -80,7 +84,7 @@ const deleteUser = async (req, res) => {
  */
 const login = async (req, res) => {
   try {
-    const { username, password } = req.query;
+    const { username, password } = req.body;
     // NOTE: 在資料庫操作中已經處理例外狀況，這裡只需回傳結果
     const user = await users.loginUser(username, password);
     const token = jwt.sign({
@@ -148,6 +152,25 @@ const getInfo = async (req, res) => {
     }
   }
 };
+
+const getSpecialDate = (startDate) => {
+  let now = new Date();
+  let start = new Date(startDate);
+  let dutyDays = (now.getTime() - start.getTime()) / 1000 / 60 / 60 / 24;
+  if (dutyDays < 0) { 
+    return 0;
+  }else if (dutyDays < 183) {
+    return 3;
+  } else if (dutyDays >= 183 && dutyDays < 365) {
+    return 7;
+  } else if (dutyDays >= 365 && dutyDays < 730) {
+    return 10;
+  } else if (dutyDays >= 730 && dutyDays < 1095) {
+    return 14;
+  } else {
+    return 15;
+  }
+}
 
 module.exports = {
   checkUser,

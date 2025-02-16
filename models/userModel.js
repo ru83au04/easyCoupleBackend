@@ -81,8 +81,8 @@ async function checkUser(username) {
 async function createUser(username, password, userData) {
   const createUserQuery = `
   INSERT INTO ${useTable}
-  (username, password, level, real_name, emergency, address, start_date, regist_date, role_id, department_id)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+  (username, password, level, real_name, emergency, address, start_date, regist_date, role_id, department_id, special_date, special_date_delay)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
   RETURNING id, username, role_id, department_id;
   `;
   const createPhoneQuery = `
@@ -111,7 +111,9 @@ async function createUser(username, password, userData) {
             userData.date,
             new Date(),
             userData.role_id,
-            userData.department_id
+            userData.department_id,
+            userData.spacialDate,
+            userData.delaySpacilaData
           ]);
       if(insert.rows[0].id){
         await db.query(createPhoneQuery, [userData.phone, insert.rows[0].id, false]);
@@ -178,12 +180,16 @@ async function loginUser(username, password) {
  */
 async function getInfo(id) {
   const query = `SELECT * FROM ${useTable} WHERE id = $1`;
+  const phoneQuery = `SELECT phone, emergency FROM phones WHERE user_id = $1`;
+  const emergencyPhoneQuery = `SELECT phone FROM phones WHERE user_id = $1 AND emergency = true`;
   try {
-    const result = await db.query(query, [id]);
-    if (result.rows.length === 0) {
+    const basicInfo = await db.query(query, [id]);
+    const phone = await db.query(phoneQuery, [id]);
+    const emergencyPhone = await db.query(emergencyPhoneQuery, [id]);
+    if (basicInfo.rows.length === 0) {
       errRes(errorCause.FRONTEND, '查無使用者資料');
     }
-    return result.rows[0];
+    return {...basicInfo.rows[0], phone: phone.rows[0].phone, emergency_phone: emergencyPhone.rows[0].phone};
   } catch (err) {
     if (err.cause) {
       throw err;
