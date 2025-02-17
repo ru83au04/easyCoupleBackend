@@ -1,6 +1,7 @@
 const db = require('../config/postpreDatabase');
 const errorCause = require('../utils/responseFormatter/errorCause');
 const bcrypt = require('bcrypt');
+const queries = require('../utils/SQLcommand/userQueries');
 /* NOTE:
   主要功能：
     1. 初始化所有使用者相關表格
@@ -79,17 +80,6 @@ async function checkUser(username) {
  * @returns 
  */
 async function createUser(username, password, userData) {
-  const createUserQuery = `
-  INSERT INTO ${useTable}
-  (username, password, level, real_name, emergency, address, start_date, regist_date, role_id, department_id, special_date, special_date_delay)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-  RETURNING id, username, role_id, department_id;
-  `;
-  const createPhoneQuery = `
-  INSERT INTO phones (phone, user_id, emergency)
-  VALUES ($1, $2, $3);
-  `;
-  let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
   } catch (err) {
@@ -100,7 +90,7 @@ async function createUser(username, password, userData) {
   }
 
   try {
-        const insert = await db.query(createUserQuery,
+        const insert = await db.query(queries.insertUser,
           [
             username,
             hashedPassword,
@@ -116,8 +106,8 @@ async function createUser(username, password, userData) {
             userData.delaySpacilaData
           ]);
       if(insert.rows[0].id){
-        await db.query(createPhoneQuery, [userData.phone, insert.rows[0].id, false]);
-        await db.query(createPhoneQuery, [userData.emergency_phone, insert.rows[0].id, true]);
+        await db.query(queries.insertPhone, [userData.phone, insert.rows[0].id, false]);
+        await db.query(queries.insertPhone, [userData.emergency_phone, insert.rows[0].id, true]);
       }
     return insert.rows[0];
   } catch (err) {
@@ -130,14 +120,8 @@ async function createUser(username, password, userData) {
  * @returns 
  */
 async function deleteUser(id) {
-  const deleteUserQuery = `
-  DELETE FROM ${useTable}
-  WHERE id = $1
-  RETURNING 1;
-  `;
-  
-  try {
-    const result = await db.query(deleteUserQuery, [id]);
+try {
+    const result = await db.query(queries.deleteUser, [id]);
     return result.rows.length > 0;
   }catch(err) {
     errRes(errorCause.BACKEND, '刪除使用者失敗' + err.message);
@@ -150,15 +134,11 @@ async function deleteUser(id) {
  * @returns 
  */
 async function loginUser(username, password) {
-  const getUserQuery = `
-  SELECT password, id, department_id, role_id, level FROM ${useTable}
-  WHERE username = $1
-  `;
   try {
     if (!await checkUser(username)) {
       errRes(errorCause.FRONTEND, '使用者不存在');
     }
-    const result = await db.query(getUserQuery, [username]);
+    const result = await db.query(queries.getUserForToken, [username]);
     const user = result.rows[0];
     let compare = await bcrypt.compare(password, user.password);
     if (!compare) {
@@ -179,13 +159,10 @@ async function loginUser(username, password) {
  * @returns 
  */
 async function getInfo(id) {
-  const query = `SELECT * FROM ${useTable} WHERE id = $1`;
-  const phoneQuery = `SELECT phone, emergency FROM phones WHERE user_id = $1`;
-  const emergencyPhoneQuery = `SELECT phone FROM phones WHERE user_id = $1 AND emergency = true`;
   try {
-    const basicInfo = await db.query(query, [id]);
-    const phone = await db.query(phoneQuery, [id]);
-    const emergencyPhone = await db.query(emergencyPhoneQuery, [id]);
+    const basicInfo = await db.query(queries.getUser, [id]);
+    const phone = await db.query(queries.getPhone, [id]);
+    const emergencyPhone = await db.query(queries.getEmergencyPhone, [id]);
     if (basicInfo.rows.length === 0) {
       errRes(errorCause.FRONTEND, '查無使用者資料');
     }
@@ -198,22 +175,8 @@ async function getInfo(id) {
   }
 }
 async function editUser(id, userData) {
-  const editUserQuery = `
-  UPDATE ${useTable}
-  SET real_name = $1, emergency = $2, address = $3 WHERE id = $4
-  RETURNING 1;
-  `;
-  const editPhoneQuery = `
-  UPDATE phones
-  SET phone = $1
-  WHERE user_id = $2 AND emergency = false RETURNING 1;
-  `;
-  const editEmergencyPhoneQuery = `
-  UPDATE phones
-  SET phone = $1
-  WHERE user_id = $2 AND emergency = true RETURNING 1;`
   try {
-    const result = await db.query(editUserQuery,
+    const result = await db.query(queries.editUser,
       [
         userData.real_name,
         userData.emergency,
@@ -223,8 +186,8 @@ async function editUser(id, userData) {
     if (result.rows.length === 0) {
       errRes(errorCause.FRONTEND, '使用者資料更新失敗');
     }
-    const phone = await db.query(editPhoneQuery, [userData.phone, id]);
-    const emergencyPhone = await db.query(editEmergencyPhoneQuery, [userData.emergency_phone, id]);
+    const phone = await db.query(queries.editPhone, [userData.phone, id]);
+    const emergencyPhone = await db.query(queries.editEmergencyPhone, [userData.emergency_phone, id]);
     return result.rows[0] && phone.rows[0] && emergencyPhone.rows[0];
   } catch (err) {
     if (err.cause) {
