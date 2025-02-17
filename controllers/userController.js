@@ -152,6 +152,28 @@ const getInfo = async (req, res) => {
     }
   }
 };
+const editUser = async (req, res) => {
+  const user = req.user;
+  try {
+    const { real_name, phone, emergency, emergency_phone, address } = req.body;
+    let userData = {
+      real_name,
+      phone,
+      emergency,
+      emergency_phone,
+      address,
+    }
+    const result = await users.editUser(user.id, userData);
+    res.status(200).send(httpRes.httpResponse(200, '修改成功', result));
+  } catch (err) {
+    console.error('修改失敗:', err.message);
+    if (err.cause === ErrorCause.FRONTEND) {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
+    } else {
+      res.status(500).send(httpRes.httpResponse(500, '修改失敗'));
+    }
+  }
+}
 
 const getSpecialDate = (startDate) => {
   let now = new Date();
@@ -179,6 +201,7 @@ module.exports = {
   login,
   deleteUser,
   getInfo,
+  editUser,
 };
 
 

@@ -197,6 +197,43 @@ async function getInfo(id) {
     errRes(errorCause.BACKEND, '查詢使用者資料失敗' + err.message);
   }
 }
+async function editUser(id, userData) {
+  const editUserQuery = `
+  UPDATE ${useTable}
+  SET real_name = $1, emergency = $2, address = $3 WHERE id = $4
+  RETURNING 1;
+  `;
+  const editPhoneQuery = `
+  UPDATE phones
+  SET phone = $1
+  WHERE user_id = $2 AND emergency = false RETURNING 1;
+  `;
+  const editEmergencyPhoneQuery = `
+  UPDATE phones
+  SET phone = $1
+  WHERE user_id = $2 AND emergency = true RETURNING 1;`
+  try {
+    const result = await db.query(editUserQuery,
+      [
+        userData.real_name,
+        userData.emergency,
+        userData.address,
+        id
+      ]);
+    if (result.rows.length === 0) {
+      errRes(errorCause.FRONTEND, '使用者資料更新失敗');
+    }
+    const phone = await db.query(editPhoneQuery, [userData.phone, id]);
+    const emergencyPhone = await db.query(editEmergencyPhoneQuery, [userData.emergency_phone, id]);
+    console.log("edit result", result.rows[0], phone.rows[0], emergencyPhone.rows[0]);
+    return result.rows[0] && phone.rows[0] && emergencyPhone.rows[0];
+  } catch (err) {
+    if (err.cause) {
+      throw err;
+    }
+    errRes(errorCause.BACKEND, '使用者資料更新失敗' + err.message);
+  }
+}
 /**
  * 輔助方法，初始化使用者表格
  * @param {*} tableType 
@@ -357,5 +394,5 @@ module.exports = {
   getInfo,
   checkUser,
   deleteUser,
-  // updateUser,
+  editUser,
  };
