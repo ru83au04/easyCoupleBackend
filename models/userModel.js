@@ -225,7 +225,6 @@ async function editUser(id, userData) {
     }
     const phone = await db.query(editPhoneQuery, [userData.phone, id]);
     const emergencyPhone = await db.query(editEmergencyPhoneQuery, [userData.emergency_phone, id]);
-    console.log("edit result", result.rows[0], phone.rows[0], emergencyPhone.rows[0]);
     return result.rows[0] && phone.rows[0] && emergencyPhone.rows[0];
   } catch (err) {
     if (err.cause) {
