@@ -50,6 +50,7 @@ async function startServer(){
     console.error('伺服器啟動失敗', err);
   }
 }
+
 // HACK: 開發本地測試
 async function startDevServer() {
   const httpsOptions = {
@@ -68,65 +69,4 @@ async function startDevServer() {
     console.log(`開發伺服器已經在 ${PORT} port運行`);
   });
 }
-
-// TODO: 以下為 Line登入功能
-// app.use('/line', lineRoutes); // line功能路由
-
-// 提供登入連結
-// const CLIENT_ID = process.env.LINE_CLIENT_ID;
-// const REDIRECT_URI = 'https://easy-couple-life.onrender.com/auth/callback';
-
-// app.get('/auth/login', (req, res) => {
-//   const state = Math.random().toString(36).substring(2, 15);
-//   const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&scope=profile%20openid`;
-//   console.log("loginURL", loginUrl);
-//   res.redirect(loginUrl);
-// });
-
-// 授權回調處理
-// const LINE_CLIENT_SECRET = process.env.LINE_CLIENT_SECRET;
-
-// app.get('/auth/callback', async (req, res) => {
-//   const { code, state } = req.query;
-
-//   try {
-//     // 向 LINE 交換 Access Token
-//     const tokenResponse = await axios.post('https://api.line.me/oauth2/v2.1/token', null, {
-//       params: {
-//         grant_type: 'authorization_code',
-//         code: code,
-//         redirect_uri: REDIRECT_URI,
-//         client_id: LINE_CLIENT_ID,
-//         client_secret: LINE_CLIENT_SECRET,
-//       },
-//     });
-
-//     const { id_token } = tokenResponse.data;
-
-//     // 解碼並驗證 ID Token
-//     const userInfo = jwt.decode(id_token, { complete: true }).payload;
-
-//     // 儲存用戶信息到數據庫或會話
-//     const userId = userInfo.sub;
-//     const userName = userInfo.name;
-
-//     // 跳轉到打卡頁面
-//     res.redirect(`/checkin?userId=${userId}&name=${userName}`);
-//   } catch (error) {
-//     console.error('Login Error:', error);
-//     res.status(500).send('登入失敗');
-//   }
-// });
-
-// 打卡邏輯處理
-// app.post('/webhook', middleware({ channelAccessToken: process.env.MESSAGING_ACCESS_TOKEN, channelSecret: process.env.MESSAGING_SECRET }), async (req, res) => {
-//   try {
-//     const events = req.body.events;
-//     await Promise.all(events.map(handleEvent));
-//     res.status(200).send('OK');
-//   } catch (error) {
-//     console.error('Webhook Error:', error);
-//     res.status(500).end();
-//   }
-// });
 
