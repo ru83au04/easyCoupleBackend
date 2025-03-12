@@ -1,6 +1,7 @@
 const db = require('../config/postpreDatabase');
 const errorCause = require('../utils/responseFormatter/errorCause');
 const bcrypt = require('bcrypt');
+const queries = require('../utils/SQLcommand/userQueries');
 /* NOTE:
   主要功能：
     1. 初始化所有使用者相關表格
@@ -42,9 +43,11 @@ async function initTable(tableType = ''){
     switch (tableType) {
       case 'prod_users':
         await initUserTable(tableType);
+        await initPhoneTable(tableType);
         break;
       case 'dev_users':
         await initUserTable(tableType);
+        await initPhoneTable(tableType);
         useTable = tableType;
         break;
       default:
@@ -77,13 +80,6 @@ async function checkUser(username) {
  * @returns 
  */
 async function createUser(username, password, userData) {
-  const createUserQuery = `
-  INSERT INTO ${useTable}
-  (username, password, level, real_name, emergency, address, start_date, regist_date, role_id, department_id)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-  RETURNING id, username, role_id, department_id;
-  `;
-  let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
   } catch (err) {
@@ -94,20 +90,26 @@ async function createUser(username, password, userData) {
   }
 
   try {
-    const insert = await db.query(createUserQuery,
-      [
-        username,
-        hashedPassword,
-        10,
-        userData.name,
-        userData.emergency,
-        userData.add,
-        userData.date,
-        new Date(),
-        userData.role_id,
-        userData.department_id
-      ]);
-    return insert.rows[0];    
+        const insert = await db.query(queries.insertUser(userTable),
+          [
+            username,
+            hashedPassword,
+            10,
+            userData.name,
+            userData.emergency,
+            userData.address,
+            userData.date,
+            new Date(),
+            userData.role_id,
+            userData.department_id,
+            userData.spacialDate,
+            userData.delaySpacilaData
+          ]);
+      if(insert.rows[0].id){
+        await db.query(queries.insertPhone, [userData.phone, insert.rows[0].id, false]);
+        await db.query(queries.insertPhone, [userData.emergency_phone, insert.rows[0].id, true]);
+      }
+    return insert.rows[0];
   } catch (err) {
     errRes(errorCause.BACKEND, '新增使用者失敗' + err.message);
   }
@@ -118,14 +120,8 @@ async function createUser(username, password, userData) {
  * @returns 
  */
 async function deleteUser(id) {
-  const deleteUserQuery = `
-  DELETE FROM ${useTable}
-  WHERE id = $1
-  RETURNING 1;
-  `;
-  
-  try {
-    const result = await db.query(deleteUserQuery, [id]);
+try {
+    const result = await db.query(queries.deleteUser(useTable), [id]);
     return result.rows.length > 0;
   }catch(err) {
     errRes(errorCause.BACKEND, '刪除使用者失敗' + err.message);
@@ -138,15 +134,11 @@ async function deleteUser(id) {
  * @returns 
  */
 async function loginUser(username, password) {
-  const getUserQuery = `
-  SELECT password, id, department_id, role_id, level FROM ${useTable}
-  WHERE username = $1
-  `;
   try {
     if (!await checkUser(username)) {
       errRes(errorCause.FRONTEND, '使用者不存在');
     }
-    const result = await db.query(getUserQuery, [username]);
+    const result = await db.query(queries.getUserForToken(useTable), [username]);
     const user = result.rows[0];
     let compare = await bcrypt.compare(password, user.password);
     if (!compare) {
@@ -167,13 +159,14 @@ async function loginUser(username, password) {
  * @returns 
  */
 async function getInfo(id) {
-  const query = `SELECT * FROM ${useTable} WHERE id = $1`;
   try {
-    const result = await db.query(query, [id]);
-    if (result.rows.length === 0) {
+    const basicInfo = await db.query(queries.getUser(useTable), [id]);
+    const phone = await db.query(queries.getPhone, [id]);
+    const emergencyPhone = await db.query(queries.getEmergencyPhone, [id]);
+    if (basicInfo.rows.length === 0) {
       errRes(errorCause.FRONTEND, '查無使用者資料');
     }
-    return result.rows[0];
+    return {...basicInfo.rows[0], phone: phone.rows[0].phone, emergency_phone: emergencyPhone.rows[0].phone};
   } catch (err) {
     if (err.cause) {
       throw err;
@@ -181,58 +174,57 @@ async function getInfo(id) {
     errRes(errorCause.BACKEND, '查詢使用者資料失敗' + err.message);
   }
 }
+async function editUser(id, userData) {
+  try {
+    const result = await db.query(queries.editUser(useTable),
+      [
+        userData.real_name,
+        userData.emergency,
+        userData.address,
+        id
+      ]);
+    if (result.rows.length === 0) {
+      errRes(errorCause.FRONTEND, '使用者資料更新失敗');
+    }
+    const phone = await db.query(queries.editPhone, [userData.phone, id]);
+    const emergencyPhone = await db.query(queries.editEmergencyPhone, [userData.emergency_phone, id]);
+    return result.rows[0] && phone.rows[0] && emergencyPhone.rows[0];
+  } catch (err) {
+    if (err.cause) {
+      throw err;
+    }
+    errRes(errorCause.BACKEND, '使用者資料更新失敗' + err.message);
+  }
+}
 /**
  * 輔助方法，初始化使用者表格
  * @param {*} tableType 
  */
 async function initUserTable(tableType) {
-  const initTableQuery = `
-        CREATE TABLE IF NOT EXISTS ${tableType} (
-          id SERIAL PRIMARY KEY,
-          real_name TEXT,
-          level NUMERIC,
-          FOREIGN KEY (level) REFERENCES system_level(level),
-          role_id INTEGER NOT NULL,
-          FOREIGN KEY (role_id) REFERENCES roles (role_id),
-          department_id INTEGER NOT NULL,
-          FOREIGN KEY (department_id) REFERENCES department (department_id),
-          username TEXT NOT NULL,
-          password TEXT NOT NULL,
-          emergency TEXT,
-          address TEXT,
-          start_date DATE,
-          special_date NUMERIC,
-          special_date_delay NUMERIC,
-          rank TEXT,
-          regist_date DATE
-        )`;
   try {
-    await db.query(initTableQuery);
+    await db.query(queries.initUserTable(tableType));
   } catch (err) {
     throw new Error('使用者表格：' + err.message);
+  }
+}
+/**
+ * 輔助方法，初始化電話表格
+ * @param {*} tableType 
+ */
+async function initPhoneTable(tableType) {  
+  try {
+    await db.query(queries.initPhoneTable(tableType));
+  } catch (err) {
+    throw new Error('電話表格：' + err.message);
   }
 }
 /**
  * 輔助方法，初始化部門表格，並建立基礎內容
  */
 async function initDepartmentTable() {
-  const initDepartmentQuery = `
-        CREATE TABLE IF NOT EXISTS department (
-          department_id INTEGER PRIMARY KEY,
-          department TEXT,
-          members NUMERIC,
-          boss_num NUMERIC
-        )`;
-  const insertSystemLevelsQuery = `
-  INSERT INTO department (department_id, department, members, boss_num)
-  VALUES 
-    (1, 'Back', 50, 2),
-    (2, 'Front', 100, 4)
-  ON CONFLICT DO NOTHING;
-  `;
   try {
-    await db.query(initDepartmentQuery);
-    await db.query(insertSystemLevelsQuery);
+    await db.query(queries.initDepartmentTable);
+    await db.query(queries.initInsertDepartment);
   } catch (err) {
     throw new Error('部門表格：' + err.message);
   }
@@ -241,24 +233,9 @@ async function initDepartmentTable() {
  * 輔助方法，初始化員工角色表格
  */
 async function initRoleTable() {
-  const initRoleQuery = `
-  CREATE TABLE IF NOT EXISTS roles (
-    role_id INTEGER PRIMARY KEY,
-    role TEXT,
-    min_salary NUMERIC,
-    max_salary NUMERIC,
-    bonus NUMERIC
-  )`;
-  const insertSystemUserQuery = `
-  INSERT INTO roles (role, role_id, min_salary, max_salary, bonus)
-  VALUES 
-    ('boss', 1, 50000, 100000, 10000),
-    ('employee_two', 2, 30000, 50000, 5000)
-  ON CONFLICT DO NOTHING;
-  `;
   try {
-    await db.query(initRoleQuery);
-    await db.query(insertSystemUserQuery);
+    await db.query(queries.initRoleTable);
+    await db.query(queries.initInsertRole);
   } catch (err) {
     throw new Error('職務表格：' + err.message);
   }
@@ -267,34 +244,9 @@ async function initRoleTable() {
  * 輔助方法，初始化權限表格
  */
 async function initSystemLevelTable() {
-  const initSystemLevelQuery = `
-  CREATE TABLE IF NOT EXISTS system_level (
-    level NUMERIC PRIMARY KEY,
-    level_name TEXT,
-    attence BOOLEAN,
-    rest_apply BOOLEAN,
-    rest_confirm BOOLEAN,
-    rest_adjust BOOLEAN,
-    personal_info BOOLEAN,
-    department_info BOOLEAN,
-    componey_info BOOLEAN,
-    attence_adjust BOOLEAN,
-    personal_rank BOOLEAN,
-    department_rank BOOLEAN,
-    componey_rank BOOLEAN,
-    componey_rule_adjust BOOLEAN,
-    DB_adjust BOOLEAN
-  )`;
-  const insertSystemLevelsQuery = `
-  INSERT INTO system_level (level, level_name, attence, rest_apply, rest_confirm, rest_adjust, personal_info, department_info, componey_info, attence_adjust, personal_rank, department_rank, componey_rank, componey_rule_adjust, DB_adjust)
-  VALUES 
-    (1, 'admin', true, true, true, true, true, true, true, true, true, true, true, true, true),
-    (10, 'employee', true, true, false, false, true, true, false, true, false, true, false, true, false)
-  ON CONFLICT DO NOTHING;
-  `;
   try {
-    await db.query(initSystemLevelQuery);
-    await db.query(insertSystemLevelsQuery);
+    await db.query(queries.initSystemTable);
+    await db.query(queries.initInsertSystem);
   } catch (err) {
     throw new Error('權限表格：' + err.message);
   }
@@ -310,10 +262,6 @@ function errRes(type, message) {
   throw error;
 }
 
-// TODO: 更新使用者資料
-
-// TODO: 看看有沒有辦法整理資料庫語法統一管理
-
 module.exports = { 
   initTable,
   createUser,
@@ -321,5 +269,5 @@ module.exports = {
   getInfo,
   checkUser,
   deleteUser,
-  // updateUser,
+  editUser,
  };

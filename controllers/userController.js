@@ -32,8 +32,10 @@ const checkUser = async (req, res) => {
  */
 const register = async (req, res) => {
   try {
-    const { username, password, name, emergency, address, start_date, role_id, department_id } = req.query;
+    const { username, password, name, emergency, address, start_date, role_id, department_id, phone, emergency_phone } = req.body;
     let date = new Date(start_date);
+    let spacialDate = getSpecialDate(date);
+    let delaySpacilaData = spacialDate / 2;
     let userData = {
       name,
       emergency,
@@ -41,6 +43,10 @@ const register = async (req, res) => {
       date,
       role_id,
       department_id,
+      phone,
+      emergency_phone,
+      spacialDate,
+      delaySpacilaData,
     }
     const result = await users.createUser(username, password, userData);
     res.status(200).send(httpRes.httpResponse(200, '註冊成功', result));
@@ -78,7 +84,7 @@ const deleteUser = async (req, res) => {
  */
 const login = async (req, res) => {
   try {
-    const { username, password } = req.query;
+    const { username, password } = req.body;
     // NOTE: 在資料庫操作中已經處理例外狀況，這裡只需回傳結果
     const user = await users.loginUser(username, password);
     const token = jwt.sign({
@@ -130,9 +136,8 @@ const verifyToken = (req, res, next) => {
 const getInfo = async (req, res) => {
   // NOTE: 經過 token驗證後，能夠取得使用的敏感資料，再透過該資料去查詢料庫
   const user = req.user;
-  const { id } = req.query;
   try {
-    const result = await users.getInfo((id === 0 || id === 'null' || id === 'undefined') ? user.id : id);
+    const result = await users.getInfo(user.id);
     if (!result) {
       throw new Error('查無資料');
     }
@@ -147,6 +152,47 @@ const getInfo = async (req, res) => {
     }
   }
 };
+const editUser = async (req, res) => {
+  const user = req.user;
+  try {
+    const { real_name, phone, emergency, emergency_phone, address } = req.body;
+    let userData = {
+      real_name,
+      phone,
+      emergency,
+      emergency_phone,
+      address,
+    }
+    const result = await users.editUser(user.id, userData);
+    res.status(200).send(httpRes.httpResponse(200, '修改成功', result));
+  } catch (err) {
+    console.error('修改失敗:', err.message);
+    if (err.cause === ErrorCause.FRONTEND) {
+      res.status(400).send(httpRes.httpResponse(400, err.message));
+    } else {
+      res.status(500).send(httpRes.httpResponse(500, '修改失敗'));
+    }
+  }
+}
+
+const getSpecialDate = (startDate) => {
+  let now = new Date();
+  let start = new Date(startDate);
+  let dutyDays = (now.getTime() - start.getTime()) / 1000 / 60 / 60 / 24;
+  if (dutyDays < 0) { 
+    return 0;
+  }else if (dutyDays < 183) {
+    return 3;
+  } else if (dutyDays >= 183 && dutyDays < 365) {
+    return 7;
+  } else if (dutyDays >= 365 && dutyDays < 730) {
+    return 10;
+  } else if (dutyDays >= 730 && dutyDays < 1095) {
+    return 14;
+  } else {
+    return 15;
+  }
+}
 
 module.exports = {
   checkUser,
@@ -155,6 +201,7 @@ module.exports = {
   login,
   deleteUser,
   getInfo,
+  editUser,
 };
 
 
